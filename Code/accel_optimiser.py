@@ -1,10 +1,10 @@
-import time
-
 import pyomo.environ as pyo
+from pyomo.opt import SolverFactory
 import numpy as np
 import csv
+import time
 
-from assumptions import solar_cost_per_mw, load, bess_power_cost_per_mw, bess_energy_cost_per_mwh, efficiency, M, start_soc, target
+from assumptions import *
 from profile import generate_hourly_solar_profile
 from lcoe.lcoe import lcoe
 
@@ -87,9 +87,7 @@ def optimise_bess(solar_profile):
     # Solve
     print("Optimising...")
     start_time = time.time()
-    from pyomo.opt import SolverFactory
-    solver = SolverFactory('cbc',
-                           executable=r'C:\Users\barnaby.winser\AppData\Local\anaconda3.1\envs\solar_bess\Library\bin\cbc.exe')
+    solver = SolverFactory('cbc')
     solver.solve(model)
     end_time = time.time()
     elapsed_time = end_time - start_time

@@ -1,6 +1,6 @@
 import os
 
-base_path = r"C:\Users\barnaby.winser\Documents\solar bes"
+base_path = r"C:\Users\barna\OneDrive\Documents\Solar_BESS"
 input_path = os.path.join(base_path, "input data")
 output_path = os.path.join(base_path, "output")
 
