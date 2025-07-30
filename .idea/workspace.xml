@@ -6,12 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="start">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/accel_backup.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/accel_optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/accel_optimiser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/assumptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/assumptions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/attempt 22.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/pre binary.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/split.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/profile.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +30,7 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.accel_optimiser.executor": "Run",
+    "Python.profile.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -62,7 +60,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753904860163</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="start">
+      <option name="closed" value="true" />
+      <created>1753906041349</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1753906041349</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

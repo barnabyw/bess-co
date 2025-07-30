@@ -5,7 +5,7 @@ import csv
 import time
 
 from assumptions import *
-from profile import generate_hourly_solar_profile
+from profile import generate_real_hourly_solar_profile
 from lcoe.lcoe import lcoe
 
 #===Model Setup===
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
     print("getting solar profile...")
-    yearly_profile = generate_hourly_solar_profile(latitude, longitude, year=2023)
+    yearly_profile = generate_real_hourly_solar_profile(latitude, longitude, year=2023)
     print("got solar profile")
     # demand_profile = np.full(len(yearly_profile), 100)  # Demand profile in MW
 
