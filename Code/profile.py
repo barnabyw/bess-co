@@ -43,7 +43,7 @@ def generate_hourly_solar_profile(latitude, longitude, year=2024):
     site = Location(latitude, longitude)
 
     # Generate hourly times for the year
-    times = pd.date_range(start=f'{year}-01-01', end=f'{year}-06-30 23:00:00', freq='h', tz=site.tz)
+    times = pd.date_range(start=f'{year}-01-01', end=f'{year}-03-30 23:00:00', freq='h', tz=site.tz)
 
     # Get solar position and clear-sky irradiance
     solar_position = site.get_solarposition(times)

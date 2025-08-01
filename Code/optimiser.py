@@ -4,7 +4,7 @@ import pyomo.environ as pyo
 import numpy as np
 import csv
 
-from assumptions import solar_cost_per_mw, load, bess_power_cost_per_mw, bess_energy_cost_per_mwh, efficiency, M, start_soc
+from assumptions import *
 from profile import generate_hourly_solar_profile
 
 #===Model Setup===
@@ -27,7 +27,12 @@ solar_profile = np.array([
     0.0573706, 0.0221268, 0.0074480, 0.0021880, 0.0005609, 0.0001255
 ])
 
-def optimise_bess(solar_profile):
+def optimise_bess(solar_profile, capex_df, year):
+
+    solar_cost_per_mw = capex_df.loc[capex_df["year"] == year, "solar_cost_per_mw"].values[0]
+    bess_power_cost_per_mw = capex_df.loc[capex_df["year"] == year, "bess_power_cost_per_mw"].values[0]
+    bess_energy_cost_per_mwh = capex_df.loc[capex_df["year"] == year, "bess_energy_cost_per_mwh"].values[0]
+
     periods = len(solar_profile)
     demand = np.full(periods, load)
     T = range(periods)
@@ -142,4 +147,4 @@ if __name__ == "__main__":
     # demand_profile = np.full(len(yearly_profile), 100)  # Demand profile in MW
 
     # Run optimization
-    optimise_bess(yearly_profile)
+    optimise_bess(yearly_profile, capex_learning_df, year=2020)
