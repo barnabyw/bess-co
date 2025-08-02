@@ -1,26 +1,36 @@
-import pyomo.environ as pyo
-from pyomo.opt import SolverFactory
-import numpy as np
-import csv
 import time
 
+import pyomo.environ as pyo
+import numpy as np
+import csv
+
 from assumptions import *
-from profile import generate_real_hourly_solar_profile
+from profile import generate_hourly_solar_profile
 from lcoe.lcoe import lcoe
 
 #===Model Setup===
 # -----------------------------
 
+solar_profile = np.array([
+    0.0001255, 0.0005609, 0.0021880, 0.0074480, 0.0221268, 0.0573706,
+    0.1298224, 0.2563892, 0.4419161, 0.6647677, 0.8727502, 1.0000000,
+    1.0000000, 0.8727502, 0.6647677, 0.4419161, 0.2563892, 0.1298224,
+    0.0573706, 0.0221268, 0.0074480, 0.0021880, 0.0005609, 0.0001255,
+
+    0.0001255, 0.0005609, 0.0021880, 0.0074480, 0.0221268, 0.0573706,
+    0.1298224, 0.2563892, 0.4419161, 0.6647677, 0.8727502, 1.0000000,
+    1.0000000, 0.8727502, 0.6647677, 0.4419161, 0.2563892, 0.1298224,
+    0.0573706, 0.0221268, 0.0074480, 0.0021880, 0.0005609, 0.0001255,
+
+    0.0001255, 0.0005609, 0.0021880, 0.0074480, 0.0221268, 0.0573706,
+    0.1298224, 0.2563892, 0.4419161, 0.6647677, 0.8727502, 1.0000000,
+    1.0000000, 0.8727502, 0.6647677, 0.4419161, 0.2563892, 0.1298224,
+    0.0573706, 0.0221268, 0.0074480, 0.0021880, 0.0005609, 0.0001255
+])
+
 penalty_weight = 1e-3
 
-def optimise_bess(solar_profile, capex_df, year):
-
-    solar_cost_per_mw = capex_df.loc[capex_df["year"] == year, "solar_cost_per_mw"].values[0]
-    bess_energy_cost_per_mwh = capex_df.loc[capex_df["year"] == year, "bess_energy_cost_per_mwh"].values[0]
-
-    solar_cost_per_mw = 400
-    bess_energy_cost_per_mwh = 160
-
+def optimise_bess(solar_profile):
     periods = len(solar_profile)
     demand = np.full(periods, load)
     T = range(periods)
@@ -75,6 +85,7 @@ def optimise_bess(solar_profile, capex_df, year):
     # Solve
     print("Optimising...")
     start_time = time.time()
+    from pyomo.opt import SolverFactory
     solver = SolverFactory('cbc')
     solver.solve(model)
     end_time = time.time()
@@ -108,9 +119,9 @@ if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
     print("getting solar profile...")
-    yearly_profile = generate_real_hourly_solar_profile(latitude, longitude, year=2023)
+    yearly_profile = generate_hourly_solar_profile(latitude, longitude, year=2023)
     print("got solar profile")
     # demand_profile = np.full(len(yearly_profile), 100)  # Demand profile in MW
 
     # Run optimization
-    optimise_bess(yearly_profile, capex_learning_df, 2023)
+    optimise_bess(yearly_profile)

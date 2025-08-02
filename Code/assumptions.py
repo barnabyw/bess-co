@@ -14,6 +14,9 @@ solar_cost_per_mw_2020 = 400            # $k/MW
 bess_power_cost_per_mw_2020 = 0       # Example
 bess_energy_cost_per_mwh_2020 = 160     # $k/MWh
 
+solar_cost_per_mw = 400
+bess_energy_cost_per_mwh = 160
+
 # Annual reduction rates (learning curves)
 solar_reduction_rate = 0.05             # 5% per year
 bess_power_reduction_rate = 0.15        # 7%
