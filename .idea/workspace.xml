@@ -4,16 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="years loop">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/accel_optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/accel_optimiser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/optimization_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimization_results.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/profile.py" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="old optimser">
+      <change beforePath="$PROJECT_DIR$/Code/old_opti.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/old_opti.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -33,6 +37,7 @@
     "Python.api.executor": "Run",
     "Python.assumptions.executor": "Run",
     "Python.main.executor": "Run",
+    "Python.old_opti.executor": "Run",
     "Python.optimiser.executor": "Run",
     "Python.profile.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -96,7 +101,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754093957667</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="old optimser">
+      <option name="closed" value="true" />
+      <created>1754133500220</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1754133500220</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -113,6 +126,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="start" />
     <MESSAGE value="years loop" />
-    <option name="LAST_COMMIT_MESSAGE" value="years loop" />
+    <MESSAGE value="old optimser" />
+    <option name="LAST_COMMIT_MESSAGE" value="old optimser" />
   </component>
 </project>

@@ -75,6 +75,7 @@ def optimise_bess(solar_profile, capex_df, year):
     # Solve
     print("Optimising...")
     start_time = time.time()
+    from pyomo.opt import SolverFactory
     solver = SolverFactory('cbc')
     solver.solve(model)
     end_time = time.time()
