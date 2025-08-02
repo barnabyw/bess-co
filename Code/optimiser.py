@@ -98,7 +98,7 @@ def optimise_bess(solar_profile, capex_df, year):
         levcost = 1000 * lcoe(load * 8760 * target,pyo.value(model.cost),0,0.08,20)
         print("lcoe:", round(levcost,1))
 
-    return pyo.value(model.cost), pyo.value(model.solar_capacity), pyo.value(model.bess_energy), lcoe
+    return pyo.value(model.cost), pyo.value(model.solar_capacity), pyo.value(model.bess_energy), levcost
 
 if __name__ == "__main__":
     # Setting up environment
