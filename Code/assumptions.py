@@ -11,12 +11,12 @@ start_year = years[0]
 
 # Initial CAPEX values ($k/unit)
 solar_cost_per_mw_2020 = 400            # $k/MW
-bess_power_cost_per_mw_2020 = 200       # Example
+bess_power_cost_per_mw_2020 = 0       # Example
 bess_energy_cost_per_mwh_2020 = 160     # $k/MWh
 
 # Annual reduction rates (learning curves)
 solar_reduction_rate = 0.05             # 5% per year
-bess_power_reduction_rate = 0.07        # 7%
+bess_power_reduction_rate = 0.15        # 7%
 bess_energy_reduction_rate = 0.09       # 9%
 
 efficiency = 0.9

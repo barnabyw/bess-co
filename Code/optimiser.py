@@ -122,7 +122,7 @@ def optimise_bess(solar_profile, capex_df, year):
     print("Optimal BESS Energy (MWh):", pyo.value(model.bess_energy))
     print("Cost:", round(pyo.value(model.cost), 0))
 
-    with open(r'C:\Users\barnaby.winser\Documents\solar bes\optimization_results.csv', mode='w', newline='') as file:
+    with open(os.path.join(base_path,"hourly results"), mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Hour', 'Solar', 'Charge (MW)', 'Discharge (MW)', 'SOC (MWh)', 'Energy Served (MW)'])
         for t in T:
@@ -147,4 +147,4 @@ if __name__ == "__main__":
     # demand_profile = np.full(len(yearly_profile), 100)  # Demand profile in MW
 
     # Run optimization
-    optimise_bess(yearly_profile, capex_learning_df, year=2020)
+    optimise_bess(yearly_profile, capex_learning_df, year=2023)
