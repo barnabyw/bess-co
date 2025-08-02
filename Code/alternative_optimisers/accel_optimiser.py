@@ -1,11 +1,11 @@
-import time
-
 import pyomo.environ as pyo
+from pyomo.opt import SolverFactory
 import numpy as np
 import csv
+import time
 
 from assumptions import *
-from profile import generate_hourly_solar_profile
+from profile import generate_real_hourly_solar_profile
 from lcoe.lcoe import lcoe
 
 #===Model Setup===
@@ -17,6 +17,9 @@ def optimise_bess(solar_profile, capex_df, year):
 
     solar_cost_per_mw = capex_df.loc[capex_df["year"] == year, "solar_cost_per_mw"].values[0]
     bess_energy_cost_per_mwh = capex_df.loc[capex_df["year"] == year, "bess_energy_cost_per_mwh"].values[0]
+
+    solar_cost_per_mw = 400
+    bess_energy_cost_per_mwh = 160
 
     periods = len(solar_profile)
     demand = np.full(periods, load)
@@ -83,7 +86,7 @@ def optimise_bess(solar_profile, capex_df, year):
     print("Optimal BESS Energy (MWh):", pyo.value(model.bess_energy))
     print("Cost:", round(pyo.value(model.cost),0))
 
-    with open('optimization_results.csv', mode='w', newline='') as file:
+    with open('../optimization_results.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Hour', 'Solar (MW)', 'Charge (MW)', 'Discharge (MW)', 'SOC (MWh)', 'Energy Served (MW)'])
         for t in T:
@@ -106,9 +109,9 @@ if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
     print("getting solar profile...")
-    yearly_profile = generate_hourly_solar_profile(latitude, longitude, year=2023)
+    yearly_profile = generate_real_hourly_solar_profile(latitude, longitude, year=2023)
     print("got solar profile")
     # demand_profile = np.full(len(yearly_profile), 100)  # Demand profile in MW
 
     # Run optimization
-    optimise_bess(yearly_profile, capex_learning_df, 2020)
+    optimise_bess(yearly_profile, capex_learning_df, 2023)

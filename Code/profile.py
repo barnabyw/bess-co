@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from pvlib.iotools import get_pvgis_hourly
 
-def generate_real_hourly_solar_profile(latitude, longitude, year=2023):
+def generate_real_hourly_solar_profile(latitude, longitude, solar_year=2023):
     """
     Downloads real GHI data for the specified location and year using PVGIS.
 
@@ -17,7 +17,7 @@ def generate_real_hourly_solar_profile(latitude, longitude, year=2023):
     # Download hourly PVGIS data (includes GHI, DNI, DHI)
     df, meta = get_pvgis_hourly(
         latitude, longitude,
-        start=year, end=year,
+        start=solar_year, end=solar_year,
         raddatabase='PVGIS-ERA5',  # most complete for Europe, MENA
         surface_tilt=0,  # horizontal plane
         surface_azimuth=180,
@@ -38,12 +38,12 @@ def generate_real_hourly_solar_profile(latitude, longitude, year=2023):
 
     return normalized_output.values
 
-def generate_hourly_solar_profile(latitude, longitude, year=2024):
+def generate_hourly_solar_profile(latitude, longitude, solar_year=2024):
     # Define location
     site = Location(latitude, longitude)
 
     # Generate hourly times for the year
-    times = pd.date_range(start=f'{year}-01-01', end=f'{year}-06-30 23:00:00', freq='h', tz=site.tz)
+    times = pd.date_range(start=f'{solar_year}-01-01', end=f'{solar_year}-06-30 23:00:00', freq='h', tz=site.tz)
 
     # Get solar position and clear-sky irradiance
     solar_position = site.get_solarposition(times)
@@ -60,4 +60,4 @@ if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
 
-    df = generate_real_hourly_solar_profile(latitude, longitude, year=2023)
+    df = generate_real_hourly_solar_profile(latitude, longitude, solar_year=2023)
