@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="clean">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="improved viz">
       <change beforePath="$PROJECT_DIR$/Code/visualiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/visualiser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -133,7 +132,23 @@
       <option name="project" value="LOCAL" />
       <updated>1754170110778</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="improved viz">
+      <option name="closed" value="true" />
+      <created>1754253500920</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1754253500920</updated>
+    </task>
+    <task id="LOCAL-00010" summary="improved viz">
+      <option name="closed" value="true" />
+      <created>1754253505846</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1754253505846</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -153,6 +168,7 @@
     <MESSAGE value="old optimser" />
     <MESSAGE value="phew" />
     <MESSAGE value="clean" />
-    <option name="LAST_COMMIT_MESSAGE" value="clean" />
+    <MESSAGE value="improved viz" />
+    <option name="LAST_COMMIT_MESSAGE" value="improved viz" />
   </component>
 </project>
