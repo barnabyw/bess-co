@@ -1,23 +1,28 @@
-import pandas as pd
+from assumptions import output_path, input_path
+
 import os
+import pandas as pd
 import plotly.express as px
-from assumptions import output_path
 
-# Sample DataFrame structure
 df = pd.read_csv(os.path.join(output_path, "multi_yearly_results.csv"))
-# Ensure country names match ISO standard names (like those used by Plotly)
 
+# Create animated choropleth
 fig = px.choropleth(
     df,
-    locations="Country",           # Name of column with country names
-    locationmode="country names",  # OR use "ISO-3" and provide ISO codes
-    color="LCOE",                 # Column to be color-coded
-    animation_frame="Year",        # Time dimension
-    color_continuous_scale="Viridis",  # Or "Plasma", "Cividis", etc.
-    range_color=(100, 1000), #df["LCOE"].min()
-    title="Animated Country Map Over Years",
-    labels={'value': 'Your Metric'}
+    locations="Country",
+    locationmode="country names",  # Match country names to map
+    color="LCOE",
+    animation_frame="Year",
+    hover_name="Country",
+    color_continuous_scale="Viridis",
+    range_color=(df["LCOE"].min(), df["LCOE"].max()),
+    title="LCOE by Country (Animated Over Time)"
 )
 
-fig.update_layout(geo=dict(showframe=False, showcoastlines=False))
+fig.update_layout(
+    geo=dict(showframe=False, showcoastlines=True),
+    coloraxis_colorbar=dict(title="LCOE ($/MWh)"),
+    margin=dict(l=0, r=0, t=40, b=0)
+)
+
 fig.show()
