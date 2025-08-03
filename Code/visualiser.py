@@ -7,10 +7,10 @@ import numpy as np
 
 df = pd.read_csv(os.path.join(output_path, "multi_yearly_results.csv"))
 
-# Create a new column for log-transformed LCOE
+## Create log-transformed LCOE
 df["log_LCOE"] = np.log10(df["LCOE"])
 
-# Create animated choropleth using the log-transformed data
+# Create choropleth
 fig = px.choropleth(
     df,
     locations="Country",
@@ -18,15 +18,17 @@ fig = px.choropleth(
     color="log_LCOE",
     animation_frame="Year",
     hover_name="Country",
-    color_continuous_scale="Viridis",
+    custom_data=["LCOE", "Year"],  # Include both LCOE and Year in custom data
+    color_continuous_scale="Viridis_r",
     range_color=(df["log_LCOE"].min(), df["log_LCOE"].max()),
     title="LCOE by Country (Log Scale, Animated Over Time)"
 )
 
-# Update the colorbar to show the original LCOE scale (anti-log ticks)
+# Define readable tick labels for the color bar
 tick_vals = np.arange(np.floor(df["log_LCOE"].min()), np.ceil(df["log_LCOE"].max()) + 1)
 tick_text = [f"{10**val:.0f}" for val in tick_vals]
 
+# Update layout with custom colorbar and hover template
 fig.update_layout(
     geo=dict(showframe=False, showcoastlines=True),
     coloraxis_colorbar=dict(
@@ -35,6 +37,14 @@ fig.update_layout(
         ticktext=tick_text
     ),
     margin=dict(l=0, r=0, t=40, b=0)
+)
+
+# Customize hover template to show original LCOE and Year
+fig.update_traces(
+    hovertemplate="<b>%{hovertext}</b><br>" +
+                  "LCOE: %{customdata[0]:.2f} $/MWh<br>" +
+                  "Year: %{customdata[1]}<br>" +
+                  "<extra></extra>"  # Removes the trace box
 )
 
 fig.show()
