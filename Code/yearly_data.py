@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print(results.head(10))
 
     # Save results
-    results.to_csv(os.path.join(output_path, "multi_yearly_results.csv"), index=False)
+    results.to_csv(os.path.join(output_path, "multi_yearly_results_80.csv"), index=False)
 
     print(f"\nTotal rows: {len(results)}")
     print(f"Countries: {results['Country'].nunique()}")

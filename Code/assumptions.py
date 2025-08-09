@@ -11,7 +11,7 @@ start_year = years[0]
 efficiency = 0.9
 M = 1e5  # Big-M for binary control
 start_soc = 0.5
-target = 0.95
+target = 0.8
 load = 100
 
 # Initial CAPEX values ($k/unit)
@@ -36,3 +36,5 @@ capex_learning_df["solar_cost_per_mw"] = solar_cost_per_mw_2020 * (
 capex_learning_df["bess_energy_cost_per_mwh"] = bess_energy_cost_per_mwh_2020 * (
     (1 - bess_energy_reduction_rate) ** (capex_learning_df["year"] - start_year)
 )
+
+print(capex_learning_df)
