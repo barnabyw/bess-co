@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-df = pd.read_csv(os.path.join(output_path, "multi_yearly_results.csv"))
+df = pd.read_csv(os.path.join(output_path, "multi_yearly_results_80.csv"))
 
 ## Create log-transformed LCOE
 df["log_LCOE"] = np.log10(df["LCOE"])
@@ -18,7 +18,7 @@ fig = px.choropleth(
     color="log_LCOE",
     animation_frame="Year",
     hover_name="Country",
-    custom_data=["LCOE", "Year"],  # Include both LCOE and Year in custom data
+    hover_data={"LCOE": ":.2f", "Year": True, "log_LCOE": False},  # Include both LCOE and Year in custom data
     color_continuous_scale="Viridis_r",
     range_color=(df["log_LCOE"].min(), df["log_LCOE"].max()),
     title="LCOE by Country (Log Scale, Animated Over Time)"
@@ -39,7 +39,8 @@ fig.update_layout(
         countrycolor="white",        # Country borders
         countrywidth=1,              # Country border width
         showlakes=True,
-        lakecolor="lightblue"
+        lakecolor="lightblue",
+        lataxis_range=[-58, 85]
     ),
     coloraxis_colorbar=dict(
         title="LCOE ($/MWh)",

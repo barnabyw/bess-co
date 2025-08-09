@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="log colour scale">
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="white borders">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/assumptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/assumptions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimization_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimization_results.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/visualiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/visualiser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/yearly_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/yearly_data.py" afterDir="false" />
     </list>
@@ -165,7 +167,23 @@
       <option name="project" value="LOCAL" />
       <updated>1754253884170</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="issues">
+      <option name="closed" value="true" />
+      <created>1754765878644</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1754765878644</updated>
+    </task>
+    <task id="LOCAL-00013" summary="white borders">
+      <option name="closed" value="true" />
+      <created>1754766080424</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1754766080424</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -187,6 +205,8 @@
     <MESSAGE value="clean" />
     <MESSAGE value="improved viz" />
     <MESSAGE value="log colour scale" />
-    <option name="LAST_COMMIT_MESSAGE" value="log colour scale" />
+    <MESSAGE value="issues" />
+    <MESSAGE value="white borders" />
+    <option name="LAST_COMMIT_MESSAGE" value="white borders" />
   </component>
 </project>
