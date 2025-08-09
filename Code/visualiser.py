@@ -30,13 +30,23 @@ tick_text = [f"{10**val:.0f}" for val in tick_vals]
 
 # Update layout with custom colorbar and hover template
 fig.update_layout(
-    geo=dict(showframe=False, showcoastlines=True),
+    geo=dict(
+        showframe=False,
+        showcoastlines=True,
+        coastlinecolor="white",      # Coastlines
+        coastlinewidth=1,
+        showcountries=True,          # Enable country borders
+        countrycolor="white",        # Country borders
+        countrywidth=1,              # Country border width
+        showlakes=True,
+        lakecolor="lightblue"
+    ),
     coloraxis_colorbar=dict(
         title="LCOE ($/MWh)",
         tickvals=tick_vals,
         ticktext=tick_text
     ),
-    margin=dict(l=0, r=0, t=40, b=0)
+    margin=dict(l=0, r=0, t=40, b=0),
 )
 
 # Customize hover template to show original LCOE and Year
@@ -44,7 +54,9 @@ fig.update_traces(
     hovertemplate="<b>%{hovertext}</b><br>" +
                   "LCOE: %{customdata[0]:.2f} $/MWh<br>" +
                   "Year: %{customdata[1]}<br>" +
-                  "<extra></extra>"  # Removes the trace box
+                  "<extra></extra>",  # Removes the trace box
+    marker_line_color="white",        # Country borders
+    marker_line_width=0.5               # Border thickness
 )
 
 fig.show()
