@@ -4,6 +4,7 @@ df = pd.read_csv(os.path.join(output_path, "results.csv"))
 
 import pandas as pd
 import numpy as np
+from lcoe.lcoe import lcoe
 
 
 def calculate_multi_year_costs_lcoe(results_2025_df, capex_learning_df):
@@ -37,16 +38,10 @@ def calculate_multi_year_costs_lcoe(results_2025_df, capex_learning_df):
         year_data['Year'] = year
 
         # Calculate new costs based on capacities and new cost parameters
-        year_data['Cost'] = (
-                year_data['Solar_Capacity'] * solar_cost_per_mw +
-                year_data['BESS_Energy'] * bess_cost_per_mwh
-        )
+        cost = year_data['Solar_Capacity'] * solar_cost_per_mw + year_data['BESS_Energy'] * bess_cost_per_mwh
+        year_data['Cost'] = cost
 
-        # Calculate LCOE (assuming same methodology as original)
-        # You may need to adjust this based on your specific LCOE calculation
-        # This assumes LCOE scales proportionally with cost changes
-        cost_ratio = year_data['Cost'] / results_2025_df['Cost']
-        year_data['LCOE'] = results_2025_df['LCOE'] * cost_ratio
+        year_data['LCOE'] = 1000 * lcoe(load * 8760 * target, cost, 0, 0.08, 20)
 
         all_results.append(year_data)
 
@@ -61,57 +56,6 @@ def calculate_multi_year_costs_lcoe(results_2025_df, capex_learning_df):
     return final_results
 
 
-# Alternative vectorized approach for better performance
-def calculate_multi_year_costs_lcoe_vectorized(results_2025_df, cost_projection_df):
-    """
-    Vectorized version for better performance with large datasets.
-    """
-
-    # Create base data without year-specific columns
-    base_columns = ['Country', 'Latitude', 'Longitude', 'Solar_Capacity', 'BESS_Energy']
-    base_data = results_2025_df[base_columns].copy()
-
-    # Create cartesian product of countries × years
-    countries = base_data
-    years = cost_projection_df
-
-    # Use merge to create all combinations
-    final_results = countries.assign(key=1).merge(
-        years.assign(key=1), on='key'
-    ).drop('key', axis=1)
-
-    # Calculate costs vectorized
-    final_results['Cost'] = (
-            final_results['Solar_Capacity'] * final_results['solar_cost_per_mw'] +
-            final_results['BESS_Energy'] * final_results['bess_energy_cost_per_mwh']
-    )
-
-    # Calculate LCOE using broadcast operations
-    # Merge with 2025 results to get original LCOE and Cost for ratio calculation
-    results_2025_subset = results_2025_df[['Country', 'LCOE', 'Cost']].copy()
-    results_2025_subset.columns = ['Country', 'LCOE_2025', 'Cost_2025']
-
-    final_results = final_results.merge(results_2025_subset, on='Country')
-
-    # Calculate new LCOE based on cost ratio
-    final_results['LCOE'] = (
-            final_results['LCOE_2025'] *
-            (final_results['Cost'] / final_results['Cost_2025'])
-    )
-
-    # Clean up temporary columns
-    final_results = final_results.drop(['solar_cost_per_mw', 'bess_energy_cost_per_mwh',
-                                        'LCOE_2025', 'Cost_2025'], axis=1)
-
-    # Reorder columns
-    column_order = ['Country', 'Latitude', 'Longitude', 'LCOE', 'Cost', 'year',
-                    'Solar_Capacity', 'BESS_Energy']
-    final_results = final_results[column_order]
-    final_results.rename(columns={'year': 'Year'}, inplace=True)
-
-    return final_results.sort_values(['Country', 'Year']).reset_index(drop=True)
-
-
 # Example usage:
 if __name__ == "__main__":
     # Load your data
@@ -121,10 +65,8 @@ if __name__ == "__main__":
     # Example with sample data
     results_2025 = pd.read_csv(os.path.join(output_path, "results.csv"))
 
-    # Calculate results using vectorized approach (recommended for large datasets)
-    results = calculate_multi_year_costs_lcoe_vectorized(
-        results_2025, capex_learning_df
-    )
+    # Calculate results
+    results = calculate_multi_year_costs_lcoe(results_2025, capex_learning_df)
 
     print("Sample results:")
     print(results.head(10))

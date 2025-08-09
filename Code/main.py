@@ -3,7 +3,7 @@ from optimiser import optimise_bess
 from assumptions import *
 
 # Import data
-data = pd.read_csv(os.path.join(input_path, "all_country_coordinates.csv"))
+data = pd.read_csv(os.path.join(input_path, "all_country_coordinates_2.csv"))
 
 results = []
 
