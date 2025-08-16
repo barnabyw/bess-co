@@ -3,6 +3,7 @@ import pandas as pd
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 
+
 # Data
 years = np.array([2024, 2025, 2026, 2027, 2028, 2029])
 y = np.array([691, 599, 534, 478, 430, 388])
