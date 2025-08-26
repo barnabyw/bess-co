@@ -1,92 +1,48 @@
 import pandas as pd
 import numpy as np
-from scipy import interpolate
 import matplotlib.pyplot as plt
 
 
 def parse_data():
     """Parse the raw data and create a structured DataFrame"""
-    data = pd.read_excel(
-        r'C:\Users\barna\OneDrive\Documents\Solar_BESS\learning curves\IRENA summary.xlsx',
-        sheet_name="pv_cost_region"
-    )
+    try:
+        # Read Excel file
+        data = pd.read_excel(r'C:\Users\barna\OneDrive\Documents\Solar_BESS\learning curves\IRENA summary.xlsx',
+                             sheet_name="pv_cost_region")
+        print("Data loaded successfully!")
+        print(f"Data shape: {data.shape}")
+        print("\nFirst few rows:")
+        print(data.head())
+        print(f"\nColumns: {list(data.columns)}")
 
-    # Ensure 'Year' is the index
-    if "Year" in data.columns:
-        data = data.set_index("Year")
+        # Check if the data has a year column or if years are the index
+        if 'Year' in data.columns or 'year' in data.columns:
+            # If there's a Year column, set it as index
+            year_col = 'Year' if 'Year' in data.columns else 'year'
+            data = data.set_index(year_col)
+        elif data.index.name in ['Year', 'year'] or all(isinstance(x, (int, float)) for x in data.index[:5]):
+            # Years are already the index
+            pass
+        else:
+            # Assume first column contains years
+            data = data.set_index(data.columns[0])
 
-    return data
+        print(f"\nFinal data shape: {data.shape}")
+        print(f"Index (years): {list(data.index)}")
+        print(f"Columns (regions): {list(data.columns)}")
 
+        return data
 
-def calculate_global_learning_rate(df):
-    """Calculate global learning rate from available data"""
-
-    # Calculate global average for each year (excluding NaN values)
-    global_avg = df.mean(axis=1, skipna=True)
-
-    # Calculate year-over-year learning rates
-    learning_rates = []
-    years = list(global_avg.index)
-
-    for i in range(1, len(years)):
-        if not pd.isna(global_avg.iloc[i - 1]) and not pd.isna(global_avg.iloc[i]):
-            rate = (global_avg.iloc[i] - global_avg.iloc[i - 1]) / global_avg.iloc[i - 1]
-            learning_rates.append(rate)
-
-    # Calculate average learning rate
-    avg_learning_rate = np.mean(learning_rates)
-    print(f"Global average learning rate: {avg_learning_rate:.4f} ({avg_learning_rate * 100:.2f}% per year)")
-
-    return avg_learning_rate, global_avg
-
-
-def calculate_region_learning_rate(region_data, global_rate):
-    """Calculate region-specific learning rate with fallback to global rate"""
-    valid_data = region_data.dropna()
-    if len(valid_data) < 3:
-        return global_rate
-
-    # Calculate year-over-year rates
-    rates = []
-    for i in range(1, len(valid_data)):
-        if valid_data.iloc[i - 1] > 0:  # Avoid division by zero
-            rate = (valid_data.iloc[i] - valid_data.iloc[i - 1]) / valid_data.iloc[i - 1]
-            rates.append(rate)
-
-    if len(rates) == 0:
-        return global_rate
-
-    # Use median to avoid outlier influence
-    region_rate = np.median(rates)
-
-    # Constrain to reasonable bounds (between -20% and +5% per year)
-    region_rate = max(-0.2, min(0.05, region_rate))
-
-    # Blend with global rate for stability
-    return 0.6 * region_rate + 0.4 * global_rate
+    except FileNotFoundError:
+        print("ERROR: Excel file not found. Please check the file path.")
+        return None
+    except Exception as e:
+        print(f"ERROR reading Excel file: {str(e)}")
+        return None
 
 
-def smooth_interpolation(values, years, smoothing_factor=0.3):
-    """Apply smoothing to reduce sudden jumps"""
-    smoothed = values.copy()
-
-    for i in range(1, len(values) - 1):
-        # Calculate expected value based on neighbors
-        prev_val = values[i - 1]
-        next_val = values[i + 1]
-        current_val = values[i]
-
-        # Expected value based on linear trend between neighbors
-        expected = (prev_val + next_val) / 2
-
-        # Apply smoothing
-        smoothed[i] = current_val * (1 - smoothing_factor) + expected * smoothing_factor
-
-    return smoothed
-
-
-def interpolate_missing_values(df, learning_rate):
-    """Interpolate missing values with improved smoothing and trend consistency"""
+def exponential_interpolate(df):
+    """Simple exponential interpolation between known values"""
 
     df_interpolated = df.copy()
     years = list(df.index)
@@ -94,120 +50,42 @@ def interpolate_missing_values(df, learning_rate):
     for region in df.columns:
         region_data = df[region].copy()
 
-        # Find first and last valid values
-        valid_indices = region_data.dropna().index
-        if len(valid_indices) < 2:
-            continue  # Skip if less than 2 data points
+        # Get all valid (non-NaN) data points
+        valid_data = region_data.dropna()
+        if len(valid_data) < 2:
+            continue
 
-        first_year = valid_indices[0]
-        last_year = valid_indices[-1]
+        valid_years = list(valid_data.index)
+        valid_values = list(valid_data.values)
 
-        # Calculate region-specific learning rate
-        region_learning_rate = calculate_region_learning_rate(region_data, learning_rate)
+        # Interpolate between each pair of known values
+        for i in range(len(valid_years) - 1):
+            start_year = valid_years[i]
+            end_year = valid_years[i + 1]
+            start_value = valid_values[i]
+            end_value = valid_values[i + 1]
 
-        # Step 1: Fill gaps using spline interpolation for smoothness
-        valid_years = []
-        valid_values = []
+            # Skip if consecutive years (no gap to fill)
+            if end_year - start_year <= 1:
+                continue
 
-        for year in years:
-            if year >= first_year and year <= last_year:
-                if not pd.isna(region_data[year]):
-                    valid_years.append(year)
-                    valid_values.append(region_data[year])
+            # Calculate exponential decay rate
+            num_years = end_year - start_year
+            if start_value > 0 and end_value > 0:
+                # r = (end_value / start_value)^(1/num_years) - 1
+                growth_rate = (end_value / start_value) ** (1 / num_years) - 1
+            else:
+                # Fallback to linear if negative values
+                growth_rate = (end_value - start_value) / (start_value * num_years)
 
-        if len(valid_years) >= 3:
-            # Use spline interpolation for smooth curves
-            from scipy.interpolate import UnivariateSpline
-
-            # Create spline with appropriate smoothing
-            spline = UnivariateSpline(valid_years, valid_values, s=len(valid_years) * 0.1,
-                                      k=min(3, len(valid_years) - 1))
-
-            # Fill missing values
+            # Fill in missing years
             for year in years:
-                if year >= first_year and year <= last_year and pd.isna(region_data[year]):
-                    interpolated_value = float(spline(year))
-
-                    # Ensure interpolated values follow general declining trend
-                    if len(valid_years) >= 2:
-                        # Find surrounding years
-                        prev_years = [y for y in valid_years if y < year]
-                        next_years = [y for y in valid_years if y > year]
-
-                        if prev_years and next_years:
-                            prev_year = max(prev_years)
-                            next_year = min(next_years)
-                            prev_value = region_data[prev_year]
-                            next_value = region_data[next_year]
-
-                            # Ensure monotonic decline if that's the trend
-                            if prev_value > next_value:  # Declining trend
-                                max_allowed = prev_value * (1 + region_learning_rate * (year - prev_year))
-                                min_allowed = next_value * (1 + region_learning_rate * (next_year - year))
-                                interpolated_value = max(min_allowed, min(max_allowed, interpolated_value))
-
+                if start_year < year < end_year and pd.isna(region_data[year]):
+                    years_elapsed = year - start_year
+                    interpolated_value = start_value * (1 + growth_rate) ** years_elapsed
                     df_interpolated.loc[year, region] = interpolated_value
 
-        else:
-            # Fallback to linear interpolation for regions with few data points
-            for year in years:
-                if year >= first_year and year <= last_year and pd.isna(region_data[year]):
-
-                    # Find nearest valid values
-                    prev_year = None
-                    next_year = None
-
-                    for y in reversed(years[:years.index(year)]):
-                        if not pd.isna(region_data[y]):
-                            prev_year = y
-                            break
-
-                    for y in years[years.index(year) + 1:]:
-                        if not pd.isna(region_data[y]):
-                            next_year = y
-                            break
-
-                    if prev_year is not None and next_year is not None:
-                        prev_value = region_data[prev_year]
-                        next_value = region_data[next_year]
-
-                        # Simple linear interpolation
-                        total_years = next_year - prev_year
-                        years_from_prev = year - prev_year
-                        interpolated_value = prev_value + (next_value - prev_value) * (years_from_prev / total_years)
-
-                        df_interpolated.loc[year, region] = interpolated_value
-
-        # Step 2: Apply trend-aware extrapolation for missing end years
-        if last_year < max(years):
-            last_value = df_interpolated.loc[last_year, region]
-
-            # Look at recent trend for extrapolation
-            recent_years = [y for y in valid_indices if y >= last_year - 3]
-            if len(recent_years) >= 2:
-                recent_values = [df_interpolated.loc[y, region] for y in recent_years]
-                # Calculate trend from recent data
-                recent_rate = (recent_values[-1] - recent_values[0]) / (recent_years[-1] - recent_years[0]) / \
-                              recent_values[0]
-                # Use more conservative extrapolation rate
-                extrapolation_rate = max(-0.15, min(0.05, recent_rate))
-            else:
-                extrapolation_rate = region_learning_rate
-
-            for year in range(last_year + 1, max(years) + 1):
-                if year in years:
-                    years_ahead = year - last_year
-                    extrapolated_value = last_value * (1 + extrapolation_rate) ** years_ahead
-                    # Ensure values don't go negative or increase unreasonably
-                    extrapolated_value = max(0, extrapolated_value)
-                    df_interpolated.loc[year, region] = extrapolated_value
-
-        # Step 3: Apply final smoothing to reduce jumps
-        region_series = df_interpolated[region].dropna()
-        if len(region_series) > 2:
-            smoothed_values = smooth_interpolation(region_series.values, region_series.index.values)
-            for i, year in enumerate(region_series.index):
-                df_interpolated.loc[year, region] = smoothed_values[i]
+                    print(f"Interpolated {region} {year}: {interpolated_value:.0f}")
 
     return df_interpolated
 
@@ -216,8 +94,12 @@ def plot_comparison(df_original, df_interpolated, regions_to_plot=None):
     """Plot comparison between original and interpolated data"""
 
     if regions_to_plot is None:
-        # Select a few interesting regions for plotting
-        regions_to_plot = ['Europe', 'Africa', 'China', 'United States', 'Germany', 'India', 'Brazil']
+        # Select first 6 regions that have data
+        regions_with_data = []
+        for region in df_original.columns:
+            if df_original[region].notna().sum() >= 3:  # At least 3 data points
+                regions_with_data.append(region)
+        regions_to_plot = regions_with_data[:6]
 
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     axes = axes.flatten()
@@ -239,14 +121,17 @@ def plot_comparison(df_original, df_interpolated, regions_to_plot=None):
         # Highlight interpolated points
         missing_years = df_original[region][df_original[region].isna()].index
         if len(missing_years) > 0:
-            missing_values = df_interpolated[region][missing_years]
-            ax.plot(missing_years, missing_values, 'rs', markersize=8, label='Filled values')
+            missing_values = df_interpolated[region][missing_years].dropna()
+            ax.plot(missing_values.index, missing_values.values, 'rs', markersize=8, label='Filled values')
 
         ax.set_title(f'{region}')
         ax.set_xlabel('Year')
         ax.set_ylabel('Installed Cost')
         ax.legend()
         ax.grid(True, alpha=0.3)
+
+        # Set y-axis to start from 0 for better comparison
+        ax.set_ylim(bottom=0)
 
     # Remove extra subplots
     for i in range(len(regions_to_plot), len(axes)):
@@ -260,51 +145,50 @@ def plot_comparison(df_original, df_interpolated, regions_to_plot=None):
 def main():
     """Main execution function"""
 
-    print("=== Cost Data Interpolation Script ===\n")
+    print("=== Simple Exponential Cost Interpolation ===\n")
 
     # Parse data
-    print("1. Parsing input data...")
+    print("1. Loading data...")
     df_original = parse_data()
 
     if df_original is None:
         print("Failed to load data. Exiting...")
         return None, None
 
-    print(f"Missing values: {df_original.isna().sum().sum()}")
+    print(f"Missing values before: {df_original.isna().sum().sum()}")
 
-    # Calculate global learning rate
-    print("\n2. Calculating global learning rate...")
-    learning_rate, global_avg = calculate_global_learning_rate(df_original)
+    # Simple exponential interpolation
+    print("\n2. Performing exponential interpolation...")
+    df_interpolated = exponential_interpolate(df_original)
 
-    # Interpolate missing values
-    print("\n3. Interpolating missing values...")
-    df_interpolated = interpolate_missing_values(df_original, learning_rate)
+    remaining_missing = df_interpolated.isna().sum().sum()
+    print(f"\nMissing values after: {remaining_missing}")
 
-    filled_values = df_interpolated.isna().sum().sum()
-    print(f"Remaining missing values: {filled_values}")
-
-    # Display sample results
-    print("\n5. Sample interpolated values:")
-    # Use the first available region for sample display
+    # Show example
+    print("\n3. Example results:")
     sample_region = df_original.columns[0]
-    print(f"{sample_region} sample years:")
-    for year in [2020, 2021, 2022, 2023, 2024]:
-        if year in df_interpolated.index and sample_region in df_interpolated.columns:
-            orig = df_original.loc[year, sample_region] if year in df_original.index else np.nan
-            interp = df_interpolated.loc[year, sample_region]
-            status = "Original" if not pd.isna(orig) else "Interpolated"
-            print(f"  {year}: {interp:.0f} ({status})")
+    print(f"\n{sample_region}:")
+    for year in df_interpolated.index:
+        if year >= 2020:  # Show recent years
+            orig_val = df_original.loc[year, sample_region] if not pd.isna(
+                df_original.loc[year, sample_region]) else None
+            interp_val = df_interpolated.loc[year, sample_region]
+
+            if orig_val is not None:
+                print(f"  {year}: {interp_val:.0f} (Original)")
+            else:
+                print(f"  {year}: {interp_val:.0f} (Interpolated)")
 
     # Save results
     print("\n5. Saving results...")
     df_interpolated.round(0).to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS\learning curves\interpolated_costs.csv')
     print("Saved interpolated data to: interpolated_costs.csv")
 
-    # Create comparison plot
-    print("\n7. Creating comparison plots...")
+    # Plot comparison
+    print("\n5. Creating plots...")
     plot_comparison(df_original, df_interpolated)
 
-    print("\n=== Interpolation Complete ===")
+    print("\n=== Done! ===")
 
     return df_original, df_interpolated
 
