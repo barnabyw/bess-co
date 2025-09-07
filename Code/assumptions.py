@@ -37,4 +37,5 @@ capex_learning_df["bess_energy_cost_per_mwh"] = bess_energy_cost_per_mwh_2020 * 
     (1 - bess_energy_reduction_rate) ** (capex_learning_df["year"] - start_year)
 )
 
-print(capex_learning_df)
+if __name__ == "__main__":
+    print(capex_learning_df)
