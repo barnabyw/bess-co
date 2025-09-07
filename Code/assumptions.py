@@ -8,7 +8,7 @@ output_path = os.path.join(base_path, "output")
 # Years
 years = list(range(2020, 2031))
 start_year = years[0]
-efficiency = 0.9
+efficiency = 0.95
 M = 1e5  # Big-M for binary control
 start_soc = 0.5
 target = 0.8
