@@ -1,10 +1,12 @@
 import time
+
+import pandas as pd
 import pyomo.environ as pyo
 import numpy as np
 import csv
 
 from assumptions import *
-from profile import generate_hourly_solar_profile
+from profile import generate_hourly_solar_profile, parse_renewables_ninja
 from lcoe.lcoe import lcoe
 
 #===Model Setup===
@@ -12,7 +14,7 @@ from lcoe.lcoe import lcoe
 
 penalty_weight = 1e-3
 
-def optimise_bess(solar_profile, capex_df, year):
+def optimise_bess(solar_profile, capex_df, year, availability=target):
 
     solar_cost_per_mw = capex_df.loc[capex_df["year"] == year, "solar_cost_per_mw"].values[0]
     bess_energy_cost_per_mwh = capex_df.loc[capex_df["year"] == year, "bess_energy_cost_per_mwh"].values[0]
@@ -59,7 +61,7 @@ def optimise_bess(solar_profile, capex_df, year):
         # Penalty for simultaneous charge/discharge (if needed)
         # This might need adjustment based on your penalty logic
 
-    model.energy_served_total = pyo.Constraint(expr=sum(model.energy_served_t[t] for t in T) >= target * sum(demand))
+    model.energy_served_total = pyo.Constraint(expr=sum(model.energy_served_t[t] for t in T) >= availability * sum(demand))
 
     model.energy_served_limit = pyo.ConstraintList()
     for t in T:
@@ -150,7 +152,7 @@ def optimise_availability(solar_profile, solar_capacity, bess_energy, load,
 
     # Energy served
     def energy_served_t_rule(m, t):
-        return m.energy_served_t[t] <= solar_capacity * solar_profile[t] + m.bess_flow[t]
+        return m.energy_served_t[t] == solar_capacity * solar_profile[t] + m.bess_flow[t]
     model.energy_served_t_constraint = pyo.Constraint(model.T, rule=energy_served_t_rule)
 
     # Storage & power limits
@@ -187,16 +189,19 @@ def optimise_availability(solar_profile, solar_capacity, bess_energy, load,
         "energy_served": [pyo.value(model.energy_served_t[t]) for t in T]
     }
 
-    return availability, results
+    return availability, pd.DataFrame(results)
 
 if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
+
     solar_profile = generate_hourly_solar_profile(latitude, longitude, solar_year=2023)
     print("got solar profile")
-    cost, solar_capacity, bess_energy, levcost = optimise_bess(solar_profile, capex_learning_df, 2020)
+    profile = solar_profile
+    cost, solar_capacity, bess_energy, levcost = optimise_bess(profile, capex_learning_df, 2020)
     print(f"solar cap is {solar_capacity}, bess is {bess_energy}")
-    availability, results = optimise_availability(solar_profile, solar_capacity, bess_energy, load=load)
+    availability, results = optimise_availability(profile, solar_capacity, bess_energy, load=load)
+    results.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\avail_results.csv')
     print(f"availability is {availability}")
     # Setting up environment
     """
@@ -209,4 +214,10 @@ if __name__ == "__main__":
 
     # Run optimization
     optimise_bess(yearly_profile, capex_learning_df, 2020)
+    
+    
+    wind test
+        #latitude = 55.3781
+    #longitude = 3.4360
+    wind_profile = parse_renewables_ninja(r"C:\\Users\\barna\Downloads\\ninja_wind_54.7867_-1.9809_corrected.csv")
 """

@@ -27,15 +27,7 @@ solar_reduction_rate = 0.05             # 5% per year
 bess_power_reduction_rate = 0.15        # 7%
 bess_energy_reduction_rate = 0.09       # 9%
 
-capex_learning_df = pd.DataFrame({"year": years})
-
-capex_learning_df["solar_cost_per_mw"] = solar_cost_per_mw_2020 * (
-    (1 - solar_reduction_rate) ** (capex_learning_df["year"] - start_year)
-)
-
-capex_learning_df["bess_energy_cost_per_mwh"] = bess_energy_cost_per_mwh_2020 * (
-    (1 - bess_energy_reduction_rate) ** (capex_learning_df["year"] - start_year)
-)
+capex_learning_df = pd.read_excel(os.path.join(base_path,"learning curves\\capex.xlsx"), sheet_name="capex")
 
 if __name__ == "__main__":
     print(capex_learning_df)

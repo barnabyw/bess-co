@@ -5,6 +5,7 @@ from pvlib.location import Location
 
 import pandas as pd
 import numpy as np
+from io import StringIO
 from pvlib.iotools import get_pvgis_hourly
 
 def generate_real_hourly_solar_profile(latitude, longitude, solar_year=2023):
@@ -56,8 +57,30 @@ def generate_hourly_solar_profile(latitude, longitude, solar_year=2024):
     normalized_output = ghi / ghi.max()
     return normalized_output.values  # returns a NumPy array of 8760 values
 
+
+def parse_renewables_ninja(filepath):
+    """
+    Parse Renewables.ninja CSV file and return normalized wind power data.
+
+    Args:
+        filepath (str): Path to the CSV file
+
+    Returns:
+        np.array: Array of normalized wind power values (0 to 1)
+    """
+    # Read file and skip first 3 lines
+    df = pd.read_csv(filepath, skiprows=3)
+
+    # Convert electricity column to numpy array and normalize
+    electricity_values = df['electricity'].values
+    normalized_values = electricity_values / electricity_values.max()
+
+    return normalized_values
+
 if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
 
     df = generate_real_hourly_solar_profile(latitude, longitude, solar_year=2023)
+    df = parse_renewables_ninja(r"C:\Users\barna\Downloads\ninja_wind_54.7867_-1.9809_corrected.csv")
+    print(df)

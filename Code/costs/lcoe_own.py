@@ -22,3 +22,5 @@ def lcoe(annual_output, capital_cost, annual_operating_cost, discount_rate, life
     print(discounted_output)
 
     return discounted_total_cost / discounted_output
+
+if __name__ == "__main__":
