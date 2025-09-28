@@ -14,7 +14,7 @@ from lcoe.lcoe import lcoe
 
 penalty_weight = 1e-3
 
-def optimise_bess(solar_profile, capex_df, year, availability=target):
+def optimise_bess(solar_profile, capex_df, year, availability=target, return_timeseries=False):
 
     solar_cost_per_mw = capex_df.loc[capex_df["year"] == year, "solar_cost_per_mw"].values[0]
     bess_energy_cost_per_mwh = capex_df.loc[capex_df["year"] == year, "bess_energy_cost_per_mwh"].values[0]
@@ -88,22 +88,20 @@ def optimise_bess(solar_profile, capex_df, year, availability=target):
     print("Optimal BESS Energy (MWh):", pyo.value(model.bess_energy))
     print("Cost:", round(pyo.value(model.cost),0))
 
-    with open(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\optimization_results.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Hour', 'Solar (MW)', 'BESS flow (MW)', 'SOC (MWh)', 'Energy served (MW)'])
-        for t in T:
-            writer.writerow([
-                t,
-                solar_profile[t] * pyo.value(model.solar_capacity),
-                pyo.value(model.bess_flow[t]),
-                pyo.value(model.soc[t]),
-                pyo.value(model.energy_served_t[t])
-            ])
+    results_data = None
+    if return_timeseries:
+        results_data = pd.DataFrame({
+            'Hour': list(T),
+            'Solar_MW': [solar_profile[t] * pyo.value(model.solar_capacity) for t in T],
+            'BESS_flow_MW': [pyo.value(model.bess_flow[t]) for t in T],
+            'SOC_MWh': [pyo.value(model.soc[t]) for t in T],
+            'Energy_served_MW': [pyo.value(model.energy_served_t[t]) for t in T]
+        })
 
-        levcost = 1000 * lcoe(load * 8760 * target,pyo.value(model.cost),0,0.08,20)
-        print("lcoe:", round(levcost,1))
+    lcoe_value = 1000 * lcoe(load * 8760 * target,pyo.value(model.cost),0,0.08,20)
+    print("lcoe:", round(lcoe_value,1))
 
-    return pyo.value(model.cost), pyo.value(model.solar_capacity), pyo.value(model.bess_energy), levcost
+    return pyo.value(model.cost), pyo.value(model.solar_capacity), pyo.value(model.bess_energy), lcoe_value, results_data
 
 def optimise_availability(solar_profile, solar_capacity, bess_energy, load,
                           efficiency=efficiency, start_soc=start_soc):
@@ -198,10 +196,10 @@ if __name__ == "__main__":
     solar_profile = generate_hourly_solar_profile(latitude, longitude, solar_year=2023)
     print("got solar profile")
     profile = solar_profile
-    cost, solar_capacity, bess_energy, levcost = optimise_bess(profile, capex_learning_df, 2020)
+    cost, solar_capacity, bess_energy, levcost, results_1 = optimise_bess(profile, capex_learning_df, 2020)
     print(f"solar cap is {solar_capacity}, bess is {bess_energy}")
-    availability, results = optimise_availability(profile, solar_capacity, bess_energy, load=load)
-    results.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\avail_results.csv')
+    availability, results_2 = optimise_availability(profile, solar_capacity, bess_energy, load=load)
+    results_2.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\avail_results.csv')
     print(f"availability is {availability}")
     # Setting up environment
     """

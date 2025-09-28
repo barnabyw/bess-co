@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="setup fo 80, fix hover">
-      <change afterPath="$PROJECT_DIR$/Code/costs/lcoe_own.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/costs/project.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/analyse.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/analyse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/analyser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/analyser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,24 +38,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.accel_optimiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.api.executor&quot;: &quot;Run&quot;,
-    &quot;Python.assumptions.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.old_opti.executor&quot;: &quot;Run&quot;,
-    &quot;Python.optimiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.profile.executor&quot;: &quot;Run&quot;,
-    &quot;Python.visualiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.yearly_data.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.accel_optimiser.executor": "Run",
+    "Python.analyse.executor": "Run",
+    "Python.api.executor": "Run",
+    "Python.assumptions.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.old_opti.executor": "Run",
+    "Python.optimiser.executor": "Run",
+    "Python.profile.executor": "Run",
+    "Python.visualiser.executor": "Run",
+    "Python.yearly_data.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\costs" />

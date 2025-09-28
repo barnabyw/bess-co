@@ -1,9 +1,14 @@
+import os
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Optional, Union
 from dataclasses import dataclass
 from functools import lru_cache
+from lcoe.lcoe import lcoe
 
+from optimiser import optimise_bess, optimise_availability
+from profile import generate_hourly_solar_profile
+from assumptions import load, target, capex_learning_df
 
 @dataclass
 class OptimizationParams:
@@ -13,7 +18,7 @@ class OptimizationParams:
     project_lifetime: int = 20
     load_factor: float = 1.0  # Load multiplier
     target_hours: int = 8760
-
+    target_availability: float = target  # Default availability target (0.8)
 
 class SolarBESSAnalyzer:
     """
@@ -63,9 +68,8 @@ class SolarBESSAnalyzer:
             Dict with keys: cost, solar_capacity, bess_energy, lcoe
         """
         solar_profile = self._get_solar_profile(lat, lon)
-
         kwargs = {'availability': availability} if availability is not None else {}
-        cost, solar_capacity, bess_energy, levcost = optimise_bess(
+        cost, solar_capacity, bess_energy, levcost, results = optimise_bess(
             solar_profile, self.capex_df, year, **kwargs
         )
 
@@ -158,7 +162,7 @@ class SolarBESSAnalyzer:
         return pd.DataFrame(results)
 
     def analyze_countries_single_year(self, countries: Optional[List[str]] = None,
-                                      year: int = 2025) -> pd.DataFrame:
+                                      year: int = 2024) -> pd.DataFrame:
         """
         Analyze multiple countries for a single year
 
