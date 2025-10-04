@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 base_path = r"C:\Users\barna\OneDrive\Documents\Solar_BESS"
-input_path = os.path.join(base_path)
+input_path = os.path.join(base_path, "inputs")
 output_path = os.path.join(base_path, "output")
 
 # Years

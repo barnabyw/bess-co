@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="setup fo 80, fix hover">
-      <change beforePath="$PROJECT_DIR$/Code/analyse.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/analyse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/analyser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/analyser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="analyser">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/assumptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/assumptions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,25 +37,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.accel_optimiser.executor": "Run",
-    "Python.analyse.executor": "Run",
-    "Python.api.executor": "Run",
-    "Python.assumptions.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.old_opti.executor": "Run",
-    "Python.optimiser.executor": "Run",
-    "Python.profile.executor": "Run",
-    "Python.visualiser.executor": "Run",
-    "Python.yearly_data.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.accel_optimiser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.analyse.executor&quot;: &quot;Run&quot;,
+    &quot;Python.api.executor&quot;: &quot;Run&quot;,
+    &quot;Python.assumptions.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.old_opti.executor&quot;: &quot;Run&quot;,
+    &quot;Python.optimiser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.profile.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualiser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.yearly_data.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\costs" />
@@ -198,7 +197,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754783713466</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="analyser">
+      <option name="closed" value="true" />
+      <created>1759073973221</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1759073973221</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -223,6 +230,7 @@
     <MESSAGE value="issues" />
     <MESSAGE value="white borders" />
     <MESSAGE value="setup fo 80, fix hover" />
-    <option name="LAST_COMMIT_MESSAGE" value="setup fo 80, fix hover" />
+    <MESSAGE value="analyser" />
+    <option name="LAST_COMMIT_MESSAGE" value="analyser" />
   </component>
 </project>
