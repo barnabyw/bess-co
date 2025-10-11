@@ -16,8 +16,8 @@ for _, row in data.iterrows():
     yearly_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
 
     # use mid year to determine optimum ratio
-    year = 2025
-    cost, solar_cap, bess_energy, lev_cost = optimise_bess(yearly_profile, capex_learning_df, year)
+    year = 2024
+    cost, solar_cap, bess_energy, lev_cost, interval_results = optimise_bess(yearly_profile, capex_learning_df, year)
 
     # Store or print results as needed
     results.append({

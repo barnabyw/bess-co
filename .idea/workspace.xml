@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="analyser">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/assumptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/assumptions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/costs/lcoe_own.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/costs/lcoe_own.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/viz2.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +31,18 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="MIXED" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "barnabyw"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/barnabyw/bess-co.git",
+    "accountId": "c18df6e2-610c-4331-a192-70add52a451f"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -37,25 +51,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.accel_optimiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.analyse.executor&quot;: &quot;Run&quot;,
-    &quot;Python.api.executor&quot;: &quot;Run&quot;,
-    &quot;Python.assumptions.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.old_opti.executor&quot;: &quot;Run&quot;,
-    &quot;Python.optimiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.profile.executor&quot;: &quot;Run&quot;,
-    &quot;Python.visualiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.yearly_data.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.accel_optimiser.executor": "Run",
+    "Python.analyse.executor": "Run",
+    "Python.api.executor": "Run",
+    "Python.assumptions.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.old_opti.executor": "Run",
+    "Python.optimiser.executor": "Run",
+    "Python.profile.executor": "Run",
+    "Python.visualiser.executor": "Run",
+    "Python.viz2.executor": "Run",
+    "Python.yearly_data.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\costs" />
@@ -205,7 +221,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759073973221</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="analyser">
+      <option name="closed" value="true" />
+      <created>1759581045531</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1759581045531</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
