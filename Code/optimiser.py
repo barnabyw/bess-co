@@ -14,10 +14,7 @@ from lcoe.lcoe import lcoe
 
 penalty_weight = 1e-3
 
-def optimise_bess(solar_profile, capex_df, year, availability=target, return_timeseries=False):
-
-    solar_cost_per_mw = capex_df.loc[capex_df["year"] == year, "solar_cost_per_mw"].values[0]
-    bess_energy_cost_per_mwh = capex_df.loc[capex_df["year"] == year, "bess_energy_cost_per_mwh"].values[0]
+def optimise_bess(solar_profile, solar_capex, bess_energy_capex, availability=target, return_timeseries=False):
 
     periods = len(solar_profile)
     demand = np.full(periods, load)
@@ -69,8 +66,8 @@ def optimise_bess(solar_profile, capex_df, year, availability=target, return_tim
 
     # Objective Function
     model.cost = pyo.Objective(
-        expr=model.solar_capacity * solar_cost_per_mw +
-             model.bess_energy * bess_energy_cost_per_mwh,
+        expr=model.solar_capacity * solar_capex +
+             model.bess_energy * bess_energy_capex,
         sense=pyo.minimize
     )
 
