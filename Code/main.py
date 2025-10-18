@@ -2,7 +2,8 @@ from Code.yearly_data import calculate_multi_year_costs_lcoe
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess
 from assumptions import *
-from reader import get_val
+from reader import get_val, reload_defaults
+reload_defaults()
 
 from lcoe.lcoe import lcoe
 

@@ -1,0 +1,50 @@
+country,subregion,continent
+France,Western Europe,Europe
+Germany,Western Europe,Europe
+United Kingdom,Northern Europe,Europe
+Spain,Southern Europe,Europe
+Italy,Southern Europe,Europe
+Poland,Eastern Europe,Europe
+Netherlands,Western Europe,Europe
+Greece,Southern Europe,Europe
+Turkey,Southern Europe,Europe
+Norway,Northern Europe,Europe
+Sweden,Northern Europe,Europe
+Denmark,Northern Europe,Europe
+Finland,Northern Europe,Europe
+Ireland,Northern Europe,Europe
+Portugal,Southern Europe,Europe
+China,East Asia,Asia
+India,South Asia,Asia
+Japan,East Asia,Asia
+Republic of Korea,East Asia,Asia
+Indonesia,Southeast Asia,Asia
+Vietnam,Southeast Asia,Asia
+Thailand,Southeast Asia,Asia
+Philippines,Southeast Asia,Asia
+Pakistan,South Asia,Asia
+Bangladesh,South Asia,Asia
+Malaysia,Southeast Asia,Asia
+United States,Northern America,North America
+Canada,Northern America,North America
+Mexico,Central America,Latin America
+Brazil,South America,Latin America
+Argentina,South America,Latin America
+Chile,South America,Latin America
+Colombia,South America,Latin America
+Peru,South America,Latin America
+Venezuela,South America,Latin America
+Costa Rica,Central America,Latin America
+South Africa,Southern Africa,Africa
+Kenya,Eastern Africa,Africa
+Nigeria,Western Africa,Africa
+Ghana,Western Africa,Africa
+Morocco,Northern Africa,Africa
+Egypt,Northern Africa,Africa
+Ethiopia,Eastern Africa,Africa
+Tanzania,Eastern Africa,Africa
+Angola,Central Africa,Africa
+DR Congo,Central Africa,Africa
+Australia,Oceania,Oceania
+New Zealand,Oceania,Oceania
+Papua New Guinea,Oceania,Oceania

@@ -1,52 +1,60 @@
-def get_val(df, country, year, variable, tech=None, type=None, value_col="value",
+# get_val_module.py
+import pandas as pd
+import os
+
+# --- Load defaults ---
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "mappings")
+
+# Read your default mapping files
+try:
+    _DEFAULT_PROXY_RULES = pd.read_csv(os.path.join(DATA_DIR, "proxy_rules.csv"))
+    _DEFAULT_REGION_MAP = pd.read_csv(os.path.join(DATA_DIR, "region_map.csv"))
+    _DEFAULT_REGION_MAP = (
+        _DEFAULT_REGION_MAP
+        .assign(country=lambda df: df["country"].str.lower(),
+                region=lambda df: df["subregion"].str.lower(),
+                continent=lambda df: df["continent"].str.lower())
+        .set_index("country")
+        .apply(lambda x: x.to_dict(), axis=1)
+        .to_dict()
+    )
+except FileNotFoundError:
+    print("Warning: Default proxy_rules.csv or region_map.csv not found.")
+    _DEFAULT_PROXY_RULES = pd.DataFrame()
+    _DEFAULT_REGION_MAP = {}
+
+# --- Main function ---
+def get_val(
+    df,
+    country,
+    year,
+    variable,
+    tech=None,
+    type=None,
+    value_col="value",
     proxy_rules=None,
     region_map=None,
     used_fallbacks=None,
 ):
     """
-    Retrieve a data value for a given country, year, variable, and tech,
-    with hierarchical fallback using proxy rules and regional mapping.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dataset with columns ['region', 'year', 'variable', 'tech', value_col, ...]
-    country : str
-        Target country name (case-insensitive)
-    year : int
-        Target year
-    variable : str
-        Variable name (e.g. 'capex', 'fuel')
-    tech : str, optional
-        Technology name (e.g. 'solar', 'gas')
-    type : str, optional
-        Additional variable subtype (optional column in df)
-    value_col : str, default 'value'
-        Column to extract numeric values from
-    proxy_rules : pd.DataFrame, optional
-        DataFrame containing proxy mappings by variable/tech (see below)
-    region_map : dict, optional
-        Mapping of countries to their region/continent, e.g.
-        {'kenya': {'region': 'east africa', 'continent': 'africa'}}
-    used_fallbacks : dict, optional
-        Optional dictionary to log which fallback region was used
-
-    Returns
-    -------
-    float
-        The retrieved (or proxied) value
+    Retrieve a data value with hierarchical fallback using proxy rules & region map.
     """
 
-    # --- Normalise inputs ---
+    # Use defaults if not provided
+    if proxy_rules is None:
+        proxy_rules = _DEFAULT_PROXY_RULES
+    if region_map is None:
+        region_map = _DEFAULT_REGION_MAP
+
+    # Normalise
     country = country.strip().lower()
     variable = variable.strip().lower()
     tech = tech.lower() if tech else None
     type = type.lower() if type else None
 
-    # --- Helper: mask builder ---
-    def build_mask(target_region):
+    def build_mask(target):
         mask = (
-            df["region"].str.lower().eq(target_region)
+            df["region"].str.lower().eq(target)
             & df["year"].eq(year)
             & df["variable"].str.lower().eq(variable)
         )
@@ -56,62 +64,61 @@ def get_val(df, country, year, variable, tech=None, type=None, value_col="value"
             mask &= df["type"].str.lower().eq(type)
         return mask
 
-    # --- Helper: find proxy region from rules ---
+    # --- Proxy lookup helper ---
     def get_proxy_region(country, variable, tech, proxy_rules, region_map):
-        if proxy_rules is None:
+        if proxy_rules.empty:
             return None
         rules = proxy_rules[
             (proxy_rules["variable"].str.lower() == variable)
             & (proxy_rules["tech"].str.lower() == (tech or ""))
         ]
-
-        # Get region and continent for the country
-        region = region_map.get(country, {}).get("region") if region_map else None
-        continent = region_map.get(country, {}).get("continent") if region_map else None
+        region = region_map.get(country, {}).get("region")
+        continent = region_map.get(country, {}).get("continent")
 
         for _, rule in rules.iterrows():
             continents = [x.strip().lower() for x in str(rule.get("applies_to_continents", "")).split(",") if x]
             regions = [x.strip().lower() for x in str(rule.get("applies_to_regions", "")).split(",") if x]
             countries = [x.strip().lower() for x in str(rule.get("applies_to_countries", "")).split(",") if x]
-
             if (
                 (country in countries)
                 or (region and region in regions)
                 or (continent and continent in continents)
             ):
                 return rule["proxy_region"].lower()
+        return None
 
-        return None  # no proxy match found
-
-    # --- Step 1: Try direct country match ---
+    # --- Step 1: Try country ---
     subset = df.loc[build_mask(country)]
 
-    # --- Step 2: Proxy rule fallback ---
-    if subset.empty and proxy_rules is not None:
-        proxy_region = get_proxy_region(country, variable, tech, proxy_rules, region_map)
-        if proxy_region:
-            subset = df.loc[build_mask(proxy_region)]
-            if not subset.empty and used_fallbacks is not None:
-                used_fallbacks[(country, variable, tech, year)] = proxy_region
-                print(f"No data for {country.title()} ({year}, {variable}, {tech or ''}); using proxy '{proxy_region.title()}'")
-        else:
-            print(f"No proxy rule matched for {country.title()} ({year}, {variable}, {tech or ''})")
+    # --- Step 2: Proxy fallback ---
+    if subset.empty:
+        proxy = get_proxy_region(country, variable, tech, proxy_rules, region_map)
+        if proxy:
+            subset = df.loc[build_mask(proxy)]
+            if not subset.empty:
+                if used_fallbacks is not None:
+                    used_fallbacks[(country, variable, tech, year)] = proxy
+                print(f"No data for {country.title()} ({year}, {variable}, {tech or ''}); using proxy '{proxy.title()}'")
 
     # --- Step 3: Global fallback ---
     if subset.empty:
         subset = df.loc[build_mask("world")]
         if not subset.empty:
-            print(f"No data for {country.title()} ({year}, {variable}, {tech or ''}); using 'World'")
             if used_fallbacks is not None:
                 used_fallbacks[(country, variable, tech, year)] = "world"
+            print(f"No data for {country.title()} ({year}, {variable}, {tech or ''}); using 'World'")
         else:
-            raise ValueError(f"No match found for {country}, {year}, {variable}, {tech or ''}, {type or ''}")
+            raise ValueError(f"No match found for {country}, {year}, {variable}, {tech or ''}")
 
-    # --- Step 4: Handle duplicates ---
     if len(subset) > 1:
-        mean_val = subset[value_col].mean()
-        print(f"Warning: {len(subset)} matches found for {country}, {year}, {variable}, {tech or ''}; returning mean")
-        return mean_val
+        val = subset[value_col].mean()
+        print(f"Warning: {len(subset)} matches found for {country}, {year}, {variable}, {tech or ''}")
+        return val
 
-    # --- Step 5: Return result ---
     return float(subset.iloc[0][value_col])
+
+def reload_defaults():
+    global _DEFAULT_PROXY_RULES, _DEFAULT_REGION_MAP
+    _DEFAULT_PROXY_RULES = pd.read_csv(os.path.join(DATA_DIR, "proxy_rules.csv"))
+    _DEFAULT_REGION_MAP = pd.read_csv(os.path.join(DATA_DIR, "region_map.csv"))
+    print("Default proxy_rules and region_map reloaded.")

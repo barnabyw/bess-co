@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="cleanup">
-      <change afterPath="$PROJECT_DIR$/Code/converter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/reader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="enhanced get_val">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/yearly_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/yearly_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/reader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,18 +30,18 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="MIXED" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "barnabyw"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;barnabyw&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/barnabyw/bess-co.git",
-    "accountId": "c18df6e2-610c-4331-a192-70add52a451f"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/barnabyw/bess-co.git&quot;,
+    &quot;accountId&quot;: &quot;c18df6e2-610c-4331-a192-70add52a451f&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -54,28 +50,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.accel_optimiser.executor": "Run",
-    "Python.analyse.executor": "Run",
-    "Python.api.executor": "Run",
-    "Python.assumptions.executor": "Run",
-    "Python.converter.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.old_opti.executor": "Run",
-    "Python.optimiser.executor": "Run",
-    "Python.profile.executor": "Run",
-    "Python.visualiser.executor": "Run",
-    "Python.viz2.executor": "Run",
-    "Python.yearly_data.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.accel_optimiser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.analyse.executor&quot;: &quot;Run&quot;,
+    &quot;Python.api.executor&quot;: &quot;Run&quot;,
+    &quot;Python.assumptions.executor&quot;: &quot;Run&quot;,
+    &quot;Python.converter.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.old_opti.executor&quot;: &quot;Run&quot;,
+    &quot;Python.optimiser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.profile.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualiser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.viz2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.yearly_data.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\alternative_optimisers" />
@@ -250,7 +246,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760176608520</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="wip get_val and loop">
+      <option name="closed" value="true" />
+      <created>1760555599303</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1760555599303</updated>
+    </task>
+    <task id="LOCAL-00021" summary="enhanced get_val">
+      <option name="closed" value="true" />
+      <created>1760555889478</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1760555889478</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -277,6 +289,8 @@
     <MESSAGE value="setup fo 80, fix hover" />
     <MESSAGE value="analyser" />
     <MESSAGE value="cleanup" />
-    <option name="LAST_COMMIT_MESSAGE" value="cleanup" />
+    <MESSAGE value="wip get_val and loop" />
+    <MESSAGE value="enhanced get_val" />
+    <option name="LAST_COMMIT_MESSAGE" value="enhanced get_val" />
   </component>
 </project>
