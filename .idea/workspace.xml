@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="enhanced get_val">
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="half baked">
+      <change afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/reader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -262,7 +264,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760555889478</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="half baked">
+      <option name="closed" value="true" />
+      <created>1760808250512</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1760808250512</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -291,6 +301,7 @@
     <MESSAGE value="cleanup" />
     <MESSAGE value="wip get_val and loop" />
     <MESSAGE value="enhanced get_val" />
-    <option name="LAST_COMMIT_MESSAGE" value="enhanced get_val" />
+    <MESSAGE value="half baked" />
+    <option name="LAST_COMMIT_MESSAGE" value="half baked" />
   </component>
 </project>
