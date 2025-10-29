@@ -1,10 +1,8 @@
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess
-from assumptions import *
-from lcoe import lcoe
+from Code.archive.assumptions import *
 import matplotlib.pyplot as plt
 
-import numpy as np
 data = pd.read_csv(os.path.join(input_path, "all_country_coordinates_2.csv"))
 
 results = []

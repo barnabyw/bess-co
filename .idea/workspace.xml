@@ -4,9 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="working - needs more data">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="refactor">
+      <change beforePath="$PROJECT_DIR$/Code/analyse.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/archive/analyse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/analyser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/archive/analyser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/assumptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/archive/assumptions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/converter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/profile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/visualiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/visualiser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/world_years.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/archive/world_years.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/yearly_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/archive/yearly_data.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -293,7 +301,23 @@
       <option name="project" value="LOCAL" />
       <updated>1761777720551</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="main flow complete, units need checking">
+      <option name="closed" value="true" />
+      <created>1761779786653</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1761779786653</updated>
+    </task>
+    <task id="LOCAL-00027" summary="refactor">
+      <option name="closed" value="true" />
+      <created>1761780068074</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1761780068074</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -325,6 +349,8 @@
     <MESSAGE value="half baked" />
     <MESSAGE value="seems to be working - needs more data" />
     <MESSAGE value="working - needs more data" />
-    <option name="LAST_COMMIT_MESSAGE" value="working - needs more data" />
+    <MESSAGE value="main flow complete, units need checking" />
+    <MESSAGE value="refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor" />
   </component>
 </project>

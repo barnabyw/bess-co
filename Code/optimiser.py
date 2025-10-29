@@ -1,6 +1,5 @@
-from assumptions import *
-from profile import generate_hourly_solar_profile, parse_renewables_ninja
-from lcoe.lcoe import lcoe
+from Code.archive.assumptions import *
+from profile import generate_hourly_solar_profile
 
 import pyomo.environ as pyo
 import pandas as pd
@@ -36,7 +35,6 @@ def optimise_bess(
     periods = len(solar_profile)
     demand = np.full(periods, load)
     T = range(periods)
-    availability = target # Use the 'target' parameter for clarity
 
     model = pyo.ConcreteModel(name="Solar_BESS_Optimization")
     model.T = pyo.Set(initialize=T)

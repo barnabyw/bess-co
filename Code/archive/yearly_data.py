@@ -1,10 +1,9 @@
-from assumptions import *
+from Code.archive.assumptions import *
 from reader import get_val
 
 df = pd.read_csv(os.path.join(output_path, "results.csv"))
 
 import pandas as pd
-import numpy as np
 from lcoe.lcoe import lcoe
 
 

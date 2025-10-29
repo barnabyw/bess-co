@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-from assumptions import base_path
+from Code.archive.assumptions import base_path
 
 # === CONFIG ===
 input_path = os.path.join(base_path,"inputs")

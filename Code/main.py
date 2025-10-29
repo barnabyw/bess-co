@@ -1,7 +1,7 @@
 # main_workflow.py
 import pandas as pd
 import os
-from tqdm import tqdm  # A library for nice progress bars
+from tqdm import tqdm  # progress bars
 
 # --- Import your custom modules ---
 from reader import get_val
@@ -20,7 +20,7 @@ BASE_YEAR = 2024
 YEARS = list(range(2010, 2025))
 CONVENTIONAL_TECHS = ["Coal", "Gas"]
 
-# Availability used by your simple Solar+BESS LCOE (per your helper)
+# Availability used by Solar+BESS LCOE
 availability = 0.8
 
 # --- Load Data ---
@@ -52,7 +52,7 @@ for _, row in tqdm(
 
     print(f"\nProcessing {country}...")
 
-    # Generate solar profile once per country (kept as-is for your optimiser)
+    # Generate solar profile once per country (kept as-is for optimiser)
     yearly_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
 
     # --- Step 1: Optimize Solar+BESS capacity for the base year ---
@@ -65,12 +65,12 @@ for _, row in tqdm(
             yearly_profile, solar_capex_base, bess_capex_base
         )
 
-        # FIX: pass `availability` (NOT the profile) to the helper
+        # pass `availability` to the helper
         result = calculate_solar_bess_lcoe(
             country, BASE_YEAR, solar_cap, bess_energy, availability, capex_opex_df
         )
 
-        # FIX: result is a dict; store the LCOE value
+        # store the LCOE value
         all_results.append({
             "Country": country, "Year": BASE_YEAR, "Tech": "Solar+BESS",
             "LCOE": result.get("LCOE") if result else None,
@@ -89,7 +89,7 @@ for _, row in tqdm(
         if year == BASE_YEAR:
             continue  # already done
 
-        # FIX: pass `availability` (simple helper expects this)
+        #pass `availability` (simple helper expects this)
         result = calculate_solar_bess_lcoe(
             country, year, solar_cap, bess_energy, availability, capex_opex_df
         )
@@ -103,7 +103,7 @@ for _, row in tqdm(
 
     # --- Step 3: Conventional tech LCOE across all years ---
     # The helper needs capacity_mw and capacity_factor.
-    # We use 1.0 MW (scale-invariant) and read CF from the sheet per (country, year, tech).
+    # use 1.0 MW (scale-invariant) and read CF from the sheet per (country, year, tech).
     for tech in CONVENTIONAL_TECHS:
         print(f"  Calculating {tech} LCOE for all years...")
         for year in YEARS:
