@@ -4,7 +4,6 @@ import os
 from tqdm import tqdm  # A library for nice progress bars
 
 # --- Import your custom modules ---
-# Make sure these files are in the same directory or Python's path
 from reader import get_val
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess
@@ -21,6 +20,7 @@ BASE_YEAR = 2024
 YEARS = list(range(2010, 2025))
 CONVENTIONAL_TECHS = ["Coal", "Gas"]
 
+# Availability used by your simple Solar+BESS LCOE (per your helper)
 availability = 0.8
 
 # --- Load Data ---
@@ -30,7 +30,6 @@ capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted_202
 print("Data loaded successfully.")
 
 # --- Optional: specify which countries to run ---
-# Leave as None or [] to process all
 target_countries = ["Chile", "Australia", "Spain"]  # or [] to process all
 if target_countries:
     countries_to_process = countries_df[countries_df["Country"].isin(target_countries)]
@@ -42,35 +41,41 @@ else:
 # --- Main Analysis Loop ---
 all_results = []
 
-# Use tqdm for a progress bar over the selected countries
-for _, row in tqdm(countries_to_process.iterrows(),
-                   total=countries_to_process.shape[0],
-                   desc="Processing Countries"):
+for _, row in tqdm(
+    countries_to_process.iterrows(),
+    total=countries_to_process.shape[0],
+    desc="Processing Countries"
+):
     country = row["Country"]
     lat = row["Latitude"]
     lon = row["Longitude"]
 
     print(f"\nProcessing {country}...")
 
-    # Generate solar profile once per country
+    # Generate solar profile once per country (kept as-is for your optimiser)
     yearly_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
 
-    # --- Step 1: Optimize Solar+BESS capacity for the most recent year ---
+    # --- Step 1: Optimize Solar+BESS capacity for the base year ---
     print(f"  Optimizing Solar+BESS for base year {BASE_YEAR}...")
     try:
         solar_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "Solar")
         bess_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "BESS")
 
-        # Run your optimization function
-        cost, solar_cap, bess_energy, results_1 = optimise_bess(yearly_profile, solar_capex_base, bess_capex_base)
+        cost, solar_cap, bess_energy, results_1 = optimise_bess(
+            yearly_profile, solar_capex_base, bess_capex_base
+        )
 
-        # Calculate LCOE
-        lev_cost = lcoe(availability * 8760, cost, )
+        # FIX: pass `availability` (NOT the profile) to the helper
+        result = calculate_solar_bess_lcoe(
+            country, BASE_YEAR, solar_cap, bess_energy, availability, capex_opex_df
+        )
 
-        # Store the result for the base year
+        # FIX: result is a dict; store the LCOE value
         all_results.append({
             "Country": country, "Year": BASE_YEAR, "Tech": "Solar+BESS",
-            "LCOE": lev_cost, "Cost": cost, "Solar_Capacity_MW": solar_cap, "BESS_Energy_MWh": bess_energy,
+            "LCOE": result.get("LCOE") if result else None,
+            "Cost": result.get("Total_Capex") if result else None,
+            "Solar_Capacity_MW": solar_cap, "BESS_Energy_MWh": bess_energy,
         })
         print(f"  -> Optimal capacity for {country}: Solar={solar_cap:.2f} MW, BESS={bess_energy:.2f} MWh")
 
@@ -78,12 +83,17 @@ for _, row in tqdm(countries_to_process.iterrows(),
         print(f"  ERROR: Could not optimize for {country} in {BASE_YEAR}. Skipping. Reason: {e}")
         continue  # Skip to the next country if optimization fails
 
-    # --- Step 2: Use fixed capacities to calculate historical Solar+BESS LCOE ---
+    # --- Step 2: Historical Solar+BESS LCOE with fixed capacities ---
     print(f"  Calculating historical Solar+BESS LCOE...")
     for year in YEARS:
-        if year == BASE_YEAR: continue  # Already calculated this one
+        if year == BASE_YEAR:
+            continue  # already done
 
-        result = calculate_solar_bess_lcoe(country, year, solar_cap, bess_energy, yearly_profile, capex_opex_df)
+        # FIX: pass `availability` (simple helper expects this)
+        result = calculate_solar_bess_lcoe(
+            country, year, solar_cap, bess_energy, availability, capex_opex_df
+        )
+
         if result:
             all_results.append({
                 "Country": country, "Year": year, "Tech": "Solar+BESS",
@@ -91,16 +101,32 @@ for _, row in tqdm(countries_to_process.iterrows(),
                 "Solar_Capacity_MW": solar_cap, "BESS_Energy_MWh": bess_energy,
             })
 
-    # --- Step 3: Calculate LCOE for conventional technologies across all years ---
+    # --- Step 3: Conventional tech LCOE across all years ---
+    # The helper needs capacity_mw and capacity_factor.
+    # We use 1.0 MW (scale-invariant) and read CF from the sheet per (country, year, tech).
     for tech in CONVENTIONAL_TECHS:
         print(f"  Calculating {tech} LCOE for all years...")
         for year in YEARS:
-            result = calculate_conventional_lcoe(country, year, tech, capex_opex_df)
-            if result:
-                all_results.append({
-                    "Country": country, "Year": year, "Tech": tech,
-                    "LCOE": result.get("LCOE"), "Cost": None, "Solar_Capacity_MW": None, "BESS_Energy_MWh": None,
-                })
+            try:
+                cf = get_val(capex_opex_df, country, year, "capacity_factor", tech)
+                result = calculate_conventional_lcoe(
+                    country=country,
+                    year=year,
+                    tech=tech,
+                    capacity_mw=1.0,               # FIX: explicit capacity for helper signature
+                    capacity_factor=cf,             # FIX: pass CF from the table
+                    capex_opex_df=capex_opex_df
+                )
+                if result:
+                    all_results.append({
+                        "Country": country, "Year": year, "Tech": tech,
+                        "LCOE": result.get("LCOE"),
+                        "Cost": result.get("Total_Capex"),
+                        "Solar_Capacity_MW": None, "BESS_Energy_MWh": None,
+                    })
+            except ValueError as e:
+                print(f"   - Skipping {tech} {year} for {country}: {e}")
+                continue
 
 # --- Finalize and Save Results ---
 print("\nAnalysis complete. Compiling and saving results...")
