@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="half baked">
-      <change afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="working - needs more data">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/lcoe_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/reader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -272,7 +271,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760808250512</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="seems to be working - needs more data">
+      <option name="closed" value="true" />
+      <created>1760811550055</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1760811550055</updated>
+    </task>
+    <task id="LOCAL-00024" summary="working - needs more data">
+      <option name="closed" value="true" />
+      <created>1760811631411</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1760811631411</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -302,6 +317,8 @@
     <MESSAGE value="wip get_val and loop" />
     <MESSAGE value="enhanced get_val" />
     <MESSAGE value="half baked" />
-    <option name="LAST_COMMIT_MESSAGE" value="half baked" />
+    <MESSAGE value="seems to be working - needs more data" />
+    <MESSAGE value="working - needs more data" />
+    <option name="LAST_COMMIT_MESSAGE" value="working - needs more data" />
   </component>
 </project>

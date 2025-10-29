@@ -1,19 +1,6 @@
-import time
-
-import pandas as pd
-import pyomo.environ as pyo
-import numpy as np
-import csv
-
 from assumptions import *
 from profile import generate_hourly_solar_profile, parse_renewables_ninja
-from reader import get_val
 from lcoe.lcoe import lcoe
-
-#===Model Setup===
-# -----------------------------
-
-penalty_weight = 1e-3
 
 import pyomo.environ as pyo
 import pandas as pd
@@ -21,12 +8,16 @@ import numpy as np
 import time
 from pyomo.opt import SolverFactory
 
+#===Model Setup===
+# -----------------------------
+penalty_weight = 1e-3
+
 def optimise_bess(
     solar_profile,
     solar_capex,
     bess_energy_capex,
     load=1.0,               # [MW] Average load to serve
-    target=0.8,             # [%] Target availability or percentage of demand to meet
+    availability=0.8,             # [%] Target availability or percentage of demand to meet
     efficiency=0.9,         # [%] BESS round-trip efficiency
     start_soc=0.5,          # [%] Starting state of charge for the BESS
     return_timeseries=False
@@ -115,6 +106,7 @@ def optimise_bess(
     print("Optimal BESS Energy (MWh):", pyo.value(model.bess_energy))
     print("Total System Cost:", round(pyo.value(model.cost),0))
     print(f"Total Energy Served (MWh): {round(total_energy_served_mwh, 1)}")
+    print(f"Number of hours: {round(periods, 1)}")
 
     results_data = None
     if return_timeseries:
@@ -126,14 +118,10 @@ def optimise_bess(
             'Energy_Served_MWh': [pyo.value(model.energy_served_t[t]) for t in T]
         })
 
-    # 2. Return the new energy value instead of the old lcoe_value
     return (pyo.value(model.cost),
             pyo.value(model.solar_capacity),
             pyo.value(model.bess_energy),
-            total_energy_served_mwh, # <-- New return value
             results_data)
-
-    # --- KEY CHANGES END HERE ---
 
 def optimise_availability(solar_profile, solar_capacity, bess_energy, load,
                           efficiency=efficiency, start_soc=start_soc):
@@ -230,7 +218,7 @@ if __name__ == "__main__":
     profile = solar_profile
     solar_capex = 500
     bess_energy_capex = 200
-    cost, solar_capacity, bess_energy, levcost, results_1 = optimise_bess(solar_profile, solar_capex, bess_energy_capex)
+    cost, solar_capacity, bess_energy, results_1 = optimise_bess(solar_profile, solar_capex, bess_energy_capex)
     print(f"solar cap is {solar_capacity}, bess is {bess_energy}")
     availability, results_2 = optimise_availability(profile, solar_capacity, bess_energy, load=load)
     results_2.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\avail_results.csv')

@@ -9,9 +9,9 @@ from reader import get_val
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess
 from lcoe_helpers import calculate_solar_bess_lcoe, calculate_conventional_lcoe
+from lcoe.lcoe import lcoe
 
 # --- Configuration ---
-# Use absolute paths or paths relative to the script location for robustness
 CWD = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(CWD, "..", "inputs")
 OUTPUT_PATH = os.path.join(CWD, "..", "outputs")
@@ -21,17 +21,31 @@ BASE_YEAR = 2024
 YEARS = list(range(2010, 2025))
 CONVENTIONAL_TECHS = ["Coal", "Gas"]
 
+availability = 0.8
+
 # --- Load Data ---
 print("Loading input data...")
 countries_df = pd.read_csv(os.path.join(INPUT_PATH, "all_country_coordinates_2.csv"))
 capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted_2025USD.xlsx"))
 print("Data loaded successfully.")
 
+# --- Optional: specify which countries to run ---
+# Leave as None or [] to process all
+target_countries = ["Chile", "Australia", "Spain"]  # or [] to process all
+if target_countries:
+    countries_to_process = countries_df[countries_df["Country"].isin(target_countries)]
+    print(f"Running analysis for {len(countries_to_process)} selected countries: {', '.join(target_countries)}")
+else:
+    countries_to_process = countries_df
+    print(f"Running analysis for all {len(countries_to_process)} countries.")
+
 # --- Main Analysis Loop ---
 all_results = []
 
-# Use tqdm for a progress bar over the countries
-for _, row in tqdm(countries_df.iterrows(), total=countries_df.shape[0], desc="Processing Countries"):
+# Use tqdm for a progress bar over the selected countries
+for _, row in tqdm(countries_to_process.iterrows(),
+                   total=countries_to_process.shape[0],
+                   desc="Processing Countries"):
     country = row["Country"]
     lat = row["Latitude"]
     lon = row["Longitude"]
@@ -48,7 +62,10 @@ for _, row in tqdm(countries_df.iterrows(), total=countries_df.shape[0], desc="P
         bess_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "BESS")
 
         # Run your optimization function
-        cost, solar_cap, bess_energy, lev_cost, _ = optimise_bess(yearly_profile, solar_capex_base, bess_capex_base)
+        cost, solar_cap, bess_energy, results_1 = optimise_bess(yearly_profile, solar_capex_base, bess_capex_base)
+
+        # Calculate LCOE
+        lev_cost = lcoe(availability * 8760, cost, )
 
         # Store the result for the base year
         all_results.append({
