@@ -1,0 +1,4 @@
+Country,Year,Tech,LCOE,Cost,Solar_Capacity_MW,BESS_Energy_MWh
+Australia,2024,Solar+BESS,,,3.2419553,128.59611
+Chile,2024,Solar+BESS,,,3.5300874,385.22479
+Spain,2024,Solar+BESS,,,3.2776785,251.21407
