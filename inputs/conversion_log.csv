@@ -1079,3 +1079,4 @@ Gas,opex_f,USD,USD,2023,1.0,1.01,kW/year,kW/year,1.0,none,21.72,21.9372,"No unit
 Gas,opex_v,USD,USD,2023,1.0,1.01,MWh,MWh,1.0,none,3.06,3.0906000000000002,"No unit rule for 'MWh' with tech 'Gas', kept units."
 Solar,opex_f,USD,USD,2024,1.0,1.0,kW/year,kW/year,1.0,none,6.71,6.71,"No unit rule for 'kW/year' with tech 'Solar', kept units."
 Solar,opex_f,USD,USD,2025,1.0,1.0,kW/year,kW/year,1.0,none,6.39,6.39,"No unit rule for 'kW/year' with tech 'Solar', kept units."
+BESS,opex_f,USD,USD,2024,1.0,1.0,kWh/year,kWh/year,1.0,none,5.25,5.25,"No unit rule for 'kWh/year' with tech 'BESS', kept units."

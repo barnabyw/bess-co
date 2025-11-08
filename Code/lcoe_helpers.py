@@ -26,7 +26,7 @@ def calculate_solar_bess_lcoe(
         bess_capex = get_val(capex_opex_df, country, year, "capex", "BESS")
         solar_opex = get_val(capex_opex_df, country, "all", "opex_f", "Solar")
         bess_opex = get_val(capex_opex_df, country, "all", "opex_f", "BESS")
-        discount_rate = get_val(capex_opex_df, country, year, "discount_rate")  # Assumes discount_rate is a variable
+        discount_rate = get_val(capex_opex_df, country, year, "wacc", "Solar")  # Use wacc of solar - favourable assumption for bess
         solar_lifetime = int(get_val(capex_opex_df, country, year, "lifetime", "Solar"))
 
         af = _to_frac(availability)
@@ -66,7 +66,7 @@ def calculate_conventional_lcoe(
         opex_var_mwh = get_val(capex_opex_df, country, "all", "opex_v", tech)               # $/MWh
         fuel_cost_mwh_fuel = get_val(capex_opex_df, country, year, "fuel", tech)                 # $/MWh_fuel
         efficiency = _to_frac(get_val(capex_opex_df, country, year, "efficiency", tech))         # 0–1 (or 0–100)
-        discount_rate = get_val(capex_opex_df, country, year, "discount_rate")                   # 0–1 (or 0–100)
+        discount_rate = get_val(capex_opex_df, country, year, "wacc", "Solar")              # 0–1 (or 0–100) in absence of other, use solar
         lifetime = int(get_val(capex_opex_df, country, year, "lifetime", tech))                  # years
 
         cf = _to_frac(capacity_factor)

@@ -24,7 +24,6 @@ except FileNotFoundError as e:
     _DEFAULT_PROXY_RULES = pd.DataFrame()
     _DEFAULT_REGION_MAP = pd.DataFrame()
 
-
 # --- Main Data Retrieval Function ---
 def get_val(
         df: pd.DataFrame,
@@ -37,110 +36,116 @@ def get_val(
         region_map: pd.DataFrame = None,
         used_fallbacks: dict = None,
 ) -> float:
-    """
-    Retrieve a data value with hierarchical fallback using proxy rules & region map.
-
-    Args:
-        df (pd.DataFrame): The main data DataFrame.
-        country (str): The target country.
-        year (int): The target year.
-        variable (str): The variable to look up (e.g., 'capex', 'fuel').
-        tech (str, optional): The technology (e.g., 'Solar', 'Gas'). Defaults to None.
-        param_type (str, optional): The parameter type (e.g., 'fixed', 'variable'). Defaults to None.
-        value_col (str, optional): The name of the column containing the value. Defaults to "value".
-        proxy_rules (pd.DataFrame, optional): DataFrame with proxy rules. Defaults to loaded default.
-        region_map (pd.DataFrame, optional): DataFrame mapping countries to regions. Defaults to loaded default.
-        used_fallbacks (dict, optional): A dictionary to record when fallbacks are used.
-
-    Returns:
-        float: The retrieved data value.
-
-    Raises:
-        ValueError: If no value can be found after all fallbacks.
-    """
-    # Use defaults if not provided
+    # defaults
     proxy_rules = _DEFAULT_PROXY_RULES if proxy_rules is None else proxy_rules
     region_map = _DEFAULT_REGION_MAP if region_map is None else region_map
 
-    # --- 1. Normalize all inputs for consistent matching ---
-    country = country.strip().lower()
-    variable = variable.strip().lower()
-    tech = tech.strip().lower() if tech else None
+    # --- normalize inputs ---
+    country = (country or "").strip().lower()
+    variable = (variable or "").strip().lower()
+    tech = (tech or "").strip().lower() or None
 
-    # --- Helper to perform the actual lookup ---
-    def find_value(target_region: str):
-        # Build a boolean mask to filter the DataFrame
-        mask = (
-                (df["region"].str.lower() == target_region) &
-                (df["year"] == year) &
-                (df["variable"].str.lower() == variable)
-        )
-        # Conditionally add filters for tech and type if they are provided
-        if tech and "tech" in df.columns:
-            mask &= df["tech"].str.lower() == tech
-
-        return df[mask]
-
-    # --- Helper to find a proxy region from the rules ---
-    def get_proxy_region():
-        if proxy_rules.empty or region_map.empty:
+    # year: accept int, "2024", None, "all", "*"
+    def _normalize_year(y):
+        if y is None:
+            return None
+        if isinstance(y, str) and y.strip().lower() in {"all", "any", "*"}:
+            return None
+        try:
+            return int(y)
+        except Exception:
             return None
 
+    year = _normalize_year(year)
+
+    # ensure df.year is numeric once (safe even if already numeric)
+    if "year" in df.columns:
         try:
-            country_info = region_map.loc[country]
-            subregion = country_info['subregion'].lower()
-            continent = country_info['continent'].lower()
-        except KeyError:  # Country not in region map
-            subregion, continent = None, None
+            df["year"] = pd.to_numeric(df["year"], errors="coerce")
+        except Exception:
+            pass
 
-        # Filter rules for the specific variable and tech
-        rule_mask = (proxy_rules["variable"].str.lower() == variable)
-        # Handle cases where tech might be None or not applicable
-        if tech:
-            rule_mask &= (proxy_rules["tech"].fillna('').str.lower() == tech)
+    # --- lookup helper ---
+    def find_value(target_region: str):
+        if not isinstance(target_region, str):
+            return df.iloc[0:0]  # empty
+        mask = (df["region"].str.lower() == target_region.strip().lower()) \
+               & (df["variable"].str.lower() == variable)
+        if tech and "tech" in df.columns:
+            mask &= (df["tech"].str.lower() == tech)
+        if year is not None and "year" in df.columns:
+            mask &= (df["year"] == year)
+        return df[mask]
 
-        filtered_rules = proxy_rules[rule_mask]
+    # --- proxy helper (keeps your rules; falls back to subregion if rules don't match) ---
+    def get_proxy_region():
+        # try rules first
+        if proxy_rules is not None and not proxy_rules.empty:
+            try:
+                subregion = str(region_map.loc[country, "subregion"]).lower()
+                continent = str(region_map.loc[country, "continent"]).lower()
+            except Exception:
+                subregion = continent = None
 
-        for _, rule in filtered_rules.iterrows():
-            # Check for country, then region, then continent match
-            if country in str(rule.get("applies_to_countries", "")).lower():
-                return rule["proxy_region"].lower()
-            if subregion and subregion in str(rule.get("applies_to_regions", "")).lower():
-                return rule["proxy_region"].lower()
-            if continent and continent in str(rule.get("applies_to_continents", "")).lower():
-                return rule["proxy_region"].lower()
-        return None
+            rm = (proxy_rules["variable"].str.lower() == variable)
+            if tech:
+                rm &= (proxy_rules["tech"].fillna("").str.lower() == tech)
+            pr = proxy_rules[rm]
 
-    # --- 2. Attempt lookups in hierarchical order ---
-    # Level 1: Direct country match
+            for _, rule in pr.iterrows():
+                if country in str(rule.get("applies_to_countries", "")).lower():
+                    return str(rule["proxy_region"]).lower()
+                if subregion and subregion in str(rule.get("applies_to_regions", "")).lower():
+                    return str(rule["proxy_region"]).lower()
+                if continent and continent in str(rule.get("applies_to_continents", "")).lower():
+                    return str(rule["proxy_region"]).lower()
+
+        # if no rule hit, just use the country’s subregion as proxy
+        try:
+            return str(region_map.loc[country, "subregion"]).strip().lower()
+        except Exception:
+            return None
+
+    # ========== HIERARCHY ==========
+    # 1) Country (region==country)
     subset = find_value(country)
 
-    # Level 2: Proxy region fallback
+    # 2) Country's subregion (direct, before explicit rules/world)
+    if subset.empty and region_map is not None and not region_map.empty:
+        try:
+            sr = str(region_map.loc[country, "subregion"]).strip().lower()
+            subset = find_value(sr)
+            if not subset.empty and used_fallbacks is not None:
+                used_fallbacks[(country, variable, tech, year)] = sr
+                print(f"INFO: No country data for {country.title()} → using subregion '{sr.title()}'.")
+        except KeyError:
+            pass
+
+    # 3) Proxy region (rules or subregion as default from helper)
     if subset.empty:
         proxy = get_proxy_region()
         if proxy:
             subset = find_value(proxy)
             if not subset.empty and used_fallbacks is not None:
                 used_fallbacks[(country, variable, tech, year)] = proxy
-                print(
-                    f"INFO: No direct data for {country.title()} ({variable}, {tech or ''}, {year}). Using proxy '{proxy.title()}'.")
+                print(f"INFO: Using proxy region '{proxy.title()}' for {country.title()}.")
 
-    # Level 3: Global 'world' fallback
+    # 4) World
     if subset.empty:
         subset = find_value("world")
         if not subset.empty and used_fallbacks is not None:
             used_fallbacks[(country, variable, tech, year)] = "world"
-            print(
-                f"INFO: No direct/proxy data for {country.title()} ({variable}, {tech or ''}, {year}). Using 'World' default.")
+            print(f"INFO: Falling back to World for {country.title()}.")
 
-    # --- 3. Process the result or raise an error ---
+    # ========== RESULT ==========
     if subset.empty:
         raise ValueError(
-            f"FATAL: No match found for: Country='{country}', Year='{year}', Var='{variable}', Tech='{tech or 'N/A'}'")
+            f"FATAL: No match found for: Country='{country}', Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}'"
+        )
 
     if len(subset) > 1:
-        val = subset[value_col].mean()
-        print(f"WARNING: Found {len(subset)} matches for the query. Returning the mean value: {val}.")
+        val = float(subset[value_col].mean())
+        print(f"WARNING: {len(subset)} matches; returning mean={val}.")
         return val
 
     return float(subset.iloc[0][value_col])
