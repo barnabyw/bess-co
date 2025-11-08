@@ -8,7 +8,6 @@ from reader import get_val
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess
 from lcoe_helpers import calculate_solar_bess_lcoe, calculate_conventional_lcoe
-from lcoe.lcoe import lcoe
 
 # --- Configuration ---
 CWD = os.path.dirname(os.path.abspath(__file__))
@@ -26,7 +25,7 @@ availability = 0.8
 # --- Load Data ---
 print("Loading input data...")
 countries_df = pd.read_csv(os.path.join(INPUT_PATH, "all_country_coordinates_2.csv"))
-capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted_2025USD.xlsx"))
+capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
 print("Data loaded successfully.")
 
 # --- Optional: specify which countries to run ---

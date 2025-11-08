@@ -10,12 +10,13 @@ input_file = os.path.join(input_path,"capex_opex.xlsx")
 # === OUTPUT PATH (MAIN INPUT) ===
 CWD = os.path.dirname(os.path.abspath(__file__))
 output_path = os.path.join(CWD, "..", "inputs")
-output_file = os.path.join(output_path,"capex_opex_converted_2025USD.xlsx")
+output_file = os.path.join(output_path,"capex_opex_converted.xlsx")
 
-log_file = os.path.join(input_path,"conversion_log.csv")
+log_file = os.path.join(output_path,"conversion_log.csv")
 
 # === LOAD DATA ===
-df = pd.read_excel(input_file, sheet_name="capex_opex")
+capex_opex_df = pd.read_excel(input_file, sheet_name="capex_opex")
+other_df = pd.read_excel(input_file, sheet_name="other")
 deflators = pd.read_excel(input_file, sheet_name="deflators")
 exchange = pd.read_excel(input_file, sheet_name="exchange_rates")
 unit_df = pd.read_excel(input_file, sheet_name="unit_conversion")
@@ -146,10 +147,11 @@ def convert_row(row):
     return row
 
 # === APPLY CONVERSIONS ===
-df_converted = df.apply(convert_row, axis=1)
+df_converted = capex_opex_df.apply(convert_row, axis=1)
+full_df = pd.concat([df_converted, other_df], ignore_index=True)
 
 # === SAVE OUTPUTS ===
-df_converted.to_excel(output_file, index=False)
+full_df.to_excel(output_file, index=False)
 log_df = pd.DataFrame(conversion_log)
 log_df.to_csv(log_file, index=False)
 

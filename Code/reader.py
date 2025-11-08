@@ -32,7 +32,6 @@ def get_val(
         year,
         variable: str,
         tech: str = None,
-        param_type: str = None,  # Renamed 'type' to avoid conflict with Python's built-in
         value_col: str = "value",
         proxy_rules: pd.DataFrame = None,
         region_map: pd.DataFrame = None,
@@ -67,7 +66,6 @@ def get_val(
     country = country.strip().lower()
     variable = variable.strip().lower()
     tech = tech.strip().lower() if tech else None
-    param_type = param_type.strip().lower() if param_type else None
 
     # --- Helper to perform the actual lookup ---
     def find_value(target_region: str):
@@ -80,8 +78,6 @@ def get_val(
         # Conditionally add filters for tech and type if they are provided
         if tech and "tech" in df.columns:
             mask &= df["tech"].str.lower() == tech
-        if param_type and "type" in df.columns:
-            mask &= df["type"].str.lower() == param_type
 
         return df[mask]
 
