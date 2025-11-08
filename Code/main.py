@@ -17,7 +17,7 @@ OUTPUT_PATH = os.path.join(CWD, "..", "outputs")
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 
 BASE_YEAR = 2024
-YEARS = list(range(2010, 2025))
+YEARS = list(range(2024, 2025))
 CONVENTIONAL_TECHS = ["Coal", "Gas"]
 
 # Availability used by Solar+BESS LCOE
@@ -30,7 +30,7 @@ capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted_202
 print("Data loaded successfully.")
 
 # --- Optional: specify which countries to run ---
-target_countries = ["Chile", "Australia", "Spain"]  # or [] to process all
+target_countries = ["Saudi Arabia", "Chile", "Australia", "Spain"]  # or [] to process all
 if target_countries:
     countries_to_process = countries_df[countries_df["Country"].isin(target_countries)]
     print(f"Running analysis for {len(countries_to_process)} selected countries: {', '.join(target_countries)}")
@@ -59,10 +59,13 @@ for _, row in tqdm(
     print(f"  Optimizing Solar+BESS for base year {BASE_YEAR}...")
     try:
         solar_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "Solar")
+        print(f"Solar capex is {solar_capex_base}")
+
         bess_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "BESS")
+        print(f"BESS capex is {bess_capex_base}")
 
         cost, solar_cap, bess_energy, results_1 = optimise_bess(
-            yearly_profile, solar_capex_base, bess_capex_base
+            yearly_profile, solar_capex_base, bess_capex_base, availability=availability
         )
 
         # pass `availability` to the helper
@@ -89,7 +92,7 @@ for _, row in tqdm(
         if year == BASE_YEAR:
             continue  # already done
 
-        #pass `availability` (simple helper expects this)
+        #pass availability
         result = calculate_solar_bess_lcoe(
             country, year, solar_cap, bess_energy, availability, capex_opex_df
         )
@@ -108,7 +111,7 @@ for _, row in tqdm(
         print(f"  Calculating {tech} LCOE for all years...")
         for year in YEARS:
             try:
-                cf = get_val(capex_opex_df, country, year, "capacity_factor", tech)
+                cf = availability
                 result = calculate_conventional_lcoe(
                     country=country,
                     year=year,

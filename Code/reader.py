@@ -29,7 +29,7 @@ except FileNotFoundError as e:
 def get_val(
         df: pd.DataFrame,
         country: str,
-        year: int,
+        year,
         variable: str,
         tech: str = None,
         param_type: str = None,  # Renamed 'type' to avoid conflict with Python's built-in

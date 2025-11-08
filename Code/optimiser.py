@@ -7,6 +7,11 @@ import numpy as np
 import time
 from pyomo.opt import SolverFactory
 
+CWD = os.path.dirname(os.path.abspath(__file__))
+INPUT_PATH = os.path.join(CWD, "..", "inputs")
+
+countries_df = pd.read_csv(os.path.join(INPUT_PATH, "all_country_coordinates_2.csv"))
+
 #===Model Setup===
 # -----------------------------
 penalty_weight = 1e-3
@@ -210,12 +215,23 @@ def optimise_availability(solar_profile, solar_capacity, bess_energy, load,
 if __name__ == "__main__":
     latitude = 19.4326
     longitude = 99.1332
+    #country = "Australia"
+    """
+    # Filter the row where 'Country' matches
+    row = countries_df[countries_df['Country'] == country]
 
+    if not row.empty:
+        latitude = row.iloc[0]['Latitude']
+        longitude = row.iloc[0]['Longitude']
+        print(f"{country}: lat={latitude}, lon={longitude}")
+    else:
+        print(f"Country '{country}' not found in DataFrame.")
+    """
     solar_profile = generate_hourly_solar_profile(latitude, longitude, solar_year=2023)
     print("got solar profile")
     profile = solar_profile
-    solar_capex = 500
-    bess_energy_capex = 200
+    solar_capex = 690
+    bess_energy_capex = 191
     cost, solar_capacity, bess_energy, results_1 = optimise_bess(solar_profile, solar_capex, bess_energy_capex)
     print(f"solar cap is {solar_capacity}, bess is {bess_energy}")
     availability, results_2 = optimise_availability(profile, solar_capacity, bess_energy, load=load)

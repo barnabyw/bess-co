@@ -24,8 +24,8 @@ def calculate_solar_bess_lcoe(
         # Get all required financial and technical parameters for the given year
         solar_capex = get_val(capex_opex_df, country, year, "capex", "Solar")
         bess_capex = get_val(capex_opex_df, country, year, "capex", "BESS")
-        solar_opex = get_val(capex_opex_df, country, year, "opex", "Solar", param_type="fixed")
-        bess_opex = get_val(capex_opex_df, country, year, "opex", "BESS", param_type="fixed")
+        solar_opex = get_val(capex_opex_df, country, "all", "opex", "Solar", param_type="fixed")
+        bess_opex = get_val(capex_opex_df, country, "all", "opex", "BESS", param_type="fixed")
         discount_rate = get_val(capex_opex_df, country, year, "discount_rate")  # Assumes discount_rate is a variable
         solar_lifetime = int(get_val(capex_opex_df, country, year, "lifetime", "Solar"))
 
@@ -62,8 +62,8 @@ def calculate_conventional_lcoe(
     try:
         # Inputs from table
         capex_kw = get_val(capex_opex_df, country, year, "capex", tech)                          # $/kW
-        opex_fixed_kwyr = get_val(capex_opex_df, country, year, "opex", tech, param_type="fixed") # $/kW/yr
-        opex_var_mwh = get_val(capex_opex_df, country, year, "opex", tech, param_type="variable") # $/MWh
+        opex_fixed_kwyr = get_val(capex_opex_df, country, "all", "opex", tech, param_type="fixed") # $/kW/yr
+        opex_var_mwh = get_val(capex_opex_df, country, "all", "opex", tech, param_type="variable") # $/MWh
         fuel_cost_mwh_fuel = get_val(capex_opex_df, country, year, "fuel", tech)                  # $/MWh_fuel
         efficiency = _to_frac(get_val(capex_opex_df, country, year, "efficiency", tech))          # 0–1 (or 0–100)
         discount_rate = get_val(capex_opex_df, country, year, "discount_rate")                    # 0–1 (or 0–100)
