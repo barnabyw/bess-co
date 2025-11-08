@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from tqdm import tqdm  # progress bars
 
-# --- Import your custom modules ---
+# --- Import custom modules ---
 from reader import get_val
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess

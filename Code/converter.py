@@ -6,7 +6,11 @@ from Code.archive.assumptions import base_path
 # === CONFIG ===
 input_path = os.path.join(base_path,"inputs")
 input_file = os.path.join(input_path,"capex_opex.xlsx")
-output_file = os.path.join(input_path,"capex_opex_converted_2025USD.xlsx")
+
+# === OUTPUT PATH (MAIN INPUT) ===
+CWD = os.path.dirname(os.path.abspath(__file__))
+output_path = os.path.join(CWD, "..", "inputs")
+output_file = os.path.join(output_path,"capex_opex_converted_2025USD.xlsx")
 
 log_file = os.path.join(input_path,"conversion_log.csv")
 
@@ -24,14 +28,25 @@ TARGET_CURRENCY = "USD"
 # --- Create lookups ---
 deflators = deflators.set_index("year")["USD_deflator"].to_dict()
 exchange = exchange.set_index("year").to_dict(orient="index")
-unit_conversions = {
-    (row["from_unit"], str(row.get("context", "")).lower() or "general"): {
-        "to_unit": row["to_unit"],
-        "multiplier": float(row["multiplier"]),
-        "context": str(row.get("context", "general"))
+
+def _norm(s):
+    return str(s).strip().lower() if pd.notna(s) else ""
+
+unit_df["context"] = unit_df["context"].fillna("").map(_norm)
+unit_df["from_unit_norm"] = unit_df["from_unit"].map(_norm)
+unit_df["to_unit_norm"] = unit_df["to_unit"].map(_norm)
+
+# prefer exact tech context; fall back to "general"
+unit_conversions = {}
+for _, r in unit_df.iterrows():
+    ctx = r["context"] or "general"
+    key = (r["from_unit_norm"], ctx)
+    unit_conversions[key] = {
+        "to_unit": r["to_unit"],
+        "to_unit_norm": r["to_unit_norm"],
+        "multiplier": float(r["multiplier"]),
+        "context": ctx
     }
-    for _, row in unit_df.iterrows()
-}
 
 # === HELPER FUNCTIONS ===
 def get_deflator(year):
@@ -57,70 +72,75 @@ def get_exchange_rate(currency, year):
     col = f"{currency}_to_USD"
     return rates.get(col, 1.0)
 
-def get_unit_conversion(from_unit, context="general"):
-    """Return multiplier and new unit based on unit and tech/fuel context."""
-    context = context.lower()
-    return (
-        unit_conversions.get((from_unit, context))
-        or unit_conversions.get((from_unit, "general"))
-    )
+def get_unit_conversion(from_unit, tech):
+    fu = (from_unit or "").strip().lower()
+    ctx = (tech or "").strip().lower()
+
+    # exact tech context
+    conv = unit_conversions.get((fu, ctx))
+    if conv:
+        return conv
+    # general fallback
+    return unit_conversions.get((fu, "general"))
 
 # === INITIALISE LOG ===
 conversion_log = []
 
 # === MAIN CONVERSION ===
 def convert_row(row):
-    money = str(row.get("money", "USD")).upper().strip()
-    money_year = row.get("money year", TARGET_YEAR)
-    value = row["value"]
+    # ---- inputs / originals
+    value = row.get("value")
     if pd.isna(value):
         return row
 
-    original_value = value
-    original_money = money
-    original_year = money_year
-    original_units = str(row.get("units", "")).strip()
+    orig_value = value
+    orig_money = str(row.get("money", "USD")).upper().strip()
+    orig_year  = row.get("money year", TARGET_YEAR)
+    orig_units = str(row.get("units", "")).strip()
+    tech       = str(row.get("tech", "")).strip()
 
-    # 1️⃣ Currency conversion to USD for that year
-    fx_rate = get_exchange_rate(money, money_year)
-    value_usd = value * fx_rate
+    # 1) FX to USD (same-year)
+    fx_rate = get_exchange_rate(orig_money, orig_year)
+    value = value * fx_rate
 
-    # 2️⃣ Inflation adjustment to 2025 USD
-    deflator = get_deflator(money_year)
-    value_2025usd = value_usd * deflator
+    # 2) Inflate to target-year USD
+    deflator = get_deflator(orig_year)
+    value = value * deflator
 
-    # 3️⃣ Unit conversion
-    tech_context = f"{row.get('tech', '')} {row.get('variable', '')}".lower()
-    conv = get_unit_conversion(original_units, tech_context)
+    # 3) Unit conversion (only if a rule exists AND units differ)
+    conv = get_unit_conversion(orig_units, tech)
     if conv:
-        value_2025usd *= conv["multiplier"]
+        value *= conv["multiplier"]
         new_units = conv["to_unit"]
-        conv_context = conv["context"]
+        ctx_used = conv["context"]
+        unit_mult = conv["multiplier"]
     else:
-        new_units = original_units
-        conv_context = "none"
+        new_units = orig_units
+        ctx_used = "none"
+        unit_mult = 1.0
 
-    # Update row
-    row["value"] = value_2025usd
+    # ---- update row
+    row["value"] = value
     row["money"] = TARGET_CURRENCY
     row["money year"] = TARGET_YEAR
     row["units"] = new_units
 
-    # Append to log
+    # ---- log
     conversion_log.append({
-        "tech": row.get("tech"),
+        "tech": tech,
         "variable": row.get("variable"),
-        "from_currency": original_money,
+        "from_currency": orig_money,
         "to_currency": TARGET_CURRENCY,
-        "currency_year": original_year,
+        "currency_year": orig_year,
         "fx_rate": fx_rate,
         "deflator": deflator,
-        "from_unit": original_units,
+        "from_unit": orig_units,
         "to_unit": new_units,
-        "unit_multiplier": conv["multiplier"] if conv else 1.0,
-        "context_used": conv_context,
-        "value_before": original_value,
-        "value_after": value_2025usd
+        "unit_multiplier": unit_mult,
+        "context_used": ctx_used,
+        "value_before": orig_value,
+        "value_after": value,
+        "note": "" if conv else f"No unit rule for '{orig_units}' with tech '{tech}', kept units."
     })
 
     return row
