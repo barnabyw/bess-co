@@ -110,7 +110,7 @@ def get_val(
     # 1) Country (region==country)
     subset = find_value(country)
 
-    # 2) Country's subregion (direct, before explicit rules/world)
+    # 2a) Country's subregion (direct, before explicit rules/world)
     if subset.empty and region_map is not None and not region_map.empty:
         try:
             sr = str(region_map.loc[country, "subregion"]).strip().lower()
@@ -118,6 +118,17 @@ def get_val(
             if not subset.empty and used_fallbacks is not None:
                 used_fallbacks[(country, variable, tech, year)] = sr
                 print(f"INFO: No country data for {country.title()} → using subregion '{sr.title()}'.")
+        except KeyError:
+            pass
+
+    # 2b) Country's continent
+    if subset.empty and region_map is not None and not region_map.empty:
+        try:
+            cont = str(region_map.loc[country, "continent"]).strip().lower()
+            subset = find_value(cont)
+            if not subset.empty and used_fallbacks is not None:
+                used_fallbacks[(country, variable, tech, year)] = cont
+                print(f"INFO: No country/subregion data for {country.title()} → using continent '{cont.title()}'.")
         except KeyError:
             pass
 
@@ -145,7 +156,7 @@ def get_val(
 
     if len(subset) > 1:
         val = float(subset[value_col].mean())
-        print(f"WARNING: {len(subset)} matches; returning mean={val}.")
+        print(f"WARNING: {len(subset)} matches for: Country='{country}', Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}; returning mean={val}.")
         return val
 
     return float(subset.iloc[0][value_col])

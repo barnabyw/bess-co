@@ -148,6 +148,8 @@ def convert_row(row):
 
 # === APPLY CONVERSIONS ===
 df_converted = capex_opex_df.apply(convert_row, axis=1)
+
+# === ADD FIXED VALUES (WACC, LIFETIME, ETC.) ===
 full_df = pd.concat([df_converted, other_df], ignore_index=True)
 
 # === SAVE OUTPUTS ===
