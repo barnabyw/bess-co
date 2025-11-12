@@ -55,13 +55,9 @@ for _, row in tqdm(
     yearly_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
 
     # === Step 1: Optimize Solar+BESS capacity for the base year ===
-    print(f"  Optimizing Solar+BESS for base year {BASE_YEAR}...")
     try:
         solar_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "Solar")
-        print(f"Solar capex is {solar_capex_base}")
-
         bess_capex_base = get_val(capex_opex_df, country, BASE_YEAR, "capex", "BESS")
-        print(f"BESS capex is {bess_capex_base}")
 
         cost, solar_cap, bess_energy, results_1 = optimise_bess(
             yearly_profile, solar_capex_base, bess_capex_base, availability=availability
@@ -75,11 +71,11 @@ for _, row in tqdm(
         # store the LCOE value
         all_results.append({
             "Country": country, "Year": BASE_YEAR, "Tech": "Solar+BESS",
-            "LCOE": result.get("LCOE") if result else None,
-            "Cost": result.get("Total_Capex") if result else None,
-            "Solar_Capacity_MW": solar_cap, "BESS_Energy_MWh": bess_energy,
+            "LCOE": round(result.get("LCOE"), 2),
+            "Cost": result.get("Total_Capex"),
+            "Solar_Capacity_MW": round(solar_cap, 1), "BESS_Energy_MWh": round(bess_energy, 1),
         })
-        print(f"  -> Optimal capacity for {country}: Solar={solar_cap:.2f} MW, BESS={bess_energy:.2f} MWh")
+        print(f"{country:<15} | LCOE={result.get('LCOE'):.2f} | Solar={solar_cap:.1f} MW | BESS={bess_energy:.1f} MWh")
 
     except ValueError as e:
         print(f"  ERROR: Could not optimize for {country} in {BASE_YEAR}. Skipping. Reason: {e}")
@@ -99,8 +95,8 @@ for _, row in tqdm(
         if result:
             all_results.append({
                 "Country": country, "Year": year, "Tech": "Solar+BESS",
-                "LCOE": result.get("LCOE"), "Cost": result.get("Total_Capex"),
-                "Solar_Capacity_MW": solar_cap, "BESS_Energy_MWh": bess_energy,
+                "LCOE": round(result.get("LCOE"), 2), "Cost": result.get("Total_Capex"),
+                "Solar_Capacity_MW": round(solar_cap, 1), "BESS_Energy_MWh": round(bess_energy, 1),
             })
 
     # === Step 3: Conventional tech LCOE across all years ===

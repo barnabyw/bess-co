@@ -92,12 +92,11 @@ def optimise_bess(
     )
 
     # Solve the model
-    print("Optimising...")
     start_time = time.time()
     solver = SolverFactory('cbc')
     solver.solve(model)
     end_time = time.time()
-    print(f"Optimisation completed in {round(end_time - start_time, 1)} seconds")
+    #print(f"Optimisation completed in {round(end_time - start_time, 1)} seconds")
 
     # --- KEY CHANGES START HERE ---
 
@@ -105,11 +104,6 @@ def optimise_bess(
     total_energy_served_mwh = sum(pyo.value(model.energy_served_t[t]) for t in T)
 
     # Print results
-    print("Optimal Solar Capacity (MW):", pyo.value(model.solar_capacity))
-    print("Optimal BESS Energy (MWh):", pyo.value(model.bess_energy))
-    print("Total System Cost:", round(pyo.value(model.cost),0))
-    print(f"Total Energy Served (MWh): {round(total_energy_served_mwh, 1)}")
-    print(f"Number of hours: {round(periods, 1)}")
 
     results_data = None
     if return_timeseries:

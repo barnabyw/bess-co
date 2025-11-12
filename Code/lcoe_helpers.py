@@ -27,7 +27,7 @@ def calculate_solar_bess_lcoe(
         solar_opex = get_val(capex_opex_df, country, "all", "opex_f", "Solar")
         bess_opex = get_val(capex_opex_df, country, "all", "opex_f", "BESS")
         discount_rate = get_val(capex_opex_df, country, "all", "wacc", "Solar")  # Use wacc of solar - favourable assumption for bess
-        solar_lifetime = int(get_val(capex_opex_df, country, "all", "lifetime", "Solar"))
+        solar_lifetime = int(get_val(capex_opex_df, country, "all", "life", "Solar"))
 
         af = _to_frac(availability)
         r = _to_frac(discount_rate)
@@ -67,7 +67,7 @@ def calculate_conventional_lcoe(
         fuel_cost_mwh_fuel = get_val(capex_opex_df, country, year, "fuel", tech)                 # $/MWh_fuel
         efficiency = _to_frac(get_val(capex_opex_df, country, "all", "efficiency", tech))         # 0–1 (or 0–100)
         discount_rate = get_val(capex_opex_df, country, "all", "wacc", "Solar")              # 0–1 (or 0–100) in absence of other, use solar
-        lifetime = int(get_val(capex_opex_df, country, "all", "lifetime", tech))                  # years
+        lifetime = int(get_val(capex_opex_df, country, "all", "life", tech))                  # years
 
         cf = _to_frac(capacity_factor)
         r = _to_frac(discount_rate)
@@ -90,9 +90,9 @@ def calculate_conventional_lcoe(
 
     except ValueError as e:
         print(f" - Could not calculate {tech} LCOE for {year}: {e}")
-        return None
+        raise
 
 
     except ValueError as e:
         print(f"  - Could not calculate {tech} LCOE for {year}: {e}")
-        return None
+        raise
