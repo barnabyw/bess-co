@@ -220,7 +220,7 @@ results_df.to_csv(output_file, index=False)
 
 audit_df = pd.DataFrame(AUDIT_LOG)
 audit_file = os.path.join(OUTPUT_PATH, "lcoe_input_audit_log.csv")
-audit_df.to_csv(audit_file, index=False)
+#audit_df.to_csv(audit_file, index=False)
 
 logger.info("Results saved to %s", output_file)
 logger.info("Audit log saved to %s", audit_file)

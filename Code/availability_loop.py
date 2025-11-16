@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from profile import generate_hourly_solar_profile
 from reader import get_val
-from optimiser import optimise_bess  # Adjust path
+from optimiser import optimise_bess  # make sure this imports the new version
 
 # ---------------------------------------------
 # CONFIG
@@ -47,7 +47,7 @@ bess_capex = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex", "bess")
 # ---------------------------------------------
 # MAIN LOOP — BI-ready long format
 # ---------------------------------------------
-long_rows = []   # list of dicts (fastest structure for large tables)
+long_dfs = []   # list of DataFrames to concat
 
 for avail in tqdm(AVAILABILITIES, desc="Availability Sweep"):
 
@@ -63,65 +63,52 @@ for avail in tqdm(AVAILABILITIES, desc="Availability Sweep"):
     if ts is None:
         continue
 
-    # --- compute solar breakdown ---
-    solar_gen = ts["Solar_Generation_MWh"]
-    bess_flow = ts["BESS_Flow_MWh"]
+    # Add metadata
+    ts = ts.copy()
+    ts["Availability"] = avail
+    ts["Country"] = COUNTRY
 
-    # where bess_flow < 0 → charging
-    solar_to_bess = np.clip(-bess_flow, 0, None)
-
-    # direct use = min(solar_gen - charging, demand - discharge)
-    solar_used = np.minimum(solar_gen - solar_to_bess,
-                            LOAD - np.clip(bess_flow, 0, None))
-
-    solar_used = np.clip(solar_used, 0, None)
-
-    # curtailment = remaining solar not used or stored
-    solar_curtailed = solar_gen - solar_used - solar_to_bess
-    solar_curtailed = np.clip(solar_curtailed, 0, None)
-
-    bess_discharge = np.clip(bess_flow, 0, None)
-
-    served = ts["Energy_Served_MWh"]
-    unserved = LOAD - served
-    unserved = np.clip(unserved, 0, None)
-
-    # --------------------------------------------
-    # LONG FORMAT STACKED ROWS
-    # --------------------------------------------
-    hours = ts["Hour"]
-
-    variables = {
-        "solar_used": solar_used,
-        "solar_to_bess": solar_to_bess,
-        "solar_curtailed": solar_curtailed,
-        "bess_discharge": bess_discharge,
-        "soc": ts["SOC_MWh"],
-        "energy_served": served,
-        "energy_unserved": unserved,
+    # Optional: keep raw solar generation as a separate variable too
+    # Map model column names -> nice variable names for long format
+    rename_map = {
+        "Solar_Used_MWh":      "solar_used",
+        "Solar_Charge_MWh":    "solar_to_bess",
+        "Solar_Curtailed_MWh": "solar_curtailed",
+        "BESS_Discharge_MWh":  "bess_discharge",
+        "SOC_MWh":             "soc",
+        "Energy_Served_MWh":   "energy_served",
+        "Energy_Unserved_MWh": "energy_unserved",
+        "Solar_Gen_MWh":       "solar_generation",  # if you want this too
     }
 
-    for var_name, series in variables.items():
-        for h, v in zip(hours, series):
-            long_rows.append({
-                "Hour": h,
-                "Variable": var_name,
-                "Value": v,
-                "Availability": avail,
-                "Country": COUNTRY
-            })
+    # Only keep variables that actually exist in ts
+    value_vars = [col for col in rename_map.keys() if col in ts.columns]
+    ts = ts.rename(columns=rename_map)
+
+    # Melt to long format
+    long_ts = ts.melt(
+        id_vars=["Hour", "Availability", "Country"],
+        value_vars=[rename_map[c] for c in value_vars],
+        var_name="Variable",
+        value_name="Value",
+    )
+
+    long_dfs.append(long_ts)
 
 # ---------------------------------------------
 # EXPORT
 # ---------------------------------------------
-final_df = pd.DataFrame(long_rows)
+if long_dfs:
+    final_df = pd.concat(long_dfs, ignore_index=True)
 
-outfile = os.path.join(
-    OUTPUT_PATH,
-    f"long_timeseries_{COUNTRY.replace(' ', '_')}.csv"
-)
+    outfile = os.path.join(
+        OUTPUT_PATH,
+        f"long_timeseries_{COUNTRY.replace(' ', '_')}.csv"
+    )
 
-final_df.to_csv(outfile, index=False)
+    final_df.to_csv(outfile, index=False)
 
-print(f"\nSaved BI-ready long dataframe ({len(final_df)} rows) to:")
-print(outfile)
+    print(f"\nSaved BI-ready long dataframe ({len(final_df)} rows) to:")
+    print(outfile)
+else:
+    print("No results produced.")
