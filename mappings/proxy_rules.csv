@@ -1,6 +1,6 @@
 variable,tech,proxy_region,applies_to_continents,applies_to_regions,applies_to_countries
-fuel,gas,netherlands,"europe, africa, asia, oceania",latin america,
-fuel,gas,united states,north america,,
+fuel,gas,netherlands,"europe, africa, oceania",latin america,
+fuel,gas,north america,,,"saudi arabia, qatar"
 fuel,gas,brazil,,south america,
 capex,solar,world,all,,
 opex,wind,united kingdom,europe,,

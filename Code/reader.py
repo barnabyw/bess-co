@@ -3,20 +3,11 @@ import pandas as pd
 
 # --- Load default mappings (quietly tolerate absence) ---
 _DATA_DIR = Path(__file__).resolve().parent / ".." / "mappings"
-try:
-    _DEFAULT_PROXY_RULES = pd.read_csv(_DATA_DIR / "proxy_rules.csv")
-except Exception:
-    _DEFAULT_PROXY_RULES = pd.DataFrame()
 
-try:
-    _DEFAULT_REGION_MAP = pd.read_csv(_DATA_DIR / "region_map.csv")
-    _DEFAULT_REGION_MAP["country"] = _DEFAULT_REGION_MAP["country"].str.strip().str.casefold()
-    _DEFAULT_REGION_MAP = _DEFAULT_REGION_MAP.set_index("country")
-except Exception:
-    _DEFAULT_REGION_MAP = pd.DataFrame(columns=["subregion", "continent"]).set_index(
-        pd.Index([], name="country")
-    )
-
+_DEFAULT_PROXY_RULES = pd.read_csv(_DATA_DIR / "proxy_rules.csv")
+_DEFAULT_REGION_MAP = pd.read_csv(_DATA_DIR / "region_map.csv")
+_DEFAULT_REGION_MAP["country"] = _DEFAULT_REGION_MAP["country"].str.strip().str.casefold()
+_DEFAULT_REGION_MAP = _DEFAULT_REGION_MAP.set_index("country")
 
 def _norm_str(x: str | None) -> str | None:
     x = (x or "").strip()
@@ -172,3 +163,41 @@ def get_val(
         f"FATAL: No match found for: Country='{country}', "
         f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}'"
     )
+
+if __name__ == "__main__":
+    import os
+
+    print("Country norm:", _norm_str("Saudi Arabia"))
+
+    print("Region map row for Saudi Arabia:")
+    print(_DEFAULT_REGION_MAP.loc[_norm_str("Saudi Arabia")])
+
+    fuel_gas_rules = _DEFAULT_PROXY_RULES[
+        _DEFAULT_PROXY_RULES["variable"].astype(str).str.casefold().eq("fuel") &
+        _DEFAULT_PROXY_RULES["tech"].astype(str).str.casefold().eq("gas")
+        ]
+    print("fuel/gas proxy rules:")
+    print(fuel_gas_rules)
+
+    print("_proxy_region result:")
+    print(_proxy_region(
+        country=_norm_str("Saudi Arabia"),
+        variable=_norm_str("fuel"),
+        tech=_norm_str("gas"),
+        region_map=_DEFAULT_REGION_MAP,
+        proxy_rules=_DEFAULT_PROXY_RULES,
+    ))
+
+    CWD = os.path.dirname(os.path.abspath(__file__))
+    INPUT_PATH = os.path.join(CWD, "..", "inputs")
+    capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
+
+    fuel = get_val(
+    capex_opex_df,
+    "Saudi Arabia",
+    2024,
+    "fuel",
+    "gas",
+    "value")
+
+    print(fuel)

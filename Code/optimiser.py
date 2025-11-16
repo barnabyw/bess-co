@@ -14,7 +14,6 @@ countries_df = pd.read_csv(os.path.join(INPUT_PATH, "all_country_coordinates_2.c
 
 #===Model Setup===
 # -----------------------------
-penalty_weight = 1e-3
 
 def optimise_bess(
     solar_profile,
@@ -228,7 +227,7 @@ if __name__ == "__main__":
     bess_energy_capex = 191
     cost, solar_capacity, bess_energy, results_1 = optimise_bess(solar_profile, solar_capex, bess_energy_capex)
     print(f"solar cap is {solar_capacity}, bess is {bess_energy}")
-    availability, results_2 = optimise_availability(profile, solar_capacity, bess_energy, load=load)
+    availability, results_2 = optimise_availability(profile, solar_capacity, bess_energy, 1)
     results_2.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\avail_results.csv')
     print(f"availability is {availability}")
     # Setting up environment

@@ -61,7 +61,7 @@ def calculate_conventional_lcoe(
     """Calculates LCOE for a conventional power plant for a given year (simple version)."""
     try:
         # Inputs from table
-        capex_kw = get_val(capex_opex_df, country, year, "capex", tech)                          # $/kW
+        capex_kw = get_val(capex_opex_df, country, "all", "capex", tech)                          # $/kW
         opex_fixed_kwyr = get_val(capex_opex_df, country, "all", "opex_f", tech)            # $/kW/yr
         opex_var_mwh = get_val(capex_opex_df, country, "all", "opex_v", tech)               # $/MWh
         fuel_cost_mwh_fuel = get_val(capex_opex_df, country, year, "fuel", tech)                 # $/MWh_fuel
