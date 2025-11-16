@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+import logging
+logger = logging.getLogger(__name__)
 
 # --- Load default mappings (quietly tolerate absence) ---
 _DATA_DIR = Path(__file__).resolve().parent / ".." / "mappings"
@@ -109,7 +111,10 @@ def get_val(
     proxy_rules: pd.DataFrame | None = None,
     region_map: pd.DataFrame | None = None,
     used_fallbacks: dict | None = None,
+    audit_log: list | None = None,
+    audit_context: dict | None = None,
 ) -> float:
+
     """
     Hierarchy: country → subregion → continent → proxy (rules) → world.
     - Case-insensitive matching on strings
@@ -147,22 +152,44 @@ def get_val(
         if used_fallbacks is not None and idx > 0:
             used_fallbacks[(country, variable, tech, year)] = region
 
+        # --- AUDIT LOGGING --------------------------------------------------
+        if audit_log is not None:
+            audit_entry = {
+                "query_country": country,
+                "query_variable": variable,
+                "query_tech": tech,
+                "query_year": year,
+                "region_used": region,
+                "df_indices": list(vals.index),
+                "df_values": vals.tolist(),
+            }
+            if audit_context:
+                audit_entry.update(audit_context)
+            audit_log.append(audit_entry)
+        # --------------------------------------------------------------------
+
         if len(vals) > 1:
             val = float(vals.astype(float).mean())
-            print(
-                f"WARNING: {len(vals)} matches for Country='{country}', "
-                f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}'; "
-                f"returning mean={val}."
+            logger.warning(
+                "Multiple (%d) matches for Country='%s', Year='%s', Var='%s', Tech='%s'; "
+                "returning mean=%f.",
+                len(vals),
+                country,
+                year if year is not None else "ALL",
+                variable,
+                tech or "N/A",
+                val,
             )
             return val
 
         return float(vals.iloc[0])
 
-    # Nothing found
-    raise ValueError(
+    msg = (
         f"FATAL: No match found for: Country='{country}', "
         f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}'"
     )
+    logger.error(msg)
+    raise ValueError(msg)
 
 if __name__ == "__main__":
     import os
