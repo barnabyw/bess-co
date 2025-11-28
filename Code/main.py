@@ -7,7 +7,7 @@ import logging
 
 # === Import custom modules ===
 from reader import get_val
-from profile import generate_hourly_solar_profile
+from profile import generate_hourly_historical_solar_profile #, generate_hourly_solar_profile
 from optimiser import optimise_bess
 from lcoe_helpers import calculate_solar_bess_lcoe, calculate_conventional_lcoe
 from logging_conf import setup_logging
@@ -22,6 +22,7 @@ output_file = os.path.join(OUTPUT_PATH, "lcoe_results.csv")
 BASE_YEAR = 2024
 YEARS = list(range(2015, 2025))
 CONVENTIONAL_TECHS = ["Coal", "Gas"]
+APPEND_RESULTS = True
 
 # === Logging ===
 setup_logging(OUTPUT_PATH)
@@ -37,7 +38,7 @@ capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xls
 logger.info("Data loaded successfully.")
 
 # === Select Countries ===
-target_countries = ["United States", "Australia", "Spain"] #,"Saudi Arabia", "Chile", "United Kingdom"]
+target_countries = ["United Kingdom"] #,"Saudi Arabia", "Chile", ] "United States", "Australia", "Spain"
 
 if target_countries:
     countries_to_process = countries_df[countries_df["Country"].isin(target_countries)]
@@ -74,7 +75,11 @@ for _, row in countries_to_process.iterrows():
     logger.info("Processing %s (lat=%.4f, lon=%.4f)...", country, lat, lon)
 
     # Generate solar profile once per country
-    yearly_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
+    try:
+        yearly_profile = generate_hourly_historical_solar_profile(lat, lon, solar_year=2023)
+    except RuntimeError as e:
+        logger.error(f"Solar profile generation failed for {country}: {e}")
+        continue
 
     # Base-year CAPEX (audited)
     try:
@@ -206,8 +211,6 @@ overall_pbar.close()
 # === Save Outputs ===
 logger.info("Analysis complete. Compiling and saving results...")
 
-results_df = pd.DataFrame(all_results)
-
 output_cols = [
     "Result_ID",
     "Country", "Year", "Tech", "Availability",
@@ -215,13 +218,30 @@ output_cols = [
     "Solar_Capacity_MW", "BESS_Energy_MWh",
 ]
 
-results_df = results_df[output_cols]
-results_df.to_csv(output_file, index=False)
+results_df = pd.DataFrame(all_results)[output_cols]
 
-audit_df = pd.DataFrame(AUDIT_LOG)
-audit_file = os.path.join(OUTPUT_PATH, "lcoe_input_audit_log.csv")
-#audit_df.to_csv(audit_file, index=False)
+# -------------------------------------------------------
+# APPEND OR OVERWRITE LOGIC
+# -------------------------------------------------------
+if APPEND_RESULTS and os.path.exists(output_file):
+    logger.info("Appending to existing results file...")
 
-logger.info("Results saved to %s", output_file)
-logger.info("Audit log saved to %s", audit_file)
-logger.info("Head of results:\n%s", results_df.head())
+    # Load existing file
+    existing_df = pd.read_csv(output_file)
+
+    # Combine
+    combined_df = pd.concat([existing_df, results_df], ignore_index=True)
+
+    # Optional: drop duplicate Result_IDs or (Country, Year, Tech, Availability)
+    combined_df.drop_duplicates(
+        subset=["Country", "Year", "Tech", "Availability"],
+        keep="last",
+        inplace=True
+    )
+
+    combined_df.to_csv(output_file, index=False)
+    logger.info("Updated results appended to %s", output_file)
+
+else:
+    logger.info("Saving new results file (overwrite mode)...")
+    results_df.to_csv(output_file, index=False)
