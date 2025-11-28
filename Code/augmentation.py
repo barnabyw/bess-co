@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
 
 # --------------------------------------------------
@@ -152,13 +153,13 @@ if __name__ == "__main__":
     result = optimise_bess_two_block_df(
         optimal_bess_mwh=10,
         cycles_per_annum=300,
-        discount_rate=0.07,
+        discount_rate=0.08,
         capex_df=capex_df,
         cycles_curve=cycles_curve,
         retention_curve=retention_curve,
         build_year=2023,               # last available CAPEX year is 2025 → OK
-        project_life=15,
-        project_energy_gwh_per_annum=8760,
+        project_life=25,
+        project_energy_gwh_per_annum=8.76,
     )
 
     print("\n" + "=" * 60)

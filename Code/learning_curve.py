@@ -48,7 +48,7 @@ def fit_learning_curve(path, cum_col="gwh capacity", cost_col="$/kWh", sheet_nam
     print("====================================================\n")
 
     # Clean df for output
-    df_clean = df.rename(columns={cum_col: "cum", cost_col: "cost", "Year": "year"})
+    df_clean = df.rename(columns={cum_col: "installed_cap_gwh", cost_col: "bess_capex_kwh", "Year": "year"})
     df_clean = df_clean.sort_values("year").reset_index(drop=True)
 
     return {
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # === Create future projection to 2040 using CAGR ===
     start_year = int(df_hist["year"].iloc[-1])
-    last_cum = df_hist["cum"].iloc[-1]
+    last_cum = df_hist["installed_cap_gwh"].iloc[-1]
 
     end_year = 2040
     years_future = np.arange(start_year + 1, end_year + 1)
