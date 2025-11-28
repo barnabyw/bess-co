@@ -37,7 +37,7 @@ capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xls
 logger.info("Data loaded successfully.")
 
 # === Select Countries ===
-target_countries = ["United States", "Saudi Arabia", "Chile", "Australia", "Spain", "United Kingdom"]
+target_countries = ["United States", "Australia", "Spain"] #,"Saudi Arabia", "Chile", "United Kingdom"]
 
 if target_countries:
     countries_to_process = countries_df[countries_df["Country"].isin(target_countries)]

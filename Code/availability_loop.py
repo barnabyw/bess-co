@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from profile import generate_hourly_solar_profile
 from reader import get_val
-from optimiser import optimise_bess  # make sure this imports the new version
+from optimiser import optimise_bess
 
 # ---------------------------------------------
 # CONFIG
@@ -42,7 +42,7 @@ solar_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
 # COST INPUTS
 # ---------------------------------------------
 solar_capex = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex", "solar")
-bess_capex = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex", "bess")
+bess_capex  = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex", "bess")
 
 # ---------------------------------------------
 # MAIN LOOP — BI-ready long format
@@ -63,32 +63,41 @@ for avail in tqdm(AVAILABILITIES, desc="Availability Sweep"):
     if ts is None:
         continue
 
-    # Add metadata
+    # ----- add meta + capacities as columns -----
     ts = ts.copy()
     ts["Availability"] = avail
     ts["Country"] = COUNTRY
 
-    # Optional: keep raw solar generation as a separate variable too
+    # capacities are constant across all hours for this run
+    ts["Solar_Capacity_MW"] = solar_cap
+    ts["BESS_Energy_MWh"]   = bess_energy
+
     # Map model column names -> nice variable names for long format
     rename_map = {
-        "Solar_Used_MWh":      "solar_used",
-        "Solar_Charge_MWh":    "solar_to_bess",
-        "Solar_Curtailed_MWh": "solar_curtailed",
-        "BESS_Discharge_MWh":  "bess_discharge",
-        "SOC_MWh":             "soc",
-        "Energy_Served_MWh":   "energy_served",
-        "Energy_Unserved_MWh": "energy_unserved",
-        "Solar_Gen_MWh":       "solar_generation",  # if you want this too
+        "Solar_Used_MWh":       "solar_used",
+        "Solar_Charge_MWh":     "solar_to_bess",
+        "Solar_Curtailed_MWh":  "solar_curtailed",
+        "BESS_Discharge_MWh":   "bess_discharge",
+        "SOC_MWh":              "soc",
+        "Energy_Served_MWh":    "energy_served",
+        "Energy_Unserved_MWh":  "energy_unserved",
+        "Solar_Gen_MWh":        "solar_generation",
+        # new “capacity” series (will appear as flat lines in plots)
+        "Solar_Capacity_MW":    "solar_capacity",
+        "BESS_Energy_MWh":      "bess_energy",
     }
 
-    # Only keep variables that actually exist in ts
+    # Keep only the columns that actually exist
     value_vars = [col for col in rename_map.keys() if col in ts.columns]
     ts = ts.rename(columns=rename_map)
 
-    # Melt to long format
+    # The value columns we’ll melt
+    value_cols = [rename_map[c] for c in value_vars]
+
+    # ----- melt to long format -----
     long_ts = ts.melt(
         id_vars=["Hour", "Availability", "Country"],
-        value_vars=[rename_map[c] for c in value_vars],
+        value_vars=value_cols,
         var_name="Variable",
         value_name="Value",
     )

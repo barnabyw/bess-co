@@ -1,7 +1,4 @@
 # lcoe helper functions
-import pandas as pd
-from reader import get_val
-from lcoe.lcoe import lcoe
 import logging
 logger = logging.getLogger(__name__)
 
@@ -35,6 +32,8 @@ def calculate_solar_bess_lcoe(
         bess_capacity_mwh: float,
         availability: float,
         capex_opex_df: pd.DataFrame,
+        discount_rate: float | None = None,
+        lifetime: float | None = None,
         audit_log: list | None = None,     # NEW
         result_id: int | None = None,      # NEW
 ) -> dict:
@@ -71,14 +70,17 @@ def calculate_solar_bess_lcoe(
             audit_log=audit_log, audit_context=ctx
         )
 
-        discount_rate = get_val(
-            capex_opex_df, country, "all", "wacc", "solar",
-            audit_log=audit_log, audit_context=ctx
+        if discount_rate is None:
+            discount_rate = get_val(
+                capex_opex_df, country, "all", "wacc", "solar",
+                audit_log=audit_log, audit_context=ctx
         )
-        solar_lifetime = int(get_val(
-            capex_opex_df, country, "all", "life", "solar",
-            audit_log=audit_log, audit_context=ctx
-        ))
+
+        if lifetime is None:
+            lifetime = int(get_val(
+                capex_opex_df, country, "all", "life", "solar",
+                audit_log=audit_log, audit_context=ctx
+            ))
 
         af = _to_frac(availability)
         r = _to_frac(discount_rate)
@@ -99,7 +101,7 @@ def calculate_solar_bess_lcoe(
         annual_energy_mwh = af * 8760
 
         lcoe_val = lcoe(
-            annual_energy_mwh, total_capex, annual_opex, r, solar_lifetime
+            annual_energy_mwh, total_capex, annual_opex, r, lifetime
         )
 
         return {"LCOE": lcoe_val, "Total_Capex": total_capex}
@@ -122,6 +124,8 @@ def calculate_conventional_lcoe(
     capacity_mw: float,
     capacity_factor: float,
     capex_opex_df: pd.DataFrame,
+    discount_rate: float | None = None,
+    lifetime: float | None = None,
     audit_log: list | None = None,     # NEW
     result_id: int | None = None,      # NEW
 ) -> dict:
@@ -163,14 +167,18 @@ def calculate_conventional_lcoe(
             capex_opex_df, country, "all", "efficiency", tech,
             audit_log=audit_log, audit_context=ctx
         ))
-        discount_rate = get_val(
-            capex_opex_df, country, "all", "wacc", "solar",
-            audit_log=audit_log, audit_context=ctx
-        )
-        lifetime = int(get_val(
-            capex_opex_df, country, "all", "life", tech,
-            audit_log=audit_log, audit_context=ctx
-        ))
+
+        if discount_rate is None:
+            discount_rate = get_val(
+                capex_opex_df, country, "all", "wacc", "solar",
+                audit_log=audit_log, audit_context=ctx
+            )
+
+        if lifetime is None:
+            lifetime = int(get_val(
+                capex_opex_df, country, "all", "life", tech,
+                audit_log=audit_log, audit_context=ctx
+            ))
 
         cf = _to_frac(capacity_factor)
         r = _to_frac(discount_rate)
