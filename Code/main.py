@@ -99,22 +99,41 @@ for _, row in countries_to_process.iterrows():
         continue
 
     # -----------------------------------------------------------
-    #         AVAILABILITY SWEEP BAR (per country)
+    #         AVAILABILITY SWEEP (per country)
     # -----------------------------------------------------------
+
+    # Initialize storage for the hot-start guess
+    previous_solution = {
+        'solar_capacity': None,
+        'bess_energy': None,
+        'bess_flow': None,
+        'soc': None,
+    }
+
     for avail in tqdm(AVAILABILITIES, desc=f"Avail Sweep ({country})", leave=False):
 
         # Step 1 — optimise Solar+BESS
         try:
-            cost, solar_cap, bess_energy, _ = optimise_bess(
-                yearly_profile, solar_capex_base, bess_capex_base, availability=avail
+            # Pass the previous solution as the 'initial_guess'
+            cost, solar_cap, bess_energy, results_data = optimise_bess(
+                yearly_profile, solar_capex_base, bess_capex_base,
+                availability=avail,
+                initial_guess=previous_solution  # Pass the guess here
             )
 
+            # 3. Store the new solution for the next iteration
+            previous_solution = {
+                'solar_capacity': solar_cap,
+                'bess_energy': bess_energy,
+                'bess_flow': results_data['BESS_Flow_MWh'].values if results_data is not None else None,
+                'soc': results_data['SOC_MWh'].values if results_data is not None else None,
+            }
             result_id = len(all_results)
 
             sb_result = calculate_solar_bess_lcoe(
                 country, BASE_YEAR, solar_cap, bess_energy, avail, capex_opex_df,
                 audit_log=AUDIT_LOG,
-                result_id=result_id,
+                result_id=result_id
             )
 
             if sb_result is None:
@@ -136,6 +155,8 @@ for _, row in countries_to_process.iterrows():
             )
 
         except ValueError as e:
+            # If solve fails, reset the guess so the next run starts from scratch
+            previous_solution = {k: None for k in previous_solution}
             logger.error("Failed Solar+BESS for %s avail %.2f: %s", country, avail, e)
             continue
 

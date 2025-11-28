@@ -24,6 +24,7 @@ def optimise_bess(
     efficiency=0.9,       # [%] round-trip efficiency approx (simplified)
     start_soc=0.5,        # [%] initial state of charge (fraction of energy capacity)
     return_timeseries=False,
+    initial_guess = None
 ):
     """
     Optimizes Solar and BESS capacity to meet a specified demand target at minimum cost,
@@ -119,9 +120,28 @@ def optimise_bess(
         sense=pyo.minimize
     )
 
+    # --- Apply Initial Guess (Hot-Start) ---
+    if initial_guess:
+        if initial_guess['solar_capacity'] is not None:
+            # Set the capacity variables
+            model.solar_capacity.value = initial_guess['solar_capacity']
+            model.bess_energy.value = initial_guess['bess_energy']
+
+            # Set the timeseries variables
+            if initial_guess['bess_flow'] is not None and initial_guess['soc'] is not None:
+                # Use enumerate to set the hourly values
+                for t in T:
+                    model.bess_flow[t].value = initial_guess['bess_flow'][t]
+                    model.soc[t].value = initial_guess['soc'][t]
+
+            # Note: We don't need to guess energy_served_t, as it's directly constrained.
+
+            # Setting the value provides the initial guess
+            # but the solver is still free to move away from it.
+
     # --- Solve ---
     solver = SolverFactory("cbc")
-    solver.solve(model, tee=False)
+    solver.solve(model, tee=False, warmstart=True)
 
     cost        = pyo.value(model.cost)
     solar_cap   = pyo.value(model.solar_capacity)
