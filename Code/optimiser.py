@@ -12,9 +12,6 @@ INPUT_PATH = os.path.join(CWD, "..", "inputs")
 
 countries_df = pd.read_csv(os.path.join(INPUT_PATH, "all_country_coordinates_2.csv"))
 
-#===Model Setup===
-# -----------------------------
-
 def optimise_bess(
     solar_profile,
     solar_capex,
@@ -22,8 +19,7 @@ def optimise_bess(
     load=1.0,             # [MW] Average load to serve
     availability=0.8,     # [%] Target availability or percentage of demand to meet
     efficiency=0.9,       # [%] round-trip efficiency approx (simplified)
-    start_soc=0.5,        # [%] initial state of charge (fraction of energy capacity)
-    initial_guess = None
+    start_soc=0.5         # [%] initial state of charge (fraction of energy capacity)
 ):
     """
     Optimizes Solar and BESS capacity to meet a specified demand target at minimum cost,
@@ -53,7 +49,7 @@ def optimise_bess(
     demand = np.full(periods, load)
     T = range(periods)
 
-    model = pyo.ConcreteModel(name="Solar_BESS_Optimization")
+    model = pyo.ConcreteModel(name="Solar_BESS_Optimisation")
     model.T = pyo.Set(initialize=T)
 
     # --- Decision Variables ---
@@ -117,23 +113,9 @@ def optimise_bess(
         sense=pyo.minimize
     )
 
-    # --- Apply Initial Guess (Hot-Start) ---
-    if initial_guess:
-        if initial_guess['solar_capacity'] is not None:
-            # Set the capacity variables
-            model.solar_capacity.value = initial_guess['solar_capacity']
-            model.bess_energy.value = initial_guess['bess_energy']
-
-            # Set the timeseries variables
-            if initial_guess['bess_flow'] is not None and initial_guess['soc'] is not None:
-                # Use enumerate to set the hourly values
-                for t in T:
-                    model.bess_flow[t].value = initial_guess['bess_flow'][t]
-                    model.soc[t].value = initial_guess['soc'][t]
-
     # --- Solve ---
     solver = SolverFactory("cbc")
-    solver.solve(model, tee=False, warmstart=True)
+    solver.solve(model, tee=False)
 
     cost        = pyo.value(model.cost)
     solar_cap   = pyo.value(model.solar_capacity)
@@ -330,8 +312,7 @@ def optimise_availability(
         "Energy_Unserved_MWh": unserved,
     })
 
-    return availability, df
-
+    return round(availability, 2), df
 
 if __name__ == "__main__":
     latitude = 19.4326
