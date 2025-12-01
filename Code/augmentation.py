@@ -21,7 +21,7 @@ def interpolate_retention(cycles_curve, retention_curve, cycles):
 # =========================================================
 # BESS optimiser (one augmentation block)
 # =========================================================
-def optimise_bess_two_block_df(
+def optimise_augmentation(
     optimal_bess_mwh,
     cycles_per_annum,
     discount_rate,
@@ -32,7 +32,8 @@ def optimise_bess_two_block_df(
     project_life,
     project_energy_gwh_per_annum,
 ):
-    # ---- Validate input ----
+
+    # ---- Validation ----
     if not {"year", "cost"} <= set(capex_df.columns):
         raise ValueError("CAPEX DataFrame must contain: year, cost")
 
@@ -40,17 +41,17 @@ def optimise_bess_two_block_df(
 
     years = np.arange(project_life)
     discount_factors = (1 + discount_rate) ** (-years)
-
     pv_energy = project_energy_gwh_per_annum * 1000 * discount_factors.sum()
 
-    # Precompute retention for the *original* block
+    # Precompute retention for initial block
     cum_cycles = cycles_per_annum * (years + 0.5)
     retention_initial = interpolate_retention(cycles_curve, retention_curve, cum_cycles)
 
-    # Helper for CAPEX
-    def discounted_capex(mwh, year, t):
-        cost = capex_df.at[year, "cost"]
-        return mwh * 1000 * cost / ((1 + discount_rate) ** t)
+    def capex_undiscounted(mwh, year):
+        return mwh * 1000 * capex_df.at[year, "cost"]
+
+    def capex_discounted(undisc_cost, year_idx):
+        return undisc_cost / ((1 + discount_rate) ** year_idx)
 
     best = None
     best_plot_data = None
@@ -59,17 +60,17 @@ def optimise_bess_two_block_df(
 
         aug_year = build_year + aug_idx
         if aug_year not in capex_df.index:
-            break  # Beyond available CAPEX years
+            break
 
         # ----------------------------
-        # Initial block
+        # Size initial block
         # ----------------------------
         min_ret_pre_aug = retention_initial[:aug_idx].min()
         initial_capacity_mwh = optimal_bess_mwh / min_ret_pre_aug
         cap_old_after_aug = initial_capacity_mwh * retention_initial[aug_idx:]
 
         # ----------------------------
-        # Augmentation block
+        # Size augmentation block
         # ----------------------------
         years_after = project_life - aug_idx
         cycles_new = cycles_per_annum * (np.arange(years_after) + 0.5)
@@ -80,20 +81,29 @@ def optimise_bess_two_block_df(
         )
 
         # ----------------------------
-        # Costs
+        # Costs (now storing undisc + disc)
         # ----------------------------
-        initial_capex_disc = discounted_capex(initial_capacity_mwh, build_year, 0)
-        aug_capex_disc = discounted_capex(augmentation_capacity_mwh, aug_year, aug_idx)
+        initial_capex_undisc = capex_undiscounted(initial_capacity_mwh, build_year)
+        initial_capex_disc = capex_discounted(initial_capex_undisc, 0)
 
-        levelised_cost = (initial_capex_disc + aug_capex_disc) / pv_energy
+        augmentation_capex_undisc = capex_undiscounted(augmentation_capacity_mwh, aug_year)
+        augmentation_capex_disc = capex_discounted(augmentation_capex_undisc, aug_idx)
+
+        levelised_cost = (initial_capex_disc + augmentation_capex_disc) / pv_energy
 
         result = {
             "augmentation_year_idx": aug_idx,
             "augmentation_year": aug_year,
+
             "initial_capacity_mwh": initial_capacity_mwh,
             "augmentation_capacity_mwh": augmentation_capacity_mwh,
+
+            "initial_capex_undisc": initial_capex_undisc,
             "initial_capex_disc": initial_capex_disc,
-            "augmentation_capex_disc": aug_capex_disc,
+
+            "augmentation_capex_undisc": augmentation_capex_undisc,
+            "augmentation_capex_disc": augmentation_capex_disc,
+
             "levelised_cost_per_mwh": levelised_cost,
         }
 
@@ -104,13 +114,11 @@ def optimise_bess_two_block_df(
         }
 
         if best is None or levelised_cost < best["levelised_cost_per_mwh"]:
-            best, best_plot_data = result, plot_data
+            best = result
+            best_plot_data = plot_data
 
     return best, best_plot_data
 
-# =========================================================
-# Example usage
-# =========================================================
 if __name__ == "__main__":
     capex_data = pd.read_csv(os.path.join(INPUT_PATH, "bess_learning_curve.csv"))
     capex_df = capex_data.rename(columns={"bess_capex_kwh": "cost"})
@@ -118,7 +126,7 @@ if __name__ == "__main__":
     cycles_curve = [0, 2000, 4000, 6000]
     retention_curve = [1.0, 0.96, 0.90, 0.80]
 
-    best_result, best_plot_data = optimise_bess_two_block_df(
+    best_result, best_plot_data = optimise_augmentation(
         optimal_bess_mwh=10,
         cycles_per_annum=300,
         discount_rate=0.08,

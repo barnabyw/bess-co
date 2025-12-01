@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="">
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="augmentation effiency, lcoe breakdown">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/augmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/augmentation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/lcoe_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -371,7 +371,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764411067306</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="augmentation effiency, lcoe breakdown">
+      <option name="closed" value="true" />
+      <created>1764418111643</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1764418111643</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -386,7 +394,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="start" />
     <MESSAGE value="years loop" />
     <MESSAGE value="old optimser" />
     <MESSAGE value="phew" />
@@ -411,6 +418,7 @@
     <MESSAGE value="start of degradation, augmentation" />
     <MESSAGE value="degradation, augmentation working" />
     <MESSAGE value="reading learning curve" />
-    <option name="LAST_COMMIT_MESSAGE" value="reading learning curve" />
+    <MESSAGE value="augmentation effiency, lcoe breakdown" />
+    <option name="LAST_COMMIT_MESSAGE" value="augmentation effiency, lcoe breakdown" />
   </component>
 </project>
