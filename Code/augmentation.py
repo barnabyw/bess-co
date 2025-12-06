@@ -26,12 +26,12 @@ def optimise_augmentation(
     cycles_per_annum,
     discount_rate,
     capex_df,
-    cycles_curve,
-    retention_curve,
     build_year,
     project_life,
     project_energy_gwh_per_annum,
 ):
+    cycles_curve = [0, 2000, 4000, 6000]
+    retention_curve = [1.0, 0.96, 0.90, 0.80]
 
     # ---- Validation ----
     if not {"year", "cost"} <= set(capex_df.columns):
@@ -123,16 +123,11 @@ if __name__ == "__main__":
     capex_data = pd.read_csv(os.path.join(INPUT_PATH, "bess_learning_curve.csv"))
     capex_df = capex_data.rename(columns={"bess_capex_kwh": "cost"})
 
-    cycles_curve = [0, 2000, 4000, 6000]
-    retention_curve = [1.0, 0.96, 0.90, 0.80]
-
     best_result, best_plot_data = optimise_augmentation(
         optimal_bess_mwh=10,
         cycles_per_annum=300,
         discount_rate=0.08,
         capex_df=capex_df,
-        cycles_curve=cycles_curve,
-        retention_curve=retention_curve,
         build_year=2023,
         project_life=25,
         project_energy_gwh_per_annum=8.76,

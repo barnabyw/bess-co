@@ -8,9 +8,9 @@ import pandas as pd
 import numpy as np
 from reader import get_val
 from lcoe.lcoe import lcoe
+from augmentation import optimise_augmentation
 
 logger = logging.getLogger(__name__)
-
 
 def _to_frac(x):
     """Allow 0–1 or 0–100 inputs; return fraction 0–1."""
@@ -26,6 +26,7 @@ def calculate_solar_bess_lcoe(
         solar_capacity_mw: float,
         bess_capacity_mwh: float,
         availability: float,
+        bess_cycles: float,
         capex_opex_df: pd.DataFrame,
         discount_rate: float | None = None,
         lifetime: float | None = None,
@@ -42,8 +43,6 @@ def calculate_solar_bess_lcoe(
         - All CAPEX is paid at t=0
         - Opex and energy occur once per year for `lifetime` years
         - First year's energy/opex at t=0 (to match npf.pv(..., when=1) convention)
-
-    No financing / principal / interest logic.
     """
 
     # --- Inputs from table ---
@@ -70,7 +69,9 @@ def calculate_solar_bess_lcoe(
 
     # --- Costs (all in same currency) ---
     solar_capex_total = solar_capacity_mw * solar_capex * 1000
+
     bess_capex_total = bess_capacity_mwh * bess_capex * 1000
+
     total_capex = solar_capex_total + bess_capex_total
 
     annual_opex = (
@@ -87,18 +88,40 @@ def calculate_solar_bess_lcoe(
     pv_energy = (annual_energy_mwh * discount_factors).sum()
     pv_opex = (annual_opex * discount_factors).sum()
 
-    # --- Simple component LCOEs ---
+    # --- BESS Capex is initial capex + augmented in year x ---
+    best_aug, plot_data = optimise_augmentation(
+        optimal_bess_mwh=bess_capacity_mwh,
+        cycles_per_annum=bess_cycles,
+        discount_rate=discount_rate,
+        capex_df=capex_opex_df,  # or your capex-only DF
+        build_year=year,
+        project_life=lifetime,
+        project_energy_gwh_per_annum=annual_energy_mwh / 1000,
+    )
+
+    # --- Augmentation ---
+    augmentation_disc = 0
+    aug_init = best_aug["initial_capex_disc"]
+    aug_future = best_aug["augmentation_capex_disc"]
+
+    augmentation_disc = aug_init + aug_future  # total discounted augmentation capex
+
+    # Convert to levelised cost ($/MWh)
+    augmentation_lcoe = augmentation_disc / pv_energy
+
+    # --- Component LCOEs ---
     solar_capex_lcoe = solar_capex_total / pv_energy
     bess_capex_lcoe = bess_capex_total / pv_energy
     opex_lcoe = pv_opex / pv_energy
 
     # Total LCOE = PV(costs) / PV(energy)
-    lcoe_val = solar_capex_lcoe + bess_capex_lcoe + opex_lcoe
+    lcoe_val = solar_capex_lcoe + bess_capex_lcoe + augmentation_lcoe + opex_lcoe
 
     # --- Breakdown table ---
     breakdown = {
         "Solar CAPEX": solar_capex_lcoe,
         "BESS CAPEX": bess_capex_lcoe,
+        "Augmentation": augmentation_lcoe,
         "Opex": opex_lcoe,
     }
 
