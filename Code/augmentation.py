@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 from plot import plot_optimisation
+from bess_capex_cache import get_bess_capex_series
 
 CWD = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(CWD, "..", "inputs")
@@ -25,19 +26,46 @@ def optimise_augmentation(
     optimal_bess_mwh,
     cycles_per_annum,
     discount_rate,
-    capex_df,
+    capex_opex_df,               # NEW: pass the real table
     build_year,
     project_life,
     project_energy_gwh_per_annum,
+    scenario=None
 ):
     cycles_curve = [0, 2000, 4000, 6000]
     retention_curve = [1.0, 0.96, 0.90, 0.80]
 
-    # ---- Validation ----
-    if not {"year", "cost"} <= set(capex_df.columns):
-        raise ValueError("CAPEX DataFrame must contain: year, cost")
+    # 1) Load CAPEX series (cached)
+    capex_series = get_bess_capex_series(capex_opex_df, scenario=scenario)
 
-    capex_df = capex_df.set_index("year").sort_index()
+    # --- EARLY EXIT: no BESS energy, or no cycling ---
+    if optimal_bess_mwh <= 0 or cycles_per_annum <= 0:
+        return {
+            "augmentation_year_idx": None,
+            "augmentation_year": None,
+            "initial_capacity_mwh": optimal_bess_mwh,
+            "augmentation_capacity_mwh": 0.0,
+            "initial_capex_undisc": 0.0,
+            "initial_capex_disc": 0.0,
+            "augmentation_capex_undisc": 0.0,
+            "augmentation_capex_disc": 0.0,
+            "levelised_cost_per_mwh": 0.0,
+        }, {
+            "years": np.arange(project_life),
+            "initial_cap": np.ones(project_life) * optimal_bess_mwh,
+            "aug_cap": np.zeros(project_life)
+        }
+
+    # must contain build year entries
+    if build_year not in capex_series.index:
+        raise ValueError(f"No BESS capex_e available for build year={build_year}, scenario={scenario}")
+
+    # work with a simple dict-like view
+    def capex_undiscounted(mwh, year):
+        if year not in capex_series.index:
+            # stop augmentation if past available data
+            return None
+        return mwh * 1000 * capex_series.at[year]
 
     years = np.arange(project_life)
     discount_factors = (1 + discount_rate) ** (-years)
@@ -46,9 +74,6 @@ def optimise_augmentation(
     # Precompute retention for initial block
     cum_cycles = cycles_per_annum * (years + 0.5)
     retention_initial = interpolate_retention(cycles_curve, retention_curve, cum_cycles)
-
-    def capex_undiscounted(mwh, year):
-        return mwh * 1000 * capex_df.at[year, "cost"]
 
     def capex_discounted(undisc_cost, year_idx):
         return undisc_cost / ((1 + discount_rate) ** year_idx)
@@ -59,7 +84,7 @@ def optimise_augmentation(
     for aug_idx in range(1, project_life):
 
         aug_year = build_year + aug_idx
-        if aug_year not in capex_df.index:
+        if aug_year not in capex_series.index:
             break
 
         # ----------------------------
@@ -120,26 +145,52 @@ def optimise_augmentation(
     return best, best_plot_data
 
 if __name__ == "__main__":
-    capex_data = pd.read_csv(os.path.join(INPUT_PATH, "bess_learning_curve.csv"))
-    capex_df = capex_data.rename(columns={"bess_capex_kwh": "cost"})
+    import pandas as pd
+    import os
 
+    CWD = os.path.dirname(os.path.abspath(__file__))
+    INPUT_PATH = os.path.join(CWD, "..", "inputs")
+
+    # Load your real converted table (correct format for cache)
+    capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
+
+    # === TEST PARAMETERS ===
+    test_bess_mwh = 10
+    test_cycles   = 300
+    test_discount = 0.08
+    test_year     = 2024
+    test_life     = 25
+    test_energy   = 8.76   # GWh per annum
+    test_scenario = None   # or "Low", "High", etc.
+
+    print("Loading BESS capex series...")
+    series = get_bess_capex_series(capex_opex_df, test_scenario)
+    print(series)
+
+    print("\nRunning augmentation optimiser...\n")
     best_result, best_plot_data = optimise_augmentation(
-        optimal_bess_mwh=10,
-        cycles_per_annum=300,
-        discount_rate=0.08,
-        capex_df=capex_df,
-        build_year=2023,
-        project_life=25,
-        project_energy_gwh_per_annum=8.76,
+        optimal_bess_mwh=test_bess_mwh,
+        cycles_per_annum=test_cycles,
+        discount_rate=test_discount,
+        capex_opex_df=capex_opex_df,
+        build_year=test_year,
+        project_life=test_life,
+        project_energy_gwh_per_annum=test_energy,
+        scenario=test_scenario,
     )
 
-    # Print summary
+    print("=== BEST AUGMENTATION RESULT ===")
     print(best_result)
 
-    plot_optimisation(
-        optimal_bess_mwh=10,
-        build_year=2023,
-        project_life=25,
-        plot_data=best_plot_data,
-        best_result=best_result,
-    )
+    # Optional plotting
+    try:
+        from plot import plot_optimisation
+        plot_optimisation(
+            optimal_bess_mwh=test_bess_mwh,
+            build_year=test_year,
+            project_life=test_life,
+            plot_data=best_plot_data,
+            best_result=best_result,
+        )
+    except ImportError:
+        print("plot_optimisation() not available – skipping plot.")

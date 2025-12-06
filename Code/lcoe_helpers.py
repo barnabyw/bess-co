@@ -21,19 +21,19 @@ def _to_frac(x):
 #   SOLAR + BESS LCOE WITH AUDIT + LOGGING
 # ---------------------------------------------------------------------------
 def calculate_solar_bess_lcoe(
-        country: str,
-        year: int,
-        solar_capacity_mw: float,
-        bess_energy_mwh: float,
-        bess_power_mw: float,     # NEW
-        availability: float,
-        bess_cycles: float,
-        capex_opex_df: pd.DataFrame,
-        discount_rate: float | None = None,
-        lifetime: float | None = None,
-        audit_log: list | None = None,
-        result_id: int | None = None,
-) -> dict:
+    country: str,
+    year: int,
+    solar_capacity_mw: float,
+    bess_energy_mwh: float,
+    bess_power_mw: float,
+    availability: float,
+    bess_cycles: float,
+    capex_opex_df: pd.DataFrame,
+    scenario: str | None = None,     # NEW
+    discount_rate: float | None = None,
+    lifetime: float | None = None,
+    result_id: int | None = None,
+):
     """
     Calculates discounted LCOE for a solar+BESS system with separate
     BESS power and energy CAPEX components.
@@ -86,10 +86,11 @@ def calculate_solar_bess_lcoe(
         optimal_bess_mwh=bess_energy_mwh,
         cycles_per_annum=bess_cycles,
         discount_rate=discount_rate,
-        capex_df=capex_opex_df,
+        capex_opex_df=capex_opex_df,
         build_year=year,
         project_life=lifetime,
         project_energy_gwh_per_annum=annual_energy_mwh / 1000,
+        scenario=scenario,
     )
 
     augmentation_disc = (

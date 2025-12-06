@@ -132,8 +132,13 @@ def optimise_bess(
     served      = np.array([pyo.value(model.energy_served_t[t]) for t in T])
     solar_gen   = np.array([solar_cap * solar_profile[t]  for t in T])
 
-    soc_scaled = soc_min_frac * bess_energy_true + \
-                 (soc_raw / bess_energy) * usable_fraction * bess_energy_true
+    if bess_energy <= 0:
+        soc_scaled = np.zeros_like(soc_raw)
+    else:
+        soc_scaled = (
+                soc_min_frac * bess_energy_true +
+                (soc_raw / bess_energy) * usable_fraction * bess_energy_true
+        )
 
     bess_discharge = np.clip(bess_flow, 0, None)
     solar_charge   = np.clip(-bess_flow, 0, None)
@@ -161,7 +166,11 @@ def optimise_bess(
     })
 
     # cycles per year based on full-energy throughput / usable capacity
-    cycles = bess_discharge.sum() / bess_energy_true
+
+    if bess_energy <= 0:
+        cycles = 0
+    else:
+        cycles = bess_discharge.sum() / bess_energy_true
 
     return (
         cost,
