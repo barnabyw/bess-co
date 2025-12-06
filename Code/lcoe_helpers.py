@@ -43,21 +43,13 @@ def calculate_solar_bess_lcoe(
     """
 
     # ------------- CAPEX INPUTS -------------
-    solar_capex = get_val(capex_opex_df, country, year, "capex", "solar",
-                          audit_log=audit_log, audit_context=None)
-
-    bess_energy_capex = get_val(capex_opex_df, country, year, "capex", "bess_energy",
-                                audit_log=audit_log, audit_context=None)
-
-    bess_power_capex  = get_val(capex_opex_df, country, year, "capex", "bess_power",
-                                audit_log=audit_log, audit_context=None)
+    solar_capex = get_val(capex_opex_df, country, year, "capex", "solar")
+    bess_energy_capex = get_val(capex_opex_df, country, year, "capex_e", "BESS")
+    bess_power_capex = get_val(capex_opex_df, country, year, "capex_p", "BESS")
 
     # ------------- OPEX INPUTS -------------
     solar_opex = get_val(capex_opex_df, country, "all", "opex_f", "solar")
-
-    bess_energy_opex = get_val(capex_opex_df, country, "all", "opex_f", "bess_energy")
-
-    # Optional: if you later add a "bess_power_opex" column, integrate here
+    bess_energy_opex = get_val(capex_opex_df, country, "all", "opex_f", "BESS")
 
     # ----------- Discount rate / lifetime ----------
     if discount_rate is None:
@@ -145,86 +137,87 @@ def calculate_conventional_lcoe(
     capex_opex_df: pd.DataFrame,
     discount_rate: float | None = None,
     lifetime: float | None = None,
-    audit_log: list | None = None,     # NEW
-    result_id: int | None = None,      # NEW
+    audit_log: list | None = None,
+    result_id: int | None = None,
 ) -> dict:
     """
-    Calculates LCOE for a conventional power plant.
-    Logs:
-        - warnings on fallback
-        - errors on missing inputs
-    Records:
-        - audit trail of input rows used
+    Calculates LCOE for a conventional power plant (Coal, Gas).
+
+    Breakdown categories (simplified):
+        - CAPEX
+        - Opex (fixed + variable excluding fuel)
+        - Fuel
     """
-    ctx = {
-        "calc_type": f"conventional_{tech.lower()}",
-        "calc_country": country,
-        "calc_year": year,
-        "calc_capacity_mw": capacity_mw,
-        "calc_capacity_factor": capacity_factor,
-        "calc_result_id": result_id,
-    }
 
     try:
-        capex_kw = get_val(
-            capex_opex_df, country, "all", "capex", tech,
-            audit_log=audit_log, audit_context=ctx
-        )
-        opex_fixed_kwyr = get_val(
-            capex_opex_df, country, "all", "opex_f", tech,
-            audit_log=audit_log, audit_context=ctx
-        )
-        opex_var_mwh = get_val(
-            capex_opex_df, country, "all", "opex_v", tech,
-            audit_log=audit_log, audit_context=ctx
-        )
-        fuel_mwh = get_val(
-            capex_opex_df, country, year, "fuel", tech,
-            audit_log=audit_log, audit_context=ctx
-        )
-        efficiency = _to_frac(get_val(
-            capex_opex_df, country, "all", "efficiency", tech,
-            audit_log=audit_log, audit_context=ctx
-        ))
+        # ---- INPUTS ----
+        capex_kw           = get_val(capex_opex_df, country, "all", "capex", tech)
+        opex_fixed_kwyr    = get_val(capex_opex_df, country, "all", "opex_f", tech)
+        opex_var_mwh       = get_val(capex_opex_df, country, "all", "opex_v", tech)
+        fuel_mwh           = get_val(capex_opex_df, country, year, "fuel", tech)
+        efficiency         = _to_frac(get_val(capex_opex_df, country, "all", "efficiency", tech))
 
+        # fallback
         if discount_rate is None:
-            discount_rate = get_val(
-                capex_opex_df, country, "all", "wacc", "solar",
-                audit_log=audit_log, audit_context=ctx
-            )
+            discount_rate = get_val(capex_opex_df, country, "all", "wacc", "solar")
 
         if lifetime is None:
-            lifetime = int(get_val(
-                capex_opex_df, country, "all", "life", tech,
-                audit_log=audit_log, audit_context=ctx
-            ))
+            lifetime = int(get_val(capex_opex_df, country, "all", "life", tech))
 
         cf = _to_frac(capacity_factor)
-        r = _to_frac(discount_rate)
+        r  = _to_frac(discount_rate)
 
-        total_capex = capacity_mw * 1000 * capex_kw
-        annual_fixed_opex = capacity_mw * 1000 * opex_fixed_kwyr
+        # ---- CAPEX ----
+        total_capex = capacity_mw * 1000 * capex_kw  # $ total
 
+        # ---- ENERGY ----
         annual_energy_mwh = capacity_mw * 8760 * cf
+
+        # ---- OPEX ----
+        annual_fixed_opex    = capacity_mw * 1000 * opex_fixed_kwyr
+        annual_variable_opex = opex_var_mwh * annual_energy_mwh
+
+        # ---- FUEL ----
         fuel_cost_mwh_elec = fuel_mwh / efficiency
-        variable_cost_mwh = opex_var_mwh + fuel_cost_mwh_elec
-        annual_variable_cost = variable_cost_mwh * annual_energy_mwh
+        annual_fuel_cost   = fuel_cost_mwh_elec * annual_energy_mwh
 
-        annual_opex_total = annual_fixed_opex + annual_variable_cost
+        # ---- DISCOUNT FACTORS ----
+        discount_factors = 1 / (1 + r) ** np.arange(0, lifetime)
 
-        lcoe_val = lcoe(
-            annual_energy_mwh, total_capex,
-            annual_opex_total, r, lifetime
-        )
+        pv_energy = (annual_energy_mwh * discount_factors).sum()
 
-        return {"LCOE": lcoe_val, "Total_Capex": total_capex}
+        pv_capex   = total_capex
+        pv_opex    = (annual_fixed_opex * discount_factors).sum() \
+                     + (annual_variable_opex * discount_factors).sum()
+        pv_fuel    = (annual_fuel_cost   * discount_factors).sum()
+
+        # ---- COMPONENT LCOE ----
+        capex_lcoe = pv_capex / pv_energy
+        opex_lcoe  = pv_opex  / pv_energy
+        fuel_lcoe  = pv_fuel  / pv_energy
+
+        total_lcoe = capex_lcoe + opex_lcoe + fuel_lcoe
+
+        # ---- BREAKDOWN ----
+        breakdown = {
+            "CAPEX": capex_lcoe,
+            "Opex": opex_lcoe,
+            "Fuel": fuel_lcoe,
+        }
+
+        breakdown_df = pd.DataFrame.from_dict(breakdown, orient="index", columns=["Value"])
+        breakdown_df.loc["Total"] = breakdown_df["Value"].sum()
+
+        return {
+            "LCOE": total_lcoe,
+            "Total_Capex": total_capex,
+            "Breakdown": breakdown_df,
+        }
 
     except ValueError as e:
         logger.error(
-            "Could not calculate %s LCOE for %s (%s): %s",
-            tech, country, year, e,
+            f"Could not calculate {tech} LCOE for {country} ({year}): {e}"
         )
-        # error is re-raised so main workflow can skip this tech/year
         raise
 
 if __name__ == "__main__":

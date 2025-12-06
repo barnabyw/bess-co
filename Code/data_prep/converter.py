@@ -1,26 +1,28 @@
 import pandas as pd
 import os
 
+from pathlib import Path
 from Code.archive.assumptions import base_path
 
 # === CONFIG ===
 input_path = os.path.join(base_path,"inputs")
 input_file = os.path.join(input_path,"capex_opex.xlsx")
+input_file2 = os.path.join(input_path,"capex_opex_2.xlsx")
 
 # === OUTPUT PATH (MAIN INPUT) ===
-CWD = os.path.dirname(os.path.abspath(__file__))
-output_path = os.path.join(CWD, "..", "inputs")
+CWD = Path(__file__).resolve().parent         # folder containing this script
+outer_folder = CWD.parent                     # one level up
+output_path = os.path.join(outer_folder, "..", "inputs")
 output_file = os.path.join(output_path,"capex_opex_converted.xlsx")
 
 log_file = os.path.join(output_path,"conversion_log.csv")
 
 # === LOAD DATA ===
-capex_opex_df = pd.read_excel(input_file, sheet_name="capex_opex")
+capex_opex_df = pd.read_excel(input_file2)
 other_df = pd.read_excel(input_file, sheet_name="other")
 deflators = pd.read_excel(input_file, sheet_name="deflators")
 exchange = pd.read_excel(input_file, sheet_name="exchange_rates")
 unit_df = pd.read_excel(input_file, sheet_name="unit_conversion")
-
 
 # Set target
 TARGET_YEAR = 2025

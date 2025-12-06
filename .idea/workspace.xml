@@ -4,18 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="broken down by learning/capacity">
-      <change afterPath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/data_prep/learning_curve.py" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="building capex energy power df">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/availability_loop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/availability_loop.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/converter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/converter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/reader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/lcoe_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/learning_curve.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/reader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/sensitivity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/sensitivity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/conversion_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/conversion_log.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/outputs/lcoe_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/lcoe_results.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/outputs/run.log" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/run.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +74,7 @@
     "Python.old_opti.executor": "Run",
     "Python.optimiser.executor": "Run",
     "Python.profile.executor": "Run",
+    "Python.reader.executor": "Run",
     "Python.sensitivity.executor": "Run",
     "Python.visualiser.executor": "Run",
     "Python.viz2.executor": "Run",
@@ -421,7 +421,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765020157047</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="building capex energy power df">
+      <option name="closed" value="true" />
+      <created>1765040446971</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1765040446971</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -436,7 +444,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="improved viz" />
     <MESSAGE value="log colour scale" />
     <MESSAGE value="issues" />
     <MESSAGE value="white borders" />
@@ -461,6 +468,7 @@
     <MESSAGE value="Remove warm start" />
     <MESSAGE value="learning curve and aug integration" />
     <MESSAGE value="broken down by learning/capacity" />
-    <option name="LAST_COMMIT_MESSAGE" value="broken down by learning/capacity" />
+    <MESSAGE value="building capex energy power df" />
+    <option name="LAST_COMMIT_MESSAGE" value="building capex energy power df" />
   </component>
 </project>

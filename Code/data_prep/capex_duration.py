@@ -8,6 +8,7 @@ import os
 CWD = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(CWD, "inputs")
 
+ext_inputs = r"C:\Users\barna\OneDrive\Documents\Solar_BESS\inputs"
 ext_import = r"C:\Users\barna\OneDrive\Documents\Solar_BESS\inputs\raw"
 
 WORLD_FILE = os.path.join(ext_import, "world_bess_capex_raw.csv")
@@ -15,17 +16,16 @@ MODO_FILE  = os.path.join(ext_import, "modo_bess_costs.csv")
 OUTPUT_FILE = os.path.join(ext_import, "world_bess_capex_split_pe.csv")
 
 # Assumptions
-DURATION_HOURS = 4.0       # 4h system
-R_POWER_ENERGY = 4.0       # Cp / Ce
+DURATION_HOURS = 4.0
+R_POWER_ENERGY = 4.0
 
 
 # -------------------------------------------------------------------
 # Split historic World capex into energy/power components
 # -------------------------------------------------------------------
-def split_world_capex_energy_power(world_df: pd.DataFrame) -> pd.DataFrame:
-
-    mask_capex = (world_df["variable"] == "capex") & (world_df["tech"] == "BESS")
-    capex_df = world_df[mask_capex].copy()
+def split_world_capex_energy_power(world_df):
+    mask = (world_df["variable"] == "capex") & (world_df["tech"] == "BESS")
+    capex_df = world_df[mask].copy()
 
     reported = capex_df["value"].astype(float)
 
@@ -42,54 +42,50 @@ def split_world_capex_energy_power(world_df: pd.DataFrame) -> pd.DataFrame:
 
 
 # -------------------------------------------------------------------
-# Compute year-over-year decline factors (2026/2025, 2027/2026, …)
+# Compute YoY decline for ALL Modo scenarios
 # -------------------------------------------------------------------
-def compute_modo_decline_factors(modo_df: pd.DataFrame) -> pd.DataFrame:
+def compute_modo_decline_factors(modo_df):
 
-    df = modo_df.copy()
-    df = df[df["Version"] == "Central (v3.5)"]
+    modo_df = modo_df.rename(columns={"Start Year": "year"})
+    modo_df["year"] = modo_df["year"].astype(int)
 
-    df = df.rename(columns={"Start Year": "year"})
-    df["year"] = df["year"].astype(int)
+    out = {}
 
-    df = df[["year", "pw kw", "per kwh"]].copy()
-    df = df.sort_values("year").reset_index(drop=True)
+    for scenario in modo_df["Version"].unique():
+        df_s = modo_df[modo_df["Version"] == scenario].copy()
+        df_s = df_s.sort_values("year").reset_index(drop=True)
 
-    years = df["year"].tolist()
-    per_e = df["per kwh"].tolist()
-    per_p = df["pw kw"].tolist()
+        years = df_s["year"].tolist()
+        per_e = df_s["per kwh"].tolist()
+        per_p = df_s["pw kw"].tolist()
 
-    out_rows = []
+        rows = []
+        for i in range(1, len(years)):
+            rows.append({
+                "year": years[i],
+                "yoy_e": per_e[i] / per_e[i-1],
+                "yoy_p": per_p[i] / per_p[i-1],
+            })
 
-    for i in range(1, len(years)):
-        yoy_e = per_e[i] / per_e[i-1]
-        yoy_p = per_p[i] / per_p[i-1]
+        out[scenario] = pd.DataFrame(rows)
 
-        out_rows.append({
-            "year": years[i],
-            "yoy_e": yoy_e,
-            "yoy_p": yoy_p
-        })
-
-    return pd.DataFrame(out_rows)
+    return out   # dict: {scenario → DataFrame}
 
 
 # -------------------------------------------------------------------
-# Project World future CAPEX using Modo YoY decline, Option A
+# Project World CAPEX for a given scenario
 # -------------------------------------------------------------------
-def project_world_from_modo(world_split: pd.DataFrame,
-                            modo_yoy: pd.DataFrame) -> pd.DataFrame:
-
+def project_world_from_modo(world_split, modo_yoy_df, scenario_name):
     base_yr = 2024
     base_row = world_split.loc[world_split["year"] == base_yr].iloc[0]
+
     base_e = base_row["capex_e"]
     base_p = base_row["capex_p"]
 
     proj_rows = []
 
-    # STEP 1 — compute 2025 using Modo 2026/2025 YoY decline
-    yoy_2026 = modo_yoy.loc[modo_yoy["year"] == 2026].iloc[0]
-
+    # STEP 1 — 2025
+    yoy_2026 = modo_yoy_df.loc[modo_yoy_df["year"] == 2026].iloc[0]
     world_e_2025 = base_e * yoy_2026["yoy_e"]
     world_p_2025 = base_p * yoy_2026["yoy_p"]
 
@@ -97,21 +93,13 @@ def project_world_from_modo(world_split: pd.DataFrame,
         "year": 2025,
         "capex_e": world_e_2025,
         "capex_p": world_p_2025,
-        "region": "World",
-        "tech": "BESS",
-        "variable": "capex",
-        "units": "kWh",
-        "type": "projected",
-        "money": "USD",
-        "money year": 2024,
-        "source": "Derived from 2026/2025 Modo YoY"
+        "scenario": scenario_name
     })
 
-    # STEP 2 — iterate from 2026 onward
-    prev_e = world_e_2025
-    prev_p = world_p_2025
+    # STEP 2 — Iterate forward
+    prev_e, prev_p = world_e_2025, world_p_2025
 
-    for _, row in modo_yoy.iterrows():
+    for _, row in modo_yoy_df.iterrows():
         year = int(row["year"])
         if year <= 2025:
             continue
@@ -121,33 +109,31 @@ def project_world_from_modo(world_split: pd.DataFrame,
 
         proj_rows.append({
             "year": year,
-            "capex_e": round(next_e,1),
-            "capex_p": round(next_p,1),
-            "region": "World",
-            "tech": "BESS",
-            "variable": "capex",
-            "units": "kWh",
-            "type": "projected",
-            "money": "USD",
-            "money year": 2024,
-            "source": "Derived from iterative Modo YoY"
+            "capex_e": round(next_e, 1),
+            "capex_p": round(next_p, 1),
+            "scenario": scenario_name
         })
 
-        prev_e = next_e
-        prev_p = next_p
+        prev_e, prev_p = next_e, next_p
 
-    return pd.DataFrame(proj_rows)
+    proj_df = pd.DataFrame(proj_rows)
+    proj_df["region"] = "World"
+    proj_df["tech"] = "BESS"
+    proj_df["variable"] = "capex_p"
+    proj_df["units"] = "kWh"
+    proj_df["type"] = "projected"
+    proj_df["money"] = "USD"
+    proj_df["money year"] = 2024
+
+    return proj_df
 
 
 # -------------------------------------------------------------------
-# Build long-format CAPEX-Opex output
+# Build long-format CAPEX + OPEX
 # -------------------------------------------------------------------
-def build_long_capex(world_hist: pd.DataFrame,
-                     world_proj: pd.DataFrame,
-                     world_raw: pd.DataFrame) -> pd.DataFrame:
+def build_long_capex(world_hist, world_proj_all, world_raw):
 
-    # combine CAPEX
-    all_capex = pd.concat([world_hist, world_proj], ignore_index=True)
+    all_capex = pd.concat([world_hist, world_proj_all], ignore_index=True)
 
     rows = []
 
@@ -156,94 +142,119 @@ def build_long_capex(world_hist: pd.DataFrame,
         # energy CAPEX
         rows.append({
             "year": row["year"],
-            "region": row.get("region", "World"),
-            "tech": "bess_energy",
-            "variable": "capex",
+            "scenario": row.get("scenario", ""),
+            "region": "World",
+            "tech": "BESS",
+            "variable": "capex_e",
             "value": row["capex_e"],
             "units": "kWh",
+            "money": "USD",
+            "money year": 2024,
             "type": row.get("type", "historic"),
-            "money": row.get("money", "USD"),
-            "money year": row.get("money year", 2024),
-            "source": row.get("source", "Derived"),
+            "source": row.get("source", "Derived")
         })
 
         # power CAPEX
         rows.append({
             "year": row["year"],
-            "region": row.get("region", "World"),
-            "tech": "bess_power",
-            "variable": "capex",
+            "scenario": row.get("scenario", ""),
+            "region": "World",
+            "tech": "BESS",
+            "variable": "capex_p",
             "value": row["capex_p"],
             "units": "kW",
+            "money": "USD",
+            "money year": 2024,
             "type": row.get("type", "historic"),
-            "money": row.get("money", "USD"),
-            "money year": row.get("money year", 2024),
-            "source": row.get("source", "Derived"),
+            "source": row.get("source", "Derived")
         })
 
-    # ------------------------------------------------------------------
-    # Add ONE OPEX line (energy only)
-    # ------------------------------------------------------------------
-    opex_row_src = world_raw[
-        (world_raw["variable"] == "opex_f") &
-        (world_raw["tech"] == "BESS")
-    ].iloc[0]
+    # OPEX (single row, scenario empty)
+    opex_row = world_raw[(world_raw["variable"] == "opex_f") &
+                         (world_raw["tech"] == "BESS")].iloc[0]
 
     rows.append({
-        "year": "all",                     # matches your convention
-        "region": opex_row_src["region"],
-        "tech": "bess_energy",
+        "year": "all",
+        "scenario": "",
+        "region": opex_row["region"],
+        "tech": "BESS",
         "variable": "opex_f",
-        "value": opex_row_src["value"],
-        "units": opex_row_src["units"],    # kWh/year
-        "type": opex_row_src["type"],
-        "money": opex_row_src["money"],
-        "money year": opex_row_src["money year"],
-        "source": opex_row_src["source"],
+        "value": opex_row["value"],
+        "units": opex_row["units"],
+        "money": opex_row["money"],
+        "money year": opex_row["money year"],
+        "type": opex_row["type"],
+        "source": opex_row["source"]
     })
 
     df_out = pd.DataFrame(rows)
 
-    # ---------------------------------------------------
-    # SORT BY variable → year before exporting
-    # CAPEX rows sort numerically, OPEX remains last
-    # ---------------------------------------------------
+    # SORT
     df_out["year_sort"] = df_out["year"].replace("all", 9999).astype(int)
-    df_out = df_out.sort_values(["variable", "year_sort"]).drop(columns=["year_sort"])
+    df_out = df_out.sort_values(["scenario", "variable", "year_sort"])
+    df_out = df_out.drop(columns=["year_sort"])
 
     return df_out
-
 
 
 # -------------------------------------------------------------------
 # Main
 # -------------------------------------------------------------------
 def main():
+    # Load raw inputs for world projections
     world_raw = pd.read_csv(WORLD_FILE)
     modo_raw  = pd.read_csv(MODO_FILE)
 
     world_raw["year"] = world_raw["year"].replace("all", np.nan)
     world_raw["year"] = world_raw["year"].astype(float)
 
-    world_hist_capex = split_world_capex_energy_power(world_raw)
-    modo_yoy = compute_modo_decline_factors(modo_raw)
-    world_proj_capex = project_world_from_modo(world_hist_capex, modo_yoy)
+    # === Build historical ===
+    world_hist = split_world_capex_energy_power(world_raw)
+    world_hist["scenario"] = ""   # historical always empty
 
-    # clean types
-    world_hist_capex["year"] = world_hist_capex["year"].astype(int)
-    world_proj_capex["year"] = world_proj_capex["year"].astype(int)
+    # === Compute YoY decline for all Modo scenarios ===
+    modo_yoy_dict = compute_modo_decline_factors(modo_raw)
 
-    # build final CAPEX-only output
-    capex_long = build_long_capex(world_hist_capex, world_proj_capex, world_raw)
-    capex_long = capex_long.sort_values(["tech", "year"], na_position="last")
+    # === Project central scenario (scenario empty string) ===
+    proj_central = project_world_from_modo(
+        world_hist, modo_yoy_dict["Central (v3.5)"], scenario_name=""
+    )
 
-    # save
-    capex_long.to_csv(OUTPUT_FILE, index=False)
-    print(f"Saved CAPEX-only split to:\n  {OUTPUT_FILE}")
+    # === Project low scenario ===
+    proj_low = project_world_from_modo(
+        world_hist, modo_yoy_dict["Faster reduction"], scenario_name="Low"
+    )
 
-    print("\nSample output:")
-    print(capex_long.head(10))
+    # === Combine projections ===
+    proj_all = pd.concat([proj_central, proj_low], ignore_index=True)
 
+    # === Build final long-format BESS capex/opex ===
+    df_final = build_long_capex(world_hist, proj_all, world_raw)
+
+    # -------------------------------------------------------------------
+    # NEW: Append df_final to capex_opex.xlsx and save capex_opex_2.xlsx
+    # -------------------------------------------------------------------
+    capex_opex_path = os.path.join(ext_inputs, "capex_opex.xlsx")
+    capex_opex_df = pd.read_excel(capex_opex_path, sheet_name="capex_opex")
+
+    # Make columns consistent (ensure missing columns exist)
+    for col in capex_opex_df.columns:
+        if col not in df_final.columns:
+            df_final[col] = np.nan
+    df_final = df_final[list(capex_opex_df.columns)]
+
+    # Append
+    combined = pd.concat([capex_opex_df, df_final], ignore_index=True)
+
+    # Save as capex_opex_2.xlsx
+    output_path = os.path.join(ext_inputs, "capex_opex_2.xlsx")
+    combined.to_excel(output_path, index=False)
+
+    print("\n----- COMPLETE -----")
+    print("World projections file saved →", OUTPUT_FILE)
+    print("capex_opex with appended World rows saved →", output_path)
+    print("\nPreview of added rows:")
+    print(df_final.head(10))
 
 if __name__ == "__main__":
     main()

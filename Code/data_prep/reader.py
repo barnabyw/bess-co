@@ -1,13 +1,18 @@
 from pathlib import Path
 import pandas as pd
 import logging
+import os
 logger = logging.getLogger(__name__)
 
 # --- Load default mappings (quietly tolerate absence) ---
-_DATA_DIR = Path(__file__).resolve().parent / ".." / "mappings"
 
-_DEFAULT_PROXY_RULES = pd.read_csv(_DATA_DIR / "proxy_rules.csv")
-_DEFAULT_REGION_MAP = pd.read_csv(_DATA_DIR / "region_map.csv")
+
+# === OUTPUT PATH (MAIN INPUT) ===
+CWD = Path(__file__).resolve().parent         # folder containing this script
+_DATA_DIR = os.path.join(CWD.parent.parent, "mappings")                     # one level up
+
+_DEFAULT_PROXY_RULES = pd.read_csv(os.path.join(_DATA_DIR + r"\proxy_rules.csv"))
+_DEFAULT_REGION_MAP = pd.read_csv(os.path.join(_DATA_DIR + r"\region_map.csv"))
 _DEFAULT_REGION_MAP["country"] = _DEFAULT_REGION_MAP["country"].str.strip().str.casefold()
 _DEFAULT_REGION_MAP = _DEFAULT_REGION_MAP.set_index("country")
 
@@ -100,7 +105,6 @@ def _proxy_region(country: str,
         or _first_match("applies_to_continents", continent)
     )
 
-
 def get_val(
     df: pd.DataFrame,
     country: str,
@@ -111,26 +115,53 @@ def get_val(
     proxy_rules: pd.DataFrame | None = None,
     region_map: pd.DataFrame | None = None,
     used_fallbacks: dict | None = None,
-    audit_log: list | None = None,
-    audit_context: dict | None = None,
+    scenario: str | None = None,
 ) -> float:
 
     """
-    Hierarchy: country → subregion → continent → proxy (rules) → world.
-    - Case-insensitive matching on strings
-    - Year can be int/'all'/'*'/None
-    - If multiple matches: returns mean and prints a warning
-    - Records fallbacks into `used_fallbacks` dict if provided
+    Hierarchy: country → subregion → continent → proxy → world.
+    Scenario filtering:
+        - scenario=None → use only rows where scenario is empty / null
+        - scenario="X"  → filter to that scenario
     """
+
     proxy_rules = _DEFAULT_PROXY_RULES if proxy_rules is None else proxy_rules
-    region_map = _DEFAULT_REGION_MAP if region_map is None else region_map
+    region_map  = _DEFAULT_REGION_MAP if region_map  is None else region_map
 
-    country = _norm_str(country) or ""
+    country  = _norm_str(country) or ""
     variable = _norm_str(variable) or ""
-    tech = _norm_str(tech)
-    year = _norm_year(year)
+    tech     = _norm_str(tech)
+    year     = _norm_year(year)
 
-    # Build candidates: country → subregion → continent → proxy → world
+    # ---------------------------------------------------------
+    # Apply SCENARIO FILTER
+    # ---------------------------------------------------------
+    if "scenario" in df.columns:
+
+        if scenario is None:
+            # Use EMPTY SCENARIO rows by default
+            df = df[
+                df["scenario"].isna() |
+                (df["scenario"].astype(str).str.strip() == "")
+            ]
+
+            if df.empty:
+                raise ValueError(
+                    "No rows found for default (empty) scenario. "
+                    "Provide scenario='xxx' explicitly."
+                )
+
+        else:
+            # Filter to requested scenario
+            scenario_norm = _norm_str(scenario)
+            df = df[df["scenario"].astype(str).str.casefold() == scenario_norm]
+
+            if df.empty:
+                raise ValueError(f"No rows found for scenario='{scenario}'")
+
+    # ---------------------------------------------------------
+    # Build fallback chain
+    # ---------------------------------------------------------
     candidates: list[str | None] = [country]
 
     if country in region_map.index:
@@ -142,31 +173,18 @@ def get_val(
     candidates.append(_proxy_region(country, variable, tech, region_map, proxy_rules))
     candidates.append("world")
 
-    # Try each candidate in order
+    # ---------------------------------------------------------
+    # Try candidates in order
+    # ---------------------------------------------------------
     for idx, region in enumerate(candidates):
+
         vals = _match_series(df, region, variable, tech, year, value_col)
+
         if vals.empty:
             continue
 
-        # Record fallback if not the first (country)
         if used_fallbacks is not None and idx > 0:
             used_fallbacks[(country, variable, tech, year)] = region
-
-        # --- AUDIT LOGGING --------------------------------------------------
-        if audit_log is not None:
-            audit_entry = {
-                "query_country": country,
-                "query_variable": variable,
-                "query_tech": tech,
-                "query_year": year,
-                "region_used": region,
-                "df_indices": list(vals.index),
-                "df_values": vals.tolist(),
-            }
-            if audit_context:
-                audit_entry.update(audit_context)
-            audit_log.append(audit_entry)
-        # --------------------------------------------------------------------
 
         if len(vals) > 1:
             val = float(vals.astype(float).mean())
@@ -184,12 +202,17 @@ def get_val(
 
         return float(vals.iloc[0])
 
+    # ---------------------------------------------------------
+    # FAILURE
+    # ---------------------------------------------------------
     msg = (
-        f"FATAL: No match found for: Country='{country}', "
-        f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}'"
+        f"No match found for: Country='{country}', "
+        f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}', "
+        f"Scenario='{scenario or 'default(empty)'}'"
     )
     logger.error(msg)
     raise ValueError(msg)
+
 
 if __name__ == "__main__":
     import os
