@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 from profile import generate_hourly_solar_profile
-from reader import get_val
+from Code.data_prep.reader import get_val
 from optimiser import optimise_bess
 
 # ---------------------------------------------

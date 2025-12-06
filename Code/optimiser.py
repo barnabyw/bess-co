@@ -16,35 +16,23 @@ def optimise_bess(
     solar_profile,
     solar_capex,
     bess_energy_capex,
+    power_capex,          # NEW: cost per kW of BESS inverter
     load=1.0,             # [MW] Average load to serve
     availability=0.8,     # [%] Target availability or percentage of demand to meet
-    efficiency=0.9,       # [%] round-trip efficiency approx (simplified)
-    start_soc=0.5         # [%] initial state of charge (fraction of energy capacity)
+    efficiency=0.9,       # round-trip efficiency approx (simplified)
+    start_soc=0.5         # initial SoC as fraction of energy capacity
 ):
     """
-    Optimizes Solar and BESS capacity to meet a specified demand target at minimum cost,
-    using a single bess_flow decision variable (positive = discharge, negative = charge).
+    Optimizes Solar and BESS capacity to meet a specified demand target at minimum cost.
 
-    Returns
-    -------
-    cost : float
-        Total minimized CAPEX.
-    solar_capacity : float
-        Optimal solar capacity [MW].
-    bess_energy : float
-        Optimal BESS energy capacity [MWh].
-    results_data : pd.DataFrame:
-        Hour
-        Solar_Gen_MWh
-        BESS_Flow_MWh          ( +ve discharge, -ve charge )
-        BESS_Discharge_MWh
-        Solar_Charge_MWh       (implied from -bess_flow)
-        Solar_Used_MWh         (direct to load, implied)
-        Solar_Curtailed_MWh    (implied residual)
-        SOC_MWh
-        Energy_Served_MWh
-        Energy_Unserved_MWh
+    New (updated):
+    - Separates BESS energy capacity (kWh) and power capacity (kW)
+    - Cost function:
+        CAPEX = solar_capex*solar_capacity +
+                bess_energy_capex*bess_energy +
+                power_capex*bess_power
     """
+
     periods = len(solar_profile)
     demand = np.full(periods, load)
     T = range(periods)
@@ -52,131 +40,137 @@ def optimise_bess(
     model = pyo.ConcreteModel(name="Solar_BESS_Optimisation")
     model.T = pyo.Set(initialize=T)
 
-    # --- Decision Variables ---
+    # --------------------------------------------------------
+    # DECISION VARIABLES
+    # --------------------------------------------------------
     model.solar_capacity = pyo.Var(within=pyo.NonNegativeReals)
     model.bess_energy    = pyo.Var(within=pyo.NonNegativeReals)
+    model.bess_power     = pyo.Var(within=pyo.NonNegativeReals)   # NEW inverter size variable
 
-    model.bess_flow      = pyo.Var(model.T, within=pyo.Reals)          # +ve discharge, -ve charge
+    model.bess_flow      = pyo.Var(model.T, within=pyo.Reals)      # + discharge, - charge
     model.soc            = pyo.Var(model.T, within=pyo.NonNegativeReals)
     model.energy_served_t = pyo.Var(model.T, within=pyo.NonNegativeReals)
 
-    # --- Constraints ---
-
-    # SoC balance
+    # --------------------------------------------------------
+    # SOC BALANCE
+    # --------------------------------------------------------
     def soc_balance_rule(m, t):
         if t == 0:
             return m.soc[t] == m.bess_energy * start_soc
-        # negative bess_flow = charging (adds to SoC), positive = discharge (removes SoC)
-        # simple efficiency model
         return m.soc[t] == m.soc[t-1] - m.bess_flow[t] / efficiency
     model.soc_balance = pyo.Constraint(model.T, rule=soc_balance_rule)
 
-    # Storage capacity limit
-    def soc_limit_rule(m, t):
-        return m.soc[t] <= m.bess_energy
-    model.soc_limit = pyo.Constraint(model.T, rule=soc_limit_rule)
+    # Storage upper bound
+    model.soc_limit = pyo.Constraint(model.T, rule=lambda m, t: m.soc[t] <= m.bess_energy)
 
-    # Power & operational limits
+    # --------------------------------------------------------
+    # POWER LIMITS (UPDATED)
+    # --------------------------------------------------------
     model.power_limits = pyo.ConstraintList()
     for t in T:
-        # inverter limits (both directions)
-        model.power_limits.add(model.bess_flow[t] <= model.solar_capacity)
-        model.power_limits.add(model.bess_flow[t] >= -model.solar_capacity)
 
-        # can't discharge more than what you have in the battery
+        # BESS inverter rating now independent
+        model.power_limits.add(model.bess_flow[t] <=  model.bess_power)
+        model.power_limits.add(model.bess_flow[t] >= -model.bess_power)
+
+        # Cannot discharge more than what’s stored
         model.power_limits.add(model.bess_flow[t] <= model.soc[t] * efficiency)
 
-        # can't charge more than available solar generation
+        # Charging limited by solar availability
         model.power_limits.add(-model.bess_flow[t] <= model.solar_capacity * solar_profile[t])
 
-    # Energy served definition:
-    #   energy_served = direct_solar_to_load + bess_discharge
-    # but we model just the sum here:
+    # --------------------------------------------------------
+    # ENERGY SERVED
+    # --------------------------------------------------------
     def served_rule(m, t):
+        # Served ≤ direct solar + BESS discharge
         return m.energy_served_t[t] <= m.solar_capacity * solar_profile[t] + m.bess_flow[t]
     model.served_balance = pyo.Constraint(model.T, rule=served_rule)
 
-    # Can't serve more than demand
-    def demand_cap_rule(m, t):
-        return m.energy_served_t[t] <= demand[t]
-    model.demand_cap = pyo.Constraint(model.T, rule=demand_cap_rule)
+    # Cannot exceed demand
+    model.demand_cap = pyo.Constraint(
+        model.T, rule=lambda m, t: m.energy_served_t[t] <= demand[t]
+    )
 
-    # Availability constraint over the horizon
+    # Availability constraint
     model.availability_constraint = pyo.Constraint(
         expr=sum(model.energy_served_t[t] for t in T) >= availability * sum(demand)
     )
 
-    # Objective: minimise CAPEX
+    # --------------------------------------------------------
+    # OBJECTIVE FUNCTION (UPDATED)
+    # --------------------------------------------------------
     model.cost = pyo.Objective(
-        expr=model.solar_capacity * solar_capex +
-             model.bess_energy * bess_energy_capex,
+        expr=( model.solar_capacity * solar_capex
+             + model.bess_energy    * bess_energy_capex
+             + model.bess_power     * power_capex ),   # NEW term
         sense=pyo.minimize
     )
 
-    # --- Solve ---
+    # --------------------------------------------------------
+    # SOLVE
+    # --------------------------------------------------------
     solver = SolverFactory("cbc")
     solver.solve(model, tee=False)
 
     cost        = pyo.value(model.cost)
     solar_cap   = pyo.value(model.solar_capacity)
     bess_energy = pyo.value(model.bess_energy)
+    bess_power  = pyo.value(model.bess_power)
 
-    # === Depth-of-Discharge Post-Processing ==========================
-    usable_fraction = 0.90  # 95% - 5%
-    soc_min_frac = 0.05  # lower bound
-    soc_max_frac = 0.95  # upper bound
+    # --------------------------------------------------------
+    # RESULTS + Post-processing
+    # --------------------------------------------------------
+    usable_fraction = 0.90
+    soc_min_frac = 0.05
+    soc_max_frac = 0.95
 
     bess_energy_true = bess_energy / usable_fraction
 
-    results_data = None
+    bess_flow   = np.array([pyo.value(model.bess_flow[t]) for t in T])
+    soc_raw     = np.array([pyo.value(model.soc[t])       for t in T])
+    served      = np.array([pyo.value(model.energy_served_t[t]) for t in T])
+    solar_gen   = np.array([solar_cap * solar_profile[t]  for t in T])
 
-    # raw quantities
-    bess_flow   = [pyo.value(model.bess_flow[t])      for t in T]
-    soc         = [pyo.value(model.soc[t])            for t in T]
-    served      = [pyo.value(model.energy_served_t[t])for t in T]
-    solar_gen   = [solar_cap * solar_profile[t]       for t in T]
-
-    bess_flow_arr = np.array(bess_flow)
-    solar_gen_arr = np.array(solar_gen)
-    served_arr    = np.array(served)
-    demand_arr    = demand.astype(float)
-
-    # Rescale optimiser SoC (0 → E_opt) → usable window (0.05→0.95)*E_true [for depth of discharge as above]
-    soc_array = np.array(soc)
     soc_scaled = soc_min_frac * bess_energy_true + \
-                 (soc_array / bess_energy) * usable_fraction * bess_energy_true
+                 (soc_raw / bess_energy) * usable_fraction * bess_energy_true
 
-    # derived quantities
-    bess_discharge = np.clip(bess_flow_arr, 0.0, None)
-    solar_charge   = np.clip(-bess_flow_arr, 0.0, None)
+    bess_discharge = np.clip(bess_flow, 0, None)
+    solar_charge   = np.clip(-bess_flow, 0, None)
 
-    # direct solar to load (heuristic but consistent):
     solar_used = np.minimum(
-        solar_gen_arr - solar_charge,           # what's left after charging
-        demand_arr - bess_discharge             # remaining load after BESS discharge
+        solar_gen - solar_charge,
+        demand - bess_discharge
     )
-    solar_used = np.clip(solar_used, 0.0, None)
+    solar_used = np.clip(solar_used, 0, None)
 
-    solar_curtailed = solar_gen_arr - solar_used - solar_charge
-    solar_curtailed = np.clip(solar_curtailed, 0.0, None)
-
-    unserved = demand_arr - served_arr
-    unserved = np.clip(unserved, 0.0, None)
+    solar_curtailed = np.clip(solar_gen - solar_used - solar_charge, 0, None)
+    unserved        = np.clip(demand - served, 0, None)
 
     results_data = pd.DataFrame({
         "Hour":                list(T),
-        "Solar_Gen_MWh":       solar_gen_arr,
-        "BESS_Flow_MWh":       bess_flow_arr,
+        "Solar_Gen_MWh":       solar_gen,
+        "BESS_Flow_MWh":       bess_flow,
         "BESS_Discharge_MWh":  bess_discharge,
         "Solar_Charge_MWh":    solar_charge,
         "Solar_Used_MWh":      solar_used,
         "Solar_Curtailed_MWh": solar_curtailed,
         "SOC_MWh":             soc_scaled,
-        "Energy_Served_MWh":   served_arr,
+        "Energy_Served_MWh":   served,
         "Energy_Unserved_MWh": unserved,
     })
 
-    return cost, round(solar_cap, 2), round(bess_energy_true, 2), results_data, bess_discharge.sum()/bess_energy # last term is cycles (a cycle is based on the 0.05-0.95 DoD-constrained capacity)
+    # cycles per year based on full-energy throughput / usable capacity
+    cycles = bess_discharge.sum() / bess_energy_true
+
+    return (
+        cost,
+        round(solar_cap, 2),
+        round(bess_energy_true, 2),
+        round(bess_power, 2),
+        results_data,
+        cycles
+    )
 
 def optimise_availability(
     solar_profile,
@@ -334,8 +328,9 @@ if __name__ == "__main__":
     profile = solar_profile
     solar_capex = 690
     bess_energy_capex = 191
-    cost, solar_capacity, bess_energy, results_1, discharge = optimise_bess(solar_profile, solar_capex, bess_energy_capex)
-    print(f"solar cap is {solar_capacity}, bess is {bess_energy}, bess cycles are {discharge}")
+    bess_power_capex = 300
+    cost, solar_capacity, bess_energy, bess_power, results_1, discharge = optimise_bess(solar_profile, solar_capex, bess_energy_capex, bess_power_capex, availability=0.95)
+    print(f"solar cap is {solar_capacity}, bess is {bess_energy}, bess power is {bess_power}, bess cycles are {discharge}")
     availability, results_2 = optimise_availability(profile, solar_capacity, bess_energy, 1)
     results_1.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\opti_results.csv')
     results_2.to_csv(r'C:\Users\barna\OneDrive\Documents\Solar_BESS results\avail_results.csv')

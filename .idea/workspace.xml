@@ -4,11 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="Remove warm start">
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="broken down by learning/capacity">
+      <change afterPath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code/data_prep/learning_curve.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/augmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/augmentation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/availability_loop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/availability_loop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/converter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/lcoe_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/learning_curve.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/learning_curve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/learning_curve.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/reader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/sensitivity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/sensitivity.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,6 +67,7 @@
     "Python.assumptions.executor": "Run",
     "Python.augmentation.executor": "Run",
     "Python.availability_loop.executor": "Run",
+    "Python.capex_duration.executor": "Run",
     "Python.converter.executor": "Run",
     "Python.lcoe_helpers.executor": "Run",
     "Python.learning_curve.executor": "Run",
@@ -80,6 +88,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\data_prep" />
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\archive" />
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\alternative_optimisers" />
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\costs" />
@@ -396,7 +405,23 @@
       <option name="project" value="LOCAL" />
       <updated>1764626324761</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="learning curve and aug integration">
+      <option name="closed" value="true" />
+      <created>1765016811611</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1765016811611</updated>
+    </task>
+    <task id="LOCAL-00039" summary="broken down by learning/capacity">
+      <option name="closed" value="true" />
+      <created>1765020157047</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1765020157047</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -411,8 +436,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="phew" />
-    <MESSAGE value="clean" />
     <MESSAGE value="improved viz" />
     <MESSAGE value="log colour scale" />
     <MESSAGE value="issues" />
@@ -436,6 +459,8 @@
     <MESSAGE value="augmentation effiency, lcoe breakdown" />
     <MESSAGE value="Add DoD, cycles to optimiser" />
     <MESSAGE value="Remove warm start" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove warm start" />
+    <MESSAGE value="learning curve and aug integration" />
+    <MESSAGE value="broken down by learning/capacity" />
+    <option name="LAST_COMMIT_MESSAGE" value="broken down by learning/capacity" />
   </component>
 </project>

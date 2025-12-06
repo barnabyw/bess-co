@@ -6,7 +6,7 @@ import numpy as np
 import logging
 
 # === Import custom modules ===
-from reader import get_val
+from Code.data_prep.reader import get_val
 from profile import generate_hourly_historical_solar_profile #, generate_hourly_solar_profile
 from optimiser import optimise_bess
 from lcoe_helpers import calculate_solar_bess_lcoe, calculate_conventional_lcoe

@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import logging
 import pandas as pd
 import numpy as np
-from reader import get_val
+from Code.data_prep.reader import get_val
 from lcoe.lcoe import lcoe
 from augmentation import optimise_augmentation
 
@@ -24,110 +24,107 @@ def calculate_solar_bess_lcoe(
         country: str,
         year: int,
         solar_capacity_mw: float,
-        bess_capacity_mwh: float,
+        bess_energy_mwh: float,
+        bess_power_mw: float,     # NEW
         availability: float,
         bess_cycles: float,
         capex_opex_df: pd.DataFrame,
         discount_rate: float | None = None,
         lifetime: float | None = None,
-        audit_log: list | None = None,     # kept in signature but unused
-        result_id: int | None = None,      # same here
+        audit_log: list | None = None,
+        result_id: int | None = None,
 ) -> dict:
     """
-    Calculates discounted LCOE for a solar+BESS system with a simple breakdown:
-        - Solar CAPEX contribution
-        - BESS CAPEX contribution
-        - Opex contribution
+    Calculates discounted LCOE for a solar+BESS system with separate
+    BESS power and energy CAPEX components.
 
-    Assumes:
-        - All CAPEX is paid at t=0
-        - Opex and energy occur once per year for `lifetime` years
-        - First year's energy/opex at t=0 (to match npf.pv(..., when=1) convention)
+    New:
+        - BESS CAPEX = power_capex * bess_power_mw + energy_capex * bess_energy_mwh
     """
 
-    # --- Inputs from table ---
+    # ------------- CAPEX INPUTS -------------
     solar_capex = get_val(capex_opex_df, country, year, "capex", "solar",
                           audit_log=audit_log, audit_context=None)
-    bess_capex = get_val(capex_opex_df, country, year, "capex", "bess",
-                         audit_log=audit_log, audit_context=None)
 
-    solar_opex = get_val(capex_opex_df, country, "all", "opex_f", "solar",
-                         audit_log=audit_log, audit_context=None)
-    bess_opex = get_val(capex_opex_df, country, "all", "opex_f", "bess",
-                        audit_log=audit_log, audit_context=None)
-
-    if discount_rate is None:
-        discount_rate = get_val(capex_opex_df, country, "all", "wacc", "solar",
+    bess_energy_capex = get_val(capex_opex_df, country, year, "capex", "bess_energy",
                                 audit_log=audit_log, audit_context=None)
 
+    bess_power_capex  = get_val(capex_opex_df, country, year, "capex", "bess_power",
+                                audit_log=audit_log, audit_context=None)
+
+    # ------------- OPEX INPUTS -------------
+    solar_opex = get_val(capex_opex_df, country, "all", "opex_f", "solar")
+
+    bess_energy_opex = get_val(capex_opex_df, country, "all", "opex_f", "bess_energy")
+
+    # Optional: if you later add a "bess_power_opex" column, integrate here
+
+    # ----------- Discount rate / lifetime ----------
+    if discount_rate is None:
+        discount_rate = get_val(capex_opex_df, country, "all", "wacc", "solar")
+
     if lifetime is None:
-        lifetime = int(get_val(capex_opex_df, country, "all", "life", "solar",
-                               audit_log=audit_log, audit_context=None))
+        lifetime = int(get_val(capex_opex_df, country, "all", "life", "solar"))
 
     af = _to_frac(availability)
     r = _to_frac(discount_rate)
 
-    # --- Costs (all in same currency) ---
+    # ------------- CAPEX CALCULATION -------------
     solar_capex_total = solar_capacity_mw * solar_capex * 1000
 
-    bess_capex_total = bess_capacity_mwh * bess_capex * 1000
+    bess_energy_capex_total = bess_energy_mwh * bess_energy_capex * 1000
+    bess_power_capex_total  = bess_power_mw   * bess_power_capex  * 1000
 
-    total_capex = solar_capex_total + bess_capex_total
+    total_capex = solar_capex_total + bess_energy_capex_total + bess_power_capex_total
 
-    annual_opex = (
-        solar_capacity_mw * solar_opex * 1000 +
-        bess_capacity_mwh * bess_opex * 1000
-    )
+    # ------------- ANNUAL OPEX -------------
+    annual_opex = solar_capacity_mw  * solar_opex * 1000 + bess_energy_mwh * bess_energy_opex  * 1000
 
-    # --- Energy ---
+    # ------------- ENERGY PRODUCTION -------------
     annual_energy_mwh = af * 8760
 
-    # --- Discounting (first energy/opex at t=0: 0..lifetime-1) ---
+    # ------------- DISCOUNT FACTORS -------------
     discount_factors = 1 / (1 + r) ** np.arange(0, lifetime)
 
     pv_energy = (annual_energy_mwh * discount_factors).sum()
     pv_opex = (annual_opex * discount_factors).sum()
 
-    # --- BESS Capex is initial capex + augmented in year x ---
-    best_aug, plot_data = optimise_augmentation(
-        optimal_bess_mwh=bess_capacity_mwh,
+    # ------------- AUGMENTATION MODEL -------------
+    best_aug, _ = optimise_augmentation(
+        optimal_bess_mwh=bess_energy_mwh,
         cycles_per_annum=bess_cycles,
         discount_rate=discount_rate,
-        capex_df=capex_opex_df,  # or your capex-only DF
+        capex_df=capex_opex_df,
         build_year=year,
         project_life=lifetime,
         project_energy_gwh_per_annum=annual_energy_mwh / 1000,
     )
 
-    # --- Augmentation ---
-    augmentation_disc = 0
-    aug_init = best_aug["initial_capex_disc"]
-    aug_future = best_aug["augmentation_capex_disc"]
+    augmentation_disc = (
+        best_aug["initial_capex_disc"] +
+        best_aug["augmentation_capex_disc"]
+    )
 
-    augmentation_disc = aug_init + aug_future  # total discounted augmentation capex
-
-    # Convert to levelised cost ($/MWh)
-    augmentation_lcoe = augmentation_disc / pv_energy
-
-    # --- Component LCOEs ---
+    # ------------- COMPONENT LCOEs -------------
     solar_capex_lcoe = solar_capex_total / pv_energy
-    bess_capex_lcoe = bess_capex_total / pv_energy
+    bess_energy_lcoe = bess_energy_capex_total / pv_energy
+    bess_power_lcoe  = bess_power_capex_total  / pv_energy
+    augmentation_lcoe = augmentation_disc / pv_energy
     opex_lcoe = pv_opex / pv_energy
 
-    # Total LCOE = PV(costs) / PV(energy)
-    lcoe_val = solar_capex_lcoe + bess_capex_lcoe + augmentation_lcoe + opex_lcoe
+    # GRAND TOTAL
+    lcoe_val = (solar_capex_lcoe + bess_energy_lcoe + bess_power_lcoe +
+                augmentation_lcoe + opex_lcoe)
 
-    # --- Breakdown table ---
     breakdown = {
         "Solar CAPEX": solar_capex_lcoe,
-        "BESS CAPEX": bess_capex_lcoe,
+        "BESS Energy CAPEX": bess_energy_lcoe,
+        "BESS Power CAPEX": bess_power_lcoe,
         "Augmentation": augmentation_lcoe,
         "Opex": opex_lcoe,
     }
 
-    breakdown_df = pd.DataFrame.from_dict(
-        breakdown, orient="index", columns=["Value"]
-    )
+    breakdown_df = pd.DataFrame.from_dict(breakdown, orient="index", columns=["Value"])
     breakdown_df.loc["Total"] = breakdown_df["Value"].sum()
 
     return {

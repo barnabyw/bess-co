@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 
 # === Import custom modules ===
-from reader import get_val
+from Code.data_prep.reader import get_val
 from profile import generate_hourly_solar_profile
 from optimiser import optimise_bess
 from lcoe_helpers import calculate_solar_bess_lcoe, calculate_conventional_lcoe
