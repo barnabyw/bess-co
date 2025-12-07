@@ -4,13 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="integrating changes to main">
-      <change afterPath="$PROJECT_DIR$/Code/bess_capex_cache.py" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="augmentaion, power capex, degradation in main">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/augmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/augmentation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/reader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/lcoe_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/logging_conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/logging_conf.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/all_country_coordinates_2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/all_country_coordinates_2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/conversion_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/conversion_log.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mappings/region_map.csv" beforeDir="false" afterPath="$PROJECT_DIR$/mappings/region_map.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/outputs/lcoe_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/lcoe_results.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/outputs/run.log" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/run.log" afterDir="false" />
     </list>
@@ -435,7 +439,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765045030381</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="augmentaion, power capex, degradation in main">
+      <option name="closed" value="true" />
+      <created>1765047970280</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1765047970280</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -450,7 +462,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="issues" />
     <MESSAGE value="white borders" />
     <MESSAGE value="setup fo 80, fix hover" />
     <MESSAGE value="analyser" />
@@ -475,6 +486,7 @@
     <MESSAGE value="broken down by learning/capacity" />
     <MESSAGE value="building capex energy power df" />
     <MESSAGE value="integrating changes to main" />
-    <option name="LAST_COMMIT_MESSAGE" value="integrating changes to main" />
+    <MESSAGE value="augmentaion, power capex, degradation in main" />
+    <option name="LAST_COMMIT_MESSAGE" value="augmentaion, power capex, degradation in main" />
   </component>
 </project>

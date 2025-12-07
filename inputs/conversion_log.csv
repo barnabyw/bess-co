@@ -1085,7 +1085,7 @@ Gas,opex_f,USD,USD,2023,1.0,1.01,kW/year,kW/year,1.0,none,21.72,21.9372,"No unit
 Gas,opex_v,USD,USD,2023,1.0,1.01,MWh,MWh,1.0,none,3.06,3.0906000000000002,"No unit rule for 'MWh' with tech 'Gas', kept units."
 Solar,opex_f,USD,USD,2024,1.0,1.0,kW/year,kW/year,1.0,none,6.71,6.71,"No unit rule for 'kW/year' with tech 'Solar', kept units."
 Solar,opex_f,USD,USD,2025,1.0,1.0,kW/year,kW/year,1.0,none,6.39,6.39,"No unit rule for 'kW/year' with tech 'Solar', kept units."
-BESS,opex_f,USD,USD,2024,1.0,1.0,kWh/year,kWh/year,1.0,none,5.25,5.25,"No unit rule for 'kWh/year' with tech 'BESS', kept units."
+BESS,opex_v,USD,USD,2020,1.0,1.08,MWh,MWh,1.0,none,0.4,0.43200000000000005,"No unit rule for 'MWh' with tech 'BESS', kept units."
 Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.74,12.76140970742,
 Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.6,12.2837098788,
 Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.28,11.19182455624,
@@ -1125,12 +1125,13 @@ Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,9.88,33.711959
 Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,9.17,31.289338774610002,
 Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,8.71,29.71975362343,
 Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,8.19,27.94543997427,
-Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,0.2777778,general,6.527648048833893,1.1967355713583852,
-Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,0.2777778,general,7.013596889138338,1.2858261992081166,
-Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,0.2777778,general,7.362496372793928,1.349791109662167,
-Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,0.2777778,general,7.377097893035025,1.3524680552538573,
-Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,0.2777778,general,7.359166201510873,1.349180578211431,
-Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,0.2777778,general,7.367619713229401,1.3507303888171462,
+Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,6.527648048833893,15.50969176402933,
+Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.013596889138338,16.66430620859269,
+Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.362496372793928,17.493291381758375,
+Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.377097893035025,17.527984593851222,
+Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.359166201510873,17.485378894789836,
+Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.367619713229401,17.50546443863306,
+BESS,opex_f,USD,USD,2020,1.0,1.08,kW,kW,1.0,none,5.0,5.4,"No unit rule for 'kW' with tech 'BESS', kept units."
 BESS,capex_e,USD,USD,2024,1.0,1.0,kWh,kWh,1.0,none,1285.7,1285.7,"No unit rule for 'kWh' with tech 'BESS', kept units."
 BESS,capex_e,USD,USD,2024,1.0,1.0,kWh,kWh,1.0,none,1065.8,1065.8,"No unit rule for 'kWh' with tech 'BESS', kept units."
 BESS,capex_e,USD,USD,2024,1.0,1.0,kWh,kWh,1.0,none,1005.1,1005.1,"No unit rule for 'kWh' with tech 'BESS', kept units."

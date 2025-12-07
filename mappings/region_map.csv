@@ -1,247 +1,246 @@
-country,subregion,continent
-Andorra,Non-EU Europe,Europe
-United Arab Emirates,Middle East & Africa,Asia
-Afghanistan,Middle East & Africa,Asia
-Antigua and Barbuda,Latin America,North America
-Anguilla,Latin America,North America
-Albania,Non-EU Europe,Europe
-Armenia,Non-EU Europe,Asia
-Netherlands Antilles,Latin America,North America
-Angola,Sub-Saharan Africa,Africa
-Antarctica,Other Pacific Asia,Antarctica
-Argentina,Latin America,South America
-American Samoa,Other Pacific Asia,Oceania
-Austria,Europe,Europe
-Australia,Other Pacific Asia,Oceania
-Aruba,Latin America,North America
-Azerbaijan,Non-EU Europe,Asia
-Bosnia and Herzegovina,Non-EU Europe,Europe
-Barbados,Latin America,North America
-Bangladesh,South East Asia,Asia
-Belgium,Europe,Europe
-Burkina Faso,Sub-Saharan Africa,Africa
-Bulgaria,Europe,Europe
-Bahrain,Middle East & Africa,Asia
-Burundi,Sub-Saharan Africa,Africa
-Benin,Sub-Saharan Africa,Africa
-Bermuda,Latin America,North America
-Brunei,South East Asia,Asia
-Bolivia,Latin America,South America
-Brazil,Latin America,South America
-Bahamas,Latin America,North America
-Bhutan,South East Asia,Asia
-Bouvet Island,Other Pacific Asia,Antarctica
-Botswana,Sub-Saharan Africa,Africa
-Belarus,Non-EU Europe,Europe
-Belize,Latin America,North America
-Canada,North America,North America
-Cocos [Keeling] Islands,Other Pacific Asia,Oceania
-Congo [DRC],Sub-Saharan Africa,Africa
-Central African Republic,Sub-Saharan Africa,Africa
-Congo [Republic],Sub-Saharan Africa,Africa
-Switzerland,Non-EU Europe,Europe
-Côte d'Ivoire,Sub-Saharan Africa,Africa
-Cook Islands,Other Pacific Asia,Oceania
-Chile,Latin America,South America
-Cameroon,Sub-Saharan Africa,Africa
-China,China,Asia
-Colombia,Latin America,South America
-Costa Rica,Latin America,North America
-Cuba,Latin America,North America
-Cape Verde,Sub-Saharan Africa,Africa
-Christmas Island,Other Pacific Asia,Asia
-Cyprus,Europe,Europe
-Czech Republic,Europe,Europe
-Germany,Europe,Europe
-Djibouti,Sub-Saharan Africa,Africa
-Denmark,Europe,Europe
-Dominica,Latin America,North America
-Dominican Republic,Latin America,North America
-Algeria,Middle East & Africa,Africa
-Ecuador,Latin America,South America
-Estonia,Europe,Europe
-Egypt,Middle East & Africa,Africa
-Western Sahara,Middle East & Africa,Africa
-Eritrea,Sub-Saharan Africa,Africa
-Spain,Europe,Europe
-Ethiopia,Sub-Saharan Africa,Africa
-Finland,Europe,Europe
-Fiji,Other Pacific Asia,Oceania
-Falkland Islands [Islas Malvinas],Latin America,South America
-Micronesia,Other Pacific Asia,Oceania
-Faroe Islands,Non-EU Europe,Europe
-France,Europe,Europe
-Gabon,Sub-Saharan Africa,Africa
-United Kingdom,Non-EU Europe,Europe
-Grenada,Latin America,North America
-Georgia,Non-EU Europe,Asia
-French Guiana,Latin America,South America
-Guernsey,Non-EU Europe,Europe
-Ghana,Sub-Saharan Africa,Africa
-Gibraltar,Non-EU Europe,Europe
-Greenland,North America,North America
-Gambia,Sub-Saharan Africa,Africa
-Guinea,Sub-Saharan Africa,Africa
-Guadeloupe,Latin America,North America
-Equatorial Guinea,Sub-Saharan Africa,Africa
-Greece,Europe,Europe
-South Georgia and the South Sandwich Islands,Latin America,South America
-Guatemala,Latin America,North America
-Guam,Other Pacific Asia,Oceania
-Guinea-Bissau,Sub-Saharan Africa,Africa
-Guyana,Latin America,South America
-Gaza Strip,Middle East & Africa,Asia
-Hong Kong,Other Pacific Asia,Asia
-Heard Island and McDonald Islands,Other Pacific Asia,Antarctica
-Honduras,Latin America,North America
-Croatia,Europe,Europe
-Haiti,Latin America,North America
-Hungary,Europe,Europe
-Indonesia,South East Asia,Asia
-Ireland,Europe,Europe
-Israel,Middle East & Africa,Asia
-Isle of Man,Non-EU Europe,Europe
-India,India,Asia
-British Indian Ocean Territory,Other Pacific Asia,Asia
-Iraq,Middle East & Africa,Asia
-Iran,Middle East & Africa,Asia
-Iceland,Non-EU Europe,Europe
-Italy,Europe,Europe
-Jersey,Non-EU Europe,Europe
-Jamaica,Latin America,North America
-Jordan,Middle East & Africa,Asia
-Japan,Other Pacific Asia,Asia
-Kenya,Sub-Saharan Africa,Africa
-Kyrgyzstan,Other Pacific Asia,Asia
-Cambodia,South East Asia,Asia
-Kiribati,Other Pacific Asia,Oceania
-Comoros,Sub-Saharan Africa,Africa
-Saint Kitts and Nevis,Latin America,North America
-North Korea,Other Pacific Asia,Asia
-South Korea,Other Pacific Asia,Asia
-Kuwait,Middle East & Africa,Asia
-Cayman Islands,Latin America,North America
-Kazakhstan,Other Pacific Asia,Asia
-Laos,South East Asia,Asia
-Lebanon,Middle East & Africa,Asia
-Saint Lucia,Latin America,North America
-Liechtenstein,Non-EU Europe,Europe
-Sri Lanka,South East Asia,Asia
-Liberia,Sub-Saharan Africa,Africa
-Lesotho,Sub-Saharan Africa,Africa
-Lithuania,Europe,Europe
-Luxembourg,Europe,Europe
-Latvia,Europe,Europe
-Libya,Middle East & Africa,Africa
-Morocco,Middle East & Africa,Africa
-Monaco,Non-EU Europe,Europe
-Moldova,Non-EU Europe,Europe
-Montenegro,Non-EU Europe,Europe
-Madagascar,Sub-Saharan Africa,Africa
-Marshall Islands,Other Pacific Asia,Oceania
-Macedonia [FYROM],Non-EU Europe,Europe
-Mali,Sub-Saharan Africa,Africa
-Myanmar [Burma],South East Asia,Asia
-Mongolia,Other Pacific Asia,Asia
-Macau,Other Pacific Asia,Asia
-Northern Mariana Islands,Other Pacific Asia,Oceania
-Martinique,Latin America,North America
-Mauritania,Sub-Saharan Africa,Africa
-Montserrat,Latin America,North America
-Malta,Europe,Europe
-Mauritius,Sub-Saharan Africa,Africa
-Maldives,South East Asia,Asia
-Malawi,Sub-Saharan Africa,Africa
-Mexico,Latin America,North America
-Malaysia,South East Asia,Asia
-Mozambique,Sub-Saharan Africa,Africa
-Namibia,Sub-Saharan Africa,Africa
-New Caledonia,Other Pacific Asia,Oceania
-Niger,Sub-Saharan Africa,Africa
-Norfolk Island,Other Pacific Asia,Oceania
-Nigeria,Sub-Saharan Africa,Africa
-Nicaragua,Latin America,North America
-Netherlands,Europe,Europe
-Norway,Non-EU Europe,Europe
-Nepal,South East Asia,Asia
-Nauru,Other Pacific Asia,Oceania
-Niue,Other Pacific Asia,Oceania
-New Zealand,Other Pacific Asia,Oceania
-Oman,Middle East & Africa,Asia
-Panama,Latin America,North America
-Peru,Latin America,South America
-French Polynesia,Other Pacific Asia,Oceania
-Papua New Guinea,Other Pacific Asia,Oceania
-Philippines,South East Asia,Asia
-Pakistan,Middle East & Africa,Asia
-Poland,Europe,Europe
-Saint Pierre and Miquelon,North America,North America
-Pitcairn Islands,Other Pacific Asia,Oceania
-Puerto Rico,Latin America,North America
-Palestinian Territories,Middle East & Africa,Asia
-Portugal,Europe,Europe
-Palau,Other Pacific Asia,Oceania
-Paraguay,Latin America,South America
-Qatar,Middle East & Africa,Asia
-Réunion,Sub-Saharan Africa,Africa
-Romania,Europe,Europe
-Serbia,Non-EU Europe,Europe
-Russia,Non-EU Europe,Europe
-Rwanda,Sub-Saharan Africa,Africa
-Saudi Arabia,Middle East & Africa,Asia
-Solomon Islands,Other Pacific Asia,Oceania
-Seychelles,Sub-Saharan Africa,Africa
-Sudan,Middle East & Africa,Africa
-Sweden,Europe,Europe
-Singapore,South East Asia,Asia
-Saint Helena,Sub-Saharan Africa,Africa
-Slovenia,Europe,Europe
-Svalbard and Jan Mayen,Non-EU Europe,Europe
-Slovakia,Europe,Europe
-Sierra Leone,Sub-Saharan Africa,Africa
-San Marino,Non-EU Europe,Europe
-Senegal,Sub-Saharan Africa,Africa
-Somalia,Sub-Saharan Africa,Africa
-Somaliland,Sub-Saharan Africa,Africa
-Suriname,Latin America,South America
-South Sudan,Sub-Saharan Africa,Africa
-São Tomé and Príncipe,Sub-Saharan Africa,Africa
-El Salvador,Latin America,North America
-Syria,Middle East & Africa,Asia
-Swaziland,Sub-Saharan Africa,Africa
-Turks and Caicos Islands,Latin America,North America
-Chad,Sub-Saharan Africa,Africa
-French Southern Territories,Other Pacific Asia,Antarctica
-Togo,Sub-Saharan Africa,Africa
-Thailand,South East Asia,Asia
-Tajikistan,Other Pacific Asia,Asia
-Tokelau,Other Pacific Asia,Oceania
-Timor-Leste,South East Asia,Asia
-Turkmenistan,Other Pacific Asia,Asia
-Tunisia,Middle East & Africa,Africa
-Tonga,Other Pacific Asia,Oceania
-Turkey,Non-EU Europe,Europe
-Trinidad and Tobago,Latin America,North America
-Tuvalu,Other Pacific Asia,Oceania
-Taiwan,Other Pacific Asia,Asia
-Tanzania,Sub-Saharan Africa,Africa
-Ukraine,Non-EU Europe,Europe
-Uganda,Sub-Saharan Africa,Africa
-United States,North America,North America
-Uruguay,Latin America,South America
-Uzbekistan,Other Pacific Asia,Asia
-Vatican City,Non-EU Europe,Europe
-Saint Vincent and the Grenadines,Latin America,North America
-Venezuela,Latin America,South America
-British Virgin Islands,Latin America,North America
-U.S. Virgin Islands,Latin America,North America
-Vietnam,South East Asia,Asia
-Vanuatu,Other Pacific Asia,Oceania
-Wallis and Futuna,Other Pacific Asia,Oceania
-Samoa,Other Pacific Asia,Oceania
-Kosovo,Non-EU Europe,Europe
-Yemen,Middle East & Africa,Asia
-Mayotte,Sub-Saharan Africa,Africa
-South Africa,Sub-Saharan Africa,Africa
-Zambia,Sub-Saharan Africa,Africa
-Zimbabwe,Sub-Saharan Africa,Africa
+country,subregion,continent,continent_2
+Andorra,Non-EU Europe,Europe,Europe
+United Arab Emirates,Middle East & Africa,Other Asia,Asia
+Afghanistan,Middle East & Africa,Other Asia,Asia
+Antigua and Barbuda,Latin America,Central America and the Caribbean,North America
+Anguilla,Latin America,Central America and the Caribbean,North America
+Albania,Non-EU Europe,Europe,Europe
+Armenia,Non-EU Europe,Eurasia,Asia
+Netherlands Antilles,Latin America,Central America and the Caribbean,North America
+Angola,Sub-Saharan Africa,Africa,Africa
+Argentina,Latin America,Other South America,South America
+American Samoa,Other Pacific Asia,Oceania,Oceania
+Austria,Europe,Europe,Europe
+Australia,Other Pacific Asia,Australia,Oceania
+Aruba,Latin America,Central America and the Caribbean,North America
+Azerbaijan,Non-EU Europe,Eurasia,Asia
+Bosnia and Herzegovina,Non-EU Europe,Europe,Europe
+Barbados,Latin America,Central America and the Caribbean,North America
+Bangladesh,South East Asia,Other Asia,Asia
+Belgium,Europe,Europe,Europe
+Burkina Faso,Sub-Saharan Africa,Africa,Africa
+Bulgaria,Europe,Europe,Europe
+Bahrain,Middle East & Africa,Other Asia,Asia
+Burundi,Sub-Saharan Africa,Africa,Africa
+Benin,Sub-Saharan Africa,Africa,Africa
+Bermuda,Latin America,Other North America,North America
+Brunei,South East Asia,Other Asia,Asia
+Bolivia,Latin America,Other South America,South America
+Brazil,Latin America,Brazil,South America
+Bahamas,Latin America,Central America and the Caribbean,North America
+Bhutan,South East Asia,Other Asia,Asia
+Bouvet Island,Other Pacific Asia,Oceania,Antarctica
+Botswana,Sub-Saharan Africa,Africa,Africa
+Belarus,Non-EU Europe,Eurasia,Europe
+Belize,Latin America,Central America and the Caribbean,North America
+Canada,North America,Other North America,North America
+Cocos [Keeling] Islands,Other Pacific Asia,Oceania,Oceania
+Congo [DRC],Sub-Saharan Africa,Africa,Africa
+Central African Republic,Sub-Saharan Africa,Africa,Africa
+Congo [Republic],Sub-Saharan Africa,Africa,Africa
+Switzerland,Non-EU Europe,Europe,Europe
+Côte d'Ivoire,Sub-Saharan Africa,Africa,Africa
+Cook Islands,Other Pacific Asia,Oceania,Oceania
+Chile,Latin America,Other South America,South America
+Cameroon,Sub-Saharan Africa,Africa,Africa
+China,China,China,Asia
+Colombia,Latin America,Other South America,South America
+Costa Rica,Latin America,Central America and the Caribbean,North America
+Cuba,Latin America,Central America and the Caribbean,North America
+Cape Verde,Sub-Saharan Africa,Africa,Africa
+Christmas Island,Other Pacific Asia,Oceania,Asia
+Cyprus,Europe,Europe,Europe
+Czech Republic,Europe,Europe,Europe
+Germany,Europe,Germany,Europe
+Djibouti,Sub-Saharan Africa,Africa,Africa
+Denmark,Europe,Europe,Europe
+Dominica,Latin America,Central America and the Caribbean,North America
+Dominican Republic,Latin America,Central America and the Caribbean,North America
+Algeria,Middle East & Africa,Africa,Africa
+Ecuador,Latin America,Other South America,South America
+Estonia,Europe,Europe,Europe
+Egypt,Middle East & Africa,Africa,Africa
+Western Sahara,Middle East & Africa,Africa,Africa
+Eritrea,Sub-Saharan Africa,Africa,Africa
+Spain,Europe,Spain,Europe
+Ethiopia,Sub-Saharan Africa,Africa,Africa
+Finland,Europe,Europe,Europe
+Fiji,Other Pacific Asia,Oceania,Oceania
+Falkland Islands [Islas Malvinas],Latin America,Other South America,South America
+Micronesia,Other Pacific Asia,Oceania,Oceania
+Faroe Islands,Non-EU Europe,Europe,Europe
+France,Europe,France,Europe
+Gabon,Sub-Saharan Africa,Africa,Africa
+United Kingdom,Non-EU Europe,Europe,Europe
+Grenada,Latin America,Central America and the Caribbean,North America
+Georgia,Non-EU Europe,Eurasia,Asia
+French Guiana,Latin America,Other South America,South America
+Guernsey,Non-EU Europe,Europe,Europe
+Ghana,Sub-Saharan Africa,Africa,Africa
+Gibraltar,Non-EU Europe,Europe,Europe
+Greenland,North America,Other North America,North America
+Gambia,Sub-Saharan Africa,Africa,Africa
+Guinea,Sub-Saharan Africa,Africa,Africa
+Guadeloupe,Latin America,Central America and the Caribbean,North America
+Equatorial Guinea,Sub-Saharan Africa,Africa,Africa
+Greece,Europe,Greece,Europe
+South Georgia and the South Sandwich Islands,Latin America,Other South America,South America
+Guatemala,Latin America,Central America and the Caribbean,North America
+Guam,Other Pacific Asia,Oceania,Oceania
+Guinea-Bissau,Sub-Saharan Africa,Africa,Africa
+Guyana,Latin America,Other South America,South America
+Gaza Strip,Middle East & Africa,Other Asia,Asia
+Hong Kong,Other Pacific Asia,Other Asia,Asia
+Heard Island and McDonald Islands,Other Pacific Asia,Oceania,Antarctica
+Honduras,Latin America,Central America and the Caribbean,North America
+Croatia,Europe,Europe,Europe
+Haiti,Latin America,Central America and the Caribbean,North America
+Hungary,Europe,Europe,Europe
+Indonesia,South East Asia,Other Asia,Asia
+Ireland,Europe,Europe,Europe
+Israel,Middle East & Africa,Other Asia,Asia
+Isle of Man,Non-EU Europe,Europe,Europe
+India,India,India,Asia
+British Indian Ocean Territory,Other Pacific Asia,Oceania,Asia
+Iraq,Middle East & Africa,Other Asia,Asia
+Iran,Middle East & Africa,Other Asia,Asia
+Iceland,Non-EU Europe,Europe,Europe
+Italy,Europe,Italy,Europe
+Jersey,Non-EU Europe,Europe,Europe
+Jamaica,Latin America,Central America and the Caribbean,North America
+Jordan,Middle East & Africa,Other Asia,Asia
+Japan,Other Pacific Asia,Japan,Asia
+Kenya,Sub-Saharan Africa,Africa,Africa
+Kyrgyzstan,Other Pacific Asia,Eurasia,Asia
+Cambodia,South East Asia,Other Asia,Asia
+Kiribati,Other Pacific Asia,Oceania,Oceania
+Comoros,Sub-Saharan Africa,Africa,Africa
+Saint Kitts and Nevis,Latin America,Central America and the Caribbean,North America
+North Korea,Other Pacific Asia,Other Asia,Asia
+South Korea,Other Pacific Asia,Republic of Korea,Asia
+Kuwait,Middle East & Africa,Other Asia,Asia
+Cayman Islands,Latin America,Central America and the Caribbean,North America
+Kazakhstan,Other Pacific Asia,Eurasia,Asia
+Laos,South East Asia,Other Asia,Asia
+Lebanon,Middle East & Africa,Other Asia,Asia
+Saint Lucia,Latin America,Central America and the Caribbean,North America
+Liechtenstein,Non-EU Europe,Europe,Europe
+Sri Lanka,South East Asia,Other Asia,Asia
+Liberia,Sub-Saharan Africa,Africa,Africa
+Lesotho,Sub-Saharan Africa,Africa,Africa
+Lithuania,Europe,Europe,Europe
+Luxembourg,Europe,Europe,Europe
+Latvia,Europe,Europe,Europe
+Libya,Middle East & Africa,Africa,Africa
+Morocco,Middle East & Africa,Africa,Africa
+Monaco,Non-EU Europe,Europe,Europe
+Moldova,Non-EU Europe,Europe,Europe
+Montenegro,Non-EU Europe,Europe,Europe
+Madagascar,Sub-Saharan Africa,Africa,Africa
+Marshall Islands,Other Pacific Asia,Oceania,Oceania
+Macedonia [FYROM],Non-EU Europe,Europe,Europe
+Mali,Sub-Saharan Africa,Africa,Africa
+Myanmar [Burma],South East Asia,Other Asia,Asia
+Mongolia,Other Pacific Asia,Other Asia,Asia
+Macau,Other Pacific Asia,Other Asia,Asia
+Northern Mariana Islands,Other Pacific Asia,Oceania,Oceania
+Martinique,Latin America,Central America and the Caribbean,North America
+Mauritania,Sub-Saharan Africa,Africa,Africa
+Montserrat,Latin America,Central America and the Caribbean,North America
+Malta,Europe,Europe,Europe
+Mauritius,Sub-Saharan Africa,Africa,Africa
+Maldives,South East Asia,Other Asia,Asia
+Malawi,Sub-Saharan Africa,Africa,Africa
+Mexico,Latin America,Other North America,North America
+Malaysia,South East Asia,Other Asia,Asia
+Mozambique,Sub-Saharan Africa,Africa,Africa
+Namibia,Sub-Saharan Africa,Africa,Africa
+New Caledonia,Other Pacific Asia,Oceania,Oceania
+Niger,Sub-Saharan Africa,Africa,Africa
+Norfolk Island,Other Pacific Asia,Oceania,Oceania
+Nigeria,Sub-Saharan Africa,Africa,Africa
+Nicaragua,Latin America,Central America and the Caribbean,North America
+Netherlands,Europe,Netherlands,Europe
+Norway,Non-EU Europe,Europe,Europe
+Nepal,South East Asia,Other Asia,Asia
+Nauru,Other Pacific Asia,Oceania,Oceania
+Niue,Other Pacific Asia,Oceania,Oceania
+New Zealand,Other Pacific Asia,Oceania,Oceania
+Oman,Middle East & Africa,Other Asia,Asia
+Panama,Latin America,Central America and the Caribbean,North America
+Peru,Latin America,Other South America,South America
+French Polynesia,Other Pacific Asia,Oceania,Oceania
+Papua New Guinea,Other Pacific Asia,Oceania,Oceania
+Philippines,South East Asia,Other Asia,Asia
+Pakistan,Middle East & Africa,Other Asia,Asia
+Poland,Europe,Poland,Europe
+Saint Pierre and Miquelon,North America,Other North America,North America
+Pitcairn Islands,Other Pacific Asia,Oceania,Oceania
+Puerto Rico,Latin America,Central America and the Caribbean,North America
+Palestinian Territories,Middle East & Africa,Other Asia,Asia
+Portugal,Europe,Europe,Europe
+Palau,Other Pacific Asia,Oceania,Oceania
+Paraguay,Latin America,Other South America,South America
+Qatar,Middle East & Africa,Other Asia,Asia
+Réunion,Sub-Saharan Africa,Africa,Africa
+Romania,Europe,Europe,Europe
+Serbia,Non-EU Europe,Europe,Europe
+Russia,Non-EU Europe,Eurasia,Europe
+Rwanda,Sub-Saharan Africa,Africa,Africa
+Saudi Arabia,Middle East & Africa,Other Asia,Asia
+Solomon Islands,Other Pacific Asia,Oceania,Oceania
+Seychelles,Sub-Saharan Africa,Africa,Africa
+Sudan,Middle East & Africa,Africa,Africa
+Sweden,Europe,Europe,Europe
+Singapore,South East Asia,Other Asia,Asia
+Saint Helena,Sub-Saharan Africa,Africa,Africa
+Slovenia,Europe,Europe,Europe
+Svalbard and Jan Mayen,Non-EU Europe,Europe,Europe
+Slovakia,Europe,Europe,Europe
+Sierra Leone,Sub-Saharan Africa,Africa,Africa
+San Marino,Non-EU Europe,Europe,Europe
+Senegal,Sub-Saharan Africa,Africa,Africa
+Somalia,Sub-Saharan Africa,Africa,Africa
+Somaliland,Sub-Saharan Africa,Africa,Africa
+Suriname,Latin America,Other South America,South America
+South Sudan,Sub-Saharan Africa,Africa,Africa
+São Tomé and Príncipe,Sub-Saharan Africa,Africa,Africa
+El Salvador,Latin America,Central America and the Caribbean,North America
+Syria,Middle East & Africa,Other Asia,Asia
+Swaziland,Sub-Saharan Africa,Africa,Africa
+Turks and Caicos Islands,Latin America,Central America and the Caribbean,North America
+Chad,Sub-Saharan Africa,Africa,Africa
+French Southern Territories,Other Pacific Asia,Africa,Antarctica
+Togo,Sub-Saharan Africa,Africa,Africa
+Thailand,South East Asia,Other Asia,Asia
+Tajikistan,Other Pacific Asia,Eurasia,Asia
+Tokelau,Other Pacific Asia,Oceania,Oceania
+Timor-Leste,South East Asia,Other Asia,Asia
+Turkmenistan,Other Pacific Asia,Eurasia,Asia
+Tunisia,Middle East & Africa,Africa,Africa
+Tonga,Other Pacific Asia,Oceania,Oceania
+Turkey,Non-EU Europe,Turkey,Europe
+Trinidad and Tobago,Latin America,Central America and the Caribbean,North America
+Tuvalu,Other Pacific Asia,Oceania,Oceania
+Taiwan,Other Pacific Asia,Other Asia,Asia
+Tanzania,Sub-Saharan Africa,Africa,Africa
+Ukraine,Non-EU Europe,Eurasia,Europe
+Uganda,Sub-Saharan Africa,Africa,Africa
+United States,North America,United States,North America
+Uruguay,Latin America,Other South America,South America
+Uzbekistan,Other Pacific Asia,Eurasia,Asia
+Vatican City,Non-EU Europe,Europe,Europe
+Saint Vincent and the Grenadines,Latin America,Central America and the Caribbean,North America
+Venezuela,Latin America,Other South America,South America
+British Virgin Islands,Latin America,Central America and the Caribbean,North America
+U.S. Virgin Islands,Latin America,Central America and the Caribbean,North America
+Vietnam,South East Asia,Other Asia,Asia
+Vanuatu,Other Pacific Asia,Oceania,Oceania
+Wallis and Futuna,Other Pacific Asia,Oceania,Oceania
+Samoa,Other Pacific Asia,Oceania,Oceania
+Kosovo,Non-EU Europe,Europe,Europe
+Yemen,Middle East & Africa,Other Asia,Asia
+Mayotte,Sub-Saharan Africa,Africa,Africa
+South Africa,Sub-Saharan Africa,Africa,Africa
+Zambia,Sub-Saharan Africa,Africa,Africa
+Zimbabwe,Sub-Saharan Africa,Africa,Africa

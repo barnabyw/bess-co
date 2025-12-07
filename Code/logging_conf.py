@@ -5,24 +5,24 @@ def setup_logging(output_path):
     log_file = os.path.join(output_path, "run.log")
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.WARNING)   # ⬅️ Root level = WARNING only
 
     # Clear previous handlers
     logger.handlers.clear()
 
-    # -----------------------
-    # File handler (everything)
-    # -----------------------
+    # -------------------------------------------------
+    # FILE HANDLER — log ONLY WARNING, ERROR, CRITICAL
+    # -------------------------------------------------
     fh = logging.FileHandler(log_file, mode="w")
-    fh.setLevel(logging.DEBUG)
+    fh.setLevel(logging.WARNING)       # ⬅️ No INFO, no DEBUG in file log
     fh.setFormatter(logging.Formatter(
         "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
     ))
     logger.addHandler(fh)
 
-    # -----------------------
-    # Console INFO-only handler
-    # -----------------------
+    # -------------------------------------------------
+    # CONSOLE — INFO-only
+    # -------------------------------------------------
     info_handler = logging.StreamHandler()
     info_handler.setLevel(logging.INFO)
     info_handler.addFilter(lambda r: r.levelno == logging.INFO)
@@ -31,9 +31,9 @@ def setup_logging(output_path):
     ))
     logger.addHandler(info_handler)
 
-    # -----------------------
-    # Console ERROR+ handler (ERROR & CRITICAL)
-    # -----------------------
+    # -------------------------------------------------
+    # CONSOLE — ERROR+
+    # -------------------------------------------------
     error_handler = logging.StreamHandler()
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(logging.Formatter(

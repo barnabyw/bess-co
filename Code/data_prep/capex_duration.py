@@ -19,7 +19,6 @@ OUTPUT_FILE = os.path.join(ext_import, "world_bess_capex_split_pe.csv")
 DURATION_HOURS = 4.0
 R_POWER_ENERGY = 4.0
 
-
 # -------------------------------------------------------------------
 # Split historic World capex into energy/power components
 # -------------------------------------------------------------------

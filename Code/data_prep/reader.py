@@ -2,19 +2,25 @@ from pathlib import Path
 import pandas as pd
 import logging
 import os
-logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------
+# Logging (match main_workflow.py style)
+# ---------------------------------------------------------
+logger = logging.getLogger("reader")
 
 # --- Load default mappings (quietly tolerate absence) ---
 
-
 # === OUTPUT PATH (MAIN INPUT) ===
-CWD = Path(__file__).resolve().parent         # folder containing this script
-_DATA_DIR = os.path.join(CWD.parent.parent, "mappings")                     # one level up
+CWD = Path(__file__).resolve().parent
+_DATA_DIR = os.path.join(CWD.parent.parent, "mappings")
 
-_DEFAULT_PROXY_RULES = pd.read_csv(os.path.join(_DATA_DIR + r"\proxy_rules.csv"))
-_DEFAULT_REGION_MAP = pd.read_csv(os.path.join(_DATA_DIR + r"\region_map.csv"))
-_DEFAULT_REGION_MAP["country"] = _DEFAULT_REGION_MAP["country"].str.strip().str.casefold()
+_DEFAULT_PROXY_RULES = pd.read_csv(os.path.join(_DATA_DIR, "proxy_rules.csv"))
+_DEFAULT_REGION_MAP = pd.read_csv(os.path.join(_DATA_DIR, "region_map.csv"))
+_DEFAULT_REGION_MAP["country"] = (
+    _DEFAULT_REGION_MAP["country"].str.strip().str.casefold()
+)
 _DEFAULT_REGION_MAP = _DEFAULT_REGION_MAP.set_index("country")
+
 
 def _norm_str(x: str | None) -> str | None:
     x = (x or "").strip()
@@ -38,6 +44,7 @@ def _match_series(df: pd.DataFrame,
                   tech: str | None,
                   year: int | None,
                   value_col: str) -> pd.Series:
+
     if not region or "region" not in df or "variable" not in df:
         return pd.Series(dtype="float64")
 
@@ -66,11 +73,10 @@ def _proxy_region(country: str,
                   tech: str | None,
                   region_map: pd.DataFrame,
                   proxy_rules: pd.DataFrame) -> str | None:
-    """Return proxy region from rules, else None (we already try subregion/continent earlier)."""
+
     if proxy_rules is None or proxy_rules.empty:
         return None
 
-    # Look up subregion/continent for rule matching (best-effort)
     subregion = continent = None
     if country in region_map.index:
         subregion = _norm_str(region_map.at[country, "subregion"])
@@ -78,7 +84,6 @@ def _proxy_region(country: str,
 
     pr = proxy_rules.copy()
 
-    # filter rules by variable + (tech or blank)
     var_mask = pr.get("variable", "").astype(str).str.casefold().eq(variable)
     if "tech" in pr.columns:
         tech_col = pr["tech"].fillna("").astype(str).str.casefold()
@@ -90,7 +95,6 @@ def _proxy_region(country: str,
     if pr.empty:
         return None
 
-    # prefer country match, then subregion, then continent
     def _first_match(col: str, token: str | None) -> str | None:
         if token is None or col not in pr.columns:
             return None
@@ -105,6 +109,7 @@ def _proxy_region(country: str,
         or _first_match("applies_to_continents", continent)
     )
 
+
 def get_val(
     df: pd.DataFrame,
     country: str,
@@ -118,13 +123,6 @@ def get_val(
     scenario: str | None = None,
 ) -> float:
 
-    """
-    Hierarchy: country → subregion → continent → proxy → world.
-    Scenario filtering:
-        - scenario=None → use only rows where scenario is empty / null
-        - scenario="X"  → filter to that scenario
-    """
-
     proxy_rules = _DEFAULT_PROXY_RULES if proxy_rules is None else proxy_rules
     region_map  = _DEFAULT_REGION_MAP if region_map  is None else region_map
 
@@ -133,35 +131,33 @@ def get_val(
     tech     = _norm_str(tech)
     year     = _norm_year(year)
 
-    # ---------------------------------------------------------
-    # Apply SCENARIO FILTER
-    # ---------------------------------------------------------
+    # -------------------------------
+    # Scenario filter
+    # -------------------------------
     if "scenario" in df.columns:
 
         if scenario is None:
-            # Use EMPTY SCENARIO rows by default
-            df = df[
-                df["scenario"].isna() |
-                (df["scenario"].astype(str).str.strip() == "")
-            ]
-
+            df = df[df["scenario"].isna() | (df["scenario"].astype(str).str.strip() == "")]
             if df.empty:
-                raise ValueError(
+                msg = (
                     "No rows found for default (empty) scenario. "
                     "Provide scenario='xxx' explicitly."
                 )
+                logger.error(msg)
+                raise ValueError(msg)
 
         else:
-            # Filter to requested scenario
             scenario_norm = _norm_str(scenario)
             df = df[df["scenario"].astype(str).str.casefold() == scenario_norm]
 
             if df.empty:
-                raise ValueError(f"No rows found for scenario='{scenario}'")
+                msg = f"No rows found for scenario='{scenario}'"
+                logger.error(msg)
+                raise ValueError(msg)
 
-    # ---------------------------------------------------------
-    # Build fallback chain
-    # ---------------------------------------------------------
+    # -------------------------------
+    # Fallback chain
+    # -------------------------------
     candidates: list[str | None] = [country]
 
     if country in region_map.index:
@@ -173,9 +169,9 @@ def get_val(
     candidates.append(_proxy_region(country, variable, tech, region_map, proxy_rules))
     candidates.append("world")
 
-    # ---------------------------------------------------------
-    # Try candidates in order
-    # ---------------------------------------------------------
+    # -------------------------------
+    # Try in order
+    # -------------------------------
     for idx, region in enumerate(candidates):
 
         vals = _match_series(df, region, variable, tech, year, value_col)
@@ -185,26 +181,23 @@ def get_val(
 
         if used_fallbacks is not None and idx > 0:
             used_fallbacks[(country, variable, tech, year)] = region
+            logger.info(
+                f"Fallback used for {country}/{variable}/{tech}/{year}: {region}"
+            )
 
         if len(vals) > 1:
             val = float(vals.astype(float).mean())
             logger.warning(
-                "Multiple (%d) matches for Country='%s', Year='%s', Var='%s', Tech='%s'; "
-                "returning mean=%f.",
-                len(vals),
-                country,
-                year if year is not None else "ALL",
-                variable,
-                tech or "N/A",
-                val,
+                f"Multiple matches for {country}, {variable}, {tech}, {year}; "
+                f"returning mean={val:.4f}"
             )
             return val
 
         return float(vals.iloc[0])
 
-    # ---------------------------------------------------------
-    # FAILURE
-    # ---------------------------------------------------------
+    # -------------------------------
+    # Failure
+    # -------------------------------
     msg = (
         f"No match found for: Country='{country}', "
         f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}', "
@@ -215,7 +208,6 @@ def get_val(
 
 
 if __name__ == "__main__":
-    import os
 
     print("Country norm:", _norm_str("Saudi Arabia"))
 
@@ -225,29 +217,32 @@ if __name__ == "__main__":
     fuel_gas_rules = _DEFAULT_PROXY_RULES[
         _DEFAULT_PROXY_RULES["variable"].astype(str).str.casefold().eq("fuel") &
         _DEFAULT_PROXY_RULES["tech"].astype(str).str.casefold().eq("gas")
-        ]
+    ]
     print("fuel/gas proxy rules:")
     print(fuel_gas_rules)
 
     print("_proxy_region result:")
-    print(_proxy_region(
-        country=_norm_str("Saudi Arabia"),
-        variable=_norm_str("fuel"),
-        tech=_norm_str("gas"),
-        region_map=_DEFAULT_REGION_MAP,
-        proxy_rules=_DEFAULT_PROXY_RULES,
-    ))
+    print(
+        _proxy_region(
+            country=_norm_str("Saudi Arabia"),
+            variable=_norm_str("fuel"),
+            tech=_norm_str("gas"),
+            region_map=_DEFAULT_REGION_MAP,
+            proxy_rules=_DEFAULT_PROXY_RULES,
+        )
+    )
 
     CWD = os.path.dirname(os.path.abspath(__file__))
     INPUT_PATH = os.path.join(CWD, "..", "inputs")
     capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
 
     fuel = get_val(
-    capex_opex_df,
-    "Saudi Arabia",
-    2024,
-    "fuel",
-    "gas",
-    "value")
+        capex_opex_df,
+        "Saudi Arabia",
+        2024,
+        "fuel",
+        "gas",
+        "value"
+    )
 
     print(fuel)
