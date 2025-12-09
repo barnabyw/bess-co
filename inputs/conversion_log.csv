@@ -631,6 +631,20 @@ Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.439,11.73435
 Coal,fuel,USD,USD,nominal,1.0,1.0,t,MWh_th,0.15,general,110.0,16.5,
 Coal,fuel,USD,USD,nominal,1.0,1.0,t,MWh_th,0.15,general,108.0,16.2,
 Coal,fuel,USD,USD,nominal,1.0,1.0,t,MWh_th,0.15,general,107.0,16.05,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,5.3,18.0843506549,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,4.4803,15.2874181583299,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,4.077,13.911301437741,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.686,12.577154059238,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.5064,11.964333421951201,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.594,12.263237029002,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.3437,11.4091779782621,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.2127,10.962187424339099,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.1976,10.9106640856808,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.367,11.488680878311,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.3057,11.279516596208099,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.6162,12.338986573254601,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.4396,11.7364023608668,
+Gas,fuel,USD,USD,nominal,1.0,1.0,MMBtu,MWh_th,3.412141633,general,3.4391,11.7346962900503,
 Gas,fuel,USD,USD,nominal,1.0,1.0,MWh_th,MWh_th,1.0,none,19.815226,19.815226,"No unit rule for 'MWh_th' with tech 'Gas', kept units."
 Gas,fuel,USD,USD,nominal,1.0,1.0,MWh_th,MWh_th,1.0,none,24.761738,24.761738,"No unit rule for 'MWh_th' with tech 'Gas', kept units."
 Gas,fuel,USD,USD,nominal,1.0,1.0,MWh_th,MWh_th,1.0,none,20.120098,20.120098,"No unit rule for 'MWh_th' with tech 'Gas', kept units."
@@ -1132,6 +1146,15 @@ Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.377097893035025,17.52
 Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.359166201510873,17.485378894789836,
 Coal,fuel,AUD,USD,nominal,0.66,1.0,Gj,MWh_th,3.6,general,7.367619713229401,17.50546443863306,
 BESS,opex_f,USD,USD,2020,1.0,1.08,kW,kW,1.0,none,5.0,5.4,"No unit rule for 'kW' with tech 'BESS', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,5399.0,5399.0,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,3514.0,3514.0,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,opex_f,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,112.0,112.0,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,3368.849183477425,3368.849183477425,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,3240.57636887608,3240.57636887608,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,3122.430355427473,3122.430355427473,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,3011.035542747358,3011.035542747358,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,2906.391930835734,2906.391930835734,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
+Offshore wind,capex,USD,USD,2024,1.0,1.0,kW,kW,1.0,none,2805.385036378439,2805.385036378439,"No unit rule for 'kW' with tech 'Offshore wind', kept units."
 BESS,capex_e,USD,USD,2024,1.0,1.0,kWh,kWh,1.0,none,1285.7,1285.7,"No unit rule for 'kWh' with tech 'BESS', kept units."
 BESS,capex_e,USD,USD,2024,1.0,1.0,kWh,kWh,1.0,none,1065.8,1065.8,"No unit rule for 'kWh' with tech 'BESS', kept units."
 BESS,capex_e,USD,USD,2024,1.0,1.0,kWh,kWh,1.0,none,1005.1,1005.1,"No unit rule for 'kWh' with tech 'BESS', kept units."

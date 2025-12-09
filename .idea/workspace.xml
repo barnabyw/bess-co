@@ -4,18 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="augmentaion, power capex, degradation in main">
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="setup main improve lcoe">
+      <change afterPath="$PROJECT_DIR$/Code/post_process/crossing_point.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code/wind_vs_solar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/capex_duration.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/data_prep/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/reader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/lcoe_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/lcoe_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/logging_conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/logging_conf.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inputs/all_country_coordinates_2.csv" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/all_country_coordinates_2.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/bess_capacity_and_cost_projection_logistic.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/bess_capacity_cost_projection_with_uncertainty.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/bess_learning_curve.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/bess_learning_curve_with_uncertainty.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/bess_mc_cost_projection.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inputs/conversion_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/conversion_log.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mappings/region_map.csv" beforeDir="false" afterPath="$PROJECT_DIR$/mappings/region_map.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/outputs/lcoe_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/lcoe_results.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/outputs/lcoe_results_25_0.08.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/outputs/run.log" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/run.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -70,6 +75,7 @@
     "Python.availability_loop.executor": "Run",
     "Python.capex_duration.executor": "Run",
     "Python.converter.executor": "Run",
+    "Python.crossing_point.executor": "Run",
     "Python.lcoe_helpers.executor": "Run",
     "Python.learning_curve.executor": "Run",
     "Python.main.executor": "Run",
@@ -80,6 +86,7 @@
     "Python.sensitivity.executor": "Run",
     "Python.visualiser.executor": "Run",
     "Python.viz2.executor": "Run",
+    "Python.wind_vs_solar.executor": "Run",
     "Python.yearly_data.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
@@ -447,7 +454,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765047970280</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="setup main improve lcoe">
+      <option name="closed" value="true" />
+      <created>1765140072521</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1765140072521</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -462,7 +477,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="white borders" />
     <MESSAGE value="setup fo 80, fix hover" />
     <MESSAGE value="analyser" />
     <MESSAGE value="cleanup" />
@@ -487,6 +501,7 @@
     <MESSAGE value="building capex energy power df" />
     <MESSAGE value="integrating changes to main" />
     <MESSAGE value="augmentaion, power capex, degradation in main" />
-    <option name="LAST_COMMIT_MESSAGE" value="augmentaion, power capex, degradation in main" />
+    <MESSAGE value="setup main improve lcoe" />
+    <option name="LAST_COMMIT_MESSAGE" value="setup main improve lcoe" />
   </component>
 </project>

@@ -8,20 +8,35 @@ import os
 # ---------------------------------------------------------
 logger = logging.getLogger("reader")
 
-# --- Load default mappings (quietly tolerate absence) ---
-
 # === OUTPUT PATH (MAIN INPUT) ===
 CWD = Path(__file__).resolve().parent
 _DATA_DIR = os.path.join(CWD.parent.parent, "mappings")
 
+# ------------------------------------------------------------------
+# Load proxy rules + region map (with solar_continent added)
+# ------------------------------------------------------------------
 _DEFAULT_PROXY_RULES = pd.read_csv(os.path.join(_DATA_DIR, "proxy_rules.csv"))
+
 _DEFAULT_REGION_MAP = pd.read_csv(os.path.join(_DATA_DIR, "region_map.csv"))
 _DEFAULT_REGION_MAP["country"] = (
     _DEFAULT_REGION_MAP["country"].str.strip().str.casefold()
 )
+
+# Normalise optional solar_continent
+if "solar_continent" in _DEFAULT_REGION_MAP.columns:
+    _DEFAULT_REGION_MAP["solar_continent"] = (
+        _DEFAULT_REGION_MAP["solar_continent"]
+        .astype(str)
+        .str.strip()
+        .str.casefold()
+    )
+
 _DEFAULT_REGION_MAP = _DEFAULT_REGION_MAP.set_index("country")
 
 
+# ---------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------
 def _norm_str(x: str | None) -> str | None:
     x = (x or "").strip()
     return x.casefold() if x else None
@@ -52,10 +67,12 @@ def _match_series(df: pd.DataFrame,
     var = df["variable"].astype(str).str.strip().str.casefold()
     mask = reg.eq(region) & var.eq(variable)
 
+    # Optional tech filter
     if tech and "tech" in df.columns:
         tch = df["tech"].astype(str).str.strip().str.casefold()
         mask &= tch.eq(tech)
 
+    # Optional year filter
     if year is not None and "year" in df.columns:
         if not pd.api.types.is_numeric_dtype(df["year"]):
             with pd.option_context("mode.chained_assignment", None):
@@ -68,6 +85,9 @@ def _match_series(df: pd.DataFrame,
     return df.loc[mask, value_col]
 
 
+# ---------------------------------------------------------
+# Proxy region lookup – now includes solar_continent
+# ---------------------------------------------------------
 def _proxy_region(country: str,
                   variable: str,
                   tech: str | None,
@@ -77,14 +97,20 @@ def _proxy_region(country: str,
     if proxy_rules is None or proxy_rules.empty:
         return None
 
-    subregion = continent = None
+    subregion = continent = solar_continent = None
+
     if country in region_map.index:
-        subregion = _norm_str(region_map.at[country, "subregion"])
-        continent = _norm_str(region_map.at[country, "continent"])
+        subregion       = _norm_str(region_map.at[country, "subregion"])
+        continent       = _norm_str(region_map.at[country, "continent"])
+        if "solar_continent" in region_map.columns:
+            solar_continent = _norm_str(region_map.at[country, "solar_continent"])
 
     pr = proxy_rules.copy()
 
+    # Filter by variable
     var_mask = pr.get("variable", "").astype(str).str.casefold().eq(variable)
+
+    # Filter by tech if exists
     if "tech" in pr.columns:
         tech_col = pr["tech"].fillna("").astype(str).str.casefold()
         tech_mask = tech_col.eq(tech or "")
@@ -103,13 +129,18 @@ def _proxy_region(country: str,
             return _norm_str(pr.loc[m, "proxy_region"].iloc[0])
         return None
 
+    # Order matters: country → subregion → continent → solar_continent
     return (
         _first_match("applies_to_countries", country)
         or _first_match("applies_to_regions", subregion)
         or _first_match("applies_to_continents", continent)
+        or _first_match("applies_to_solar_continents", solar_continent)
     )
 
 
+# ---------------------------------------------------------
+# Main value lookup with fallback chain including solar_continent
+# ---------------------------------------------------------
 def get_val(
     df: pd.DataFrame,
     country: str,
@@ -124,18 +155,17 @@ def get_val(
 ) -> float:
 
     proxy_rules = _DEFAULT_PROXY_RULES if proxy_rules is None else proxy_rules
-    region_map  = _DEFAULT_REGION_MAP if region_map  is None else region_map
+    region_map  = _DEFAULT_REGION_MAP  if region_map  is None else region_map
 
     country  = _norm_str(country) or ""
     variable = _norm_str(variable) or ""
     tech     = _norm_str(tech)
     year     = _norm_year(year)
 
-    # -------------------------------
+    # -------------------------------------------------
     # Scenario filter
-    # -------------------------------
+    # -------------------------------------------------
     if "scenario" in df.columns:
-
         if scenario is None:
             df = df[df["scenario"].isna() | (df["scenario"].astype(str).str.strip() == "")]
             if df.empty:
@@ -145,33 +175,43 @@ def get_val(
                 )
                 logger.error(msg)
                 raise ValueError(msg)
-
         else:
             scenario_norm = _norm_str(scenario)
             df = df[df["scenario"].astype(str).str.casefold() == scenario_norm]
-
             if df.empty:
                 msg = f"No rows found for scenario='{scenario}'"
                 logger.error(msg)
                 raise ValueError(msg)
 
-    # -------------------------------
-    # Fallback chain
-    # -------------------------------
+    # -------------------------------------------------
+    # Fallback chain: country → subregion → continent → solar_continent → proxy → world
+    # -------------------------------------------------
     candidates: list[str | None] = [country]
 
     if country in region_map.index:
-        candidates.append(_norm_str(region_map.at[country, "subregion"]))
-        candidates.append(_norm_str(region_map.at[country, "continent"]))
-    else:
-        candidates += [None, None]
+        subregion       = _norm_str(region_map.at[country, "subregion"])
+        continent       = _norm_str(region_map.at[country, "continent"])
+        solar_continent = (
+            _norm_str(region_map.at[country, "solar_continent"])
+            if "solar_continent" in region_map.columns
+            else None
+        )
 
-    candidates.append(_proxy_region(country, variable, tech, region_map, proxy_rules))
+        candidates += [subregion, continent, solar_continent]
+    else:
+        candidates += [None, None, None]
+
+    # Proxy-based fallback
+    candidates.append(
+        _proxy_region(country, variable, tech, region_map, proxy_rules)
+    )
+
+    # Final fallback
     candidates.append("world")
 
-    # -------------------------------
-    # Try in order
-    # -------------------------------
+    # -------------------------------------------------
+    # Try matches in order
+    # -------------------------------------------------
     for idx, region in enumerate(candidates):
 
         vals = _match_series(df, region, variable, tech, year, value_col)
@@ -179,6 +219,7 @@ def get_val(
         if vals.empty:
             continue
 
+        # record fallback if not first option
         if used_fallbacks is not None and idx > 0:
             used_fallbacks[(country, variable, tech, year)] = region
             logger.info(
@@ -195,9 +236,9 @@ def get_val(
 
         return float(vals.iloc[0])
 
-    # -------------------------------
-    # Failure
-    # -------------------------------
+    # -------------------------------------------------
+    # Failure – nothing matched
+    # -------------------------------------------------
     msg = (
         f"No match found for: Country='{country}', "
         f"Year='{year if year is not None else 'ALL'}', Var='{variable}', Tech='{tech or 'N/A'}', "
@@ -207,12 +248,17 @@ def get_val(
     raise ValueError(msg)
 
 
+# ---------------------------------------------------------
+# Self-test block (optional)
+# ---------------------------------------------------------
 if __name__ == "__main__":
-
-    print("Country norm:", _norm_str("Saudi Arabia"))
+    
+    country = "India"
+    
+    print("Country norm:", _norm_str(country))
 
     print("Region map row for Saudi Arabia:")
-    print(_DEFAULT_REGION_MAP.loc[_norm_str("Saudi Arabia")])
+    print(_DEFAULT_REGION_MAP.loc[_norm_str(country)])
 
     fuel_gas_rules = _DEFAULT_PROXY_RULES[
         _DEFAULT_PROXY_RULES["variable"].astype(str).str.casefold().eq("fuel") &
@@ -224,7 +270,7 @@ if __name__ == "__main__":
     print("_proxy_region result:")
     print(
         _proxy_region(
-            country=_norm_str("Saudi Arabia"),
+            country=_norm_str(country),
             variable=_norm_str("fuel"),
             tech=_norm_str("gas"),
             region_map=_DEFAULT_REGION_MAP,
@@ -232,17 +278,16 @@ if __name__ == "__main__":
         )
     )
 
-    CWD = os.path.dirname(os.path.abspath(__file__))
-    INPUT_PATH = os.path.join(CWD, "..", "inputs")
+    INPUT_PATH = os.path.join(CWD.parent.parent, "inputs")
     capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
 
     fuel = get_val(
         capex_opex_df,
-        "Saudi Arabia",
+        "India",
         2024,
         "fuel",
         "gas",
         "value"
     )
 
-    print(fuel)
+    print("returned fuel value:", fuel)

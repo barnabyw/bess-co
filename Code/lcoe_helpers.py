@@ -236,3 +236,134 @@ def calculate_conventional_lcoe(
         "Total_Capex": total_capex,
         "Breakdown": breakdown_df,
     }
+
+
+def calculate_wind_bess_lcoe(
+    country: str,
+    year: int,
+    wind_capacity_mw: float,
+    bess_energy_mwh: float,
+    bess_power_mw: float,
+    availability: float,
+    bess_cycles: float,
+    capex_opex_df: pd.DataFrame,
+    scenario: str | None = None,
+    discount_rate: float | None = None,
+    lifetime: float | None = None,
+    result_id: int | None = None,
+    used_fallbacks: dict | None = None,
+):
+    # ------------------------------------------------------------
+    # INPUT PARAMETERS
+    # ------------------------------------------------------------
+    wind_capex = get_val(capex_opex_df, country, year, "capex", "offshore wind",
+                         used_fallbacks=used_fallbacks)
+    bess_energy_capex = get_val(capex_opex_df, country, year, "capex_e", "BESS",
+                                used_fallbacks=used_fallbacks)
+    bess_power_capex  = get_val(capex_opex_df, country, year, "capex_p", "BESS",
+                                used_fallbacks=used_fallbacks)
+
+    wind_opex = get_val(capex_opex_df, country, "all", "opex_f", "offshore wind",
+                        used_fallbacks=used_fallbacks)
+    bess_power_opex = get_val(capex_opex_df, country, "all", "opex_f", "BESS",
+                              used_fallbacks=used_fallbacks)
+    bess_variable_opex = get_val(capex_opex_df, country, "all", "opex_v", "BESS",
+                                 used_fallbacks=used_fallbacks)
+
+    if discount_rate is None:
+        discount_rate = get_val(capex_opex_df, country, "all", "wacc", "offshore wind",
+                                used_fallbacks=used_fallbacks)
+    if lifetime is None:
+        lifetime = int(get_val(capex_opex_df, country, "all", "life", "offshore wind",
+                               used_fallbacks=used_fallbacks))
+
+    af = _to_frac(availability)
+    r = _to_frac(discount_rate)
+
+    # ------------------------------------------------------------
+    # BASE CAPEX
+    # ------------------------------------------------------------
+    wind_capex_total = wind_capacity_mw * wind_capex * 1000
+    bess_energy_capex_total = bess_energy_mwh * bess_energy_capex * 1000
+    bess_power_capex_total  = bess_power_mw  * bess_power_capex  * 1000
+
+    # ------------------------------------------------------------
+    # OPEX + ENERGY
+    # ------------------------------------------------------------
+    annual_energy_mwh = af * 8760
+    discount_factors = 1 / (1 + r) ** np.arange(0, lifetime)
+
+    annual_opex = (
+        wind_capacity_mw * wind_opex * 1000 +
+        bess_power_mw * bess_power_opex * 1000 +
+        annual_energy_mwh * bess_variable_opex
+    )
+
+    pv_energy = (annual_energy_mwh * discount_factors).sum()
+    pv_opex = (annual_opex * discount_factors).sum()
+
+    # ------------------------------------------------------------
+    # AUGMENTATION MODEL
+    # ------------------------------------------------------------
+    best_aug, _ = optimise_augmentation(
+        optimal_bess_mwh=bess_energy_mwh,
+        cycles_per_annum=bess_cycles,
+        discount_rate=discount_rate,
+        capex_opex_df=capex_opex_df,
+        build_year=year,
+        project_life=lifetime,
+        project_energy_gwh_per_annum=annual_energy_mwh / 1000,
+        scenario=scenario,
+    )
+
+    extra_initial_mwh = max(0, best_aug["initial_capacity_mwh"] - bess_energy_mwh)
+    initial_oversize_cost = extra_initial_mwh * bess_energy_capex * 1000
+    augmentation_disc = float(best_aug.get("augmentation_capex_disc", 0.0))
+
+    bess_energy_capex_total_corrected = (
+        bess_energy_capex_total + initial_oversize_cost
+    )
+
+    # ------------------------------------------------------------
+    # TOTAL CAPEX
+    # ------------------------------------------------------------
+    total_capex = (
+        wind_capex_total +
+        bess_power_capex_total +
+        bess_energy_capex_total_corrected +
+        augmentation_disc
+    )
+
+    # ------------------------------------------------------------
+    # LCOE COMPONENTS
+    # ------------------------------------------------------------
+    wind_capex_lcoe = wind_capex_total / pv_energy
+    bess_energy_lcoe = bess_energy_capex_total_corrected / pv_energy
+    bess_power_lcoe = bess_power_capex_total / pv_energy
+    augmentation_lcoe = augmentation_disc / pv_energy
+    opex_lcoe = pv_opex / pv_energy
+
+    total_lcoe = (
+        wind_capex_lcoe +
+        bess_energy_lcoe +
+        bess_power_lcoe +
+        augmentation_lcoe +
+        opex_lcoe
+    )
+
+    breakdown = {
+        "Wind CAPEX": wind_capex_lcoe,
+        "BESS Energy CAPEX": bess_energy_lcoe,
+        "BESS Power CAPEX": bess_power_lcoe,
+        "Augmentation": augmentation_lcoe,
+        "Opex": opex_lcoe,
+    }
+
+    breakdown_df = pd.DataFrame.from_dict(breakdown, orient="index", columns=["Value"])
+    breakdown_df.loc["Total"] = total_lcoe
+
+    return {
+        "LCOE": total_lcoe,
+        "Total_Capex": total_capex,
+        "Breakdown": breakdown_df,
+    }
