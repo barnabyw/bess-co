@@ -6,8 +6,8 @@ from Code.archive.assumptions import base_path
 
 # === CONFIG ===
 input_path = os.path.join(base_path,"inputs")
-input_file = os.path.join(input_path,"capex_opex.xlsx")
-input_file2 = os.path.join(input_path,"capex_opex_2.xlsx")
+input_file = os.path.join(input_path,"capex_opex_filled.xlsx")
+#input_file2 = os.path.join(input_path,"capex_opex_2.xlsx")
 
 # === OUTPUT PATH (MAIN INPUT) ===
 CWD = Path(__file__).resolve().parent         # folder containing this script
@@ -18,7 +18,7 @@ output_file = os.path.join(output_path,"capex_opex_converted.xlsx")
 log_file = os.path.join(output_path,"conversion_log.csv")
 
 # === LOAD DATA ===
-capex_opex_df = pd.read_excel(input_file2)
+capex_opex_df = pd.read_excel(input_file, sheet_name="capex_opex")
 other_df = pd.read_excel(input_file, sheet_name="other")
 deflators = pd.read_excel(input_file, sheet_name="deflators")
 exchange = pd.read_excel(input_file, sheet_name="exchange_rates")

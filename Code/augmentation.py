@@ -30,13 +30,14 @@ def optimise_augmentation(
     build_year,
     project_life,
     project_energy_gwh_per_annum,
-    scenario=None
+    country,
+    scenario=None,
 ):
     cycles_curve = [0, 2000, 4000, 6000]
     retention_curve = [1.0, 0.96, 0.90, 0.80]
 
     # 1) Load CAPEX series (cached)
-    capex_series = get_bess_capex_series(capex_opex_df, scenario=scenario)
+    capex_series = get_bess_capex_series(capex_opex_df, country=country, scenario=scenario)
 
     # --- EARLY EXIT: no BESS energy, or no cycling ---
     if optimal_bess_mwh <= 0 or cycles_per_annum <= 0:

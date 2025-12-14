@@ -1,40 +1,55 @@
 # bess_capex_cache.py
 import pandas as pd
+import numpy as np
+from data_prep.reader2 import get_val
 
 _CAPEX_CACHE = {}
 
-def get_bess_capex_series(capex_opex_df: pd.DataFrame, scenario: str | None):
+def get_bess_capex_series(
+    capex_opex_df: pd.DataFrame,
+    country: str,
+    scenario: str | None = None,
+):
     """
-    Returns a cached pandas Series indexed by year, containing capex_e values
-    for the requested scenario.
-
-    Rules:
-        - scenario=None → return rows where scenario is empty ("", NaN)
-        - scenario="Low" → return Low scenario rows
+    Return a clean {year → capex_e} series for BESS energy,
+    resolved per-country using get_val logic.
+    Cached by (country, scenario).
     """
 
-    scenario_key = scenario or ""  # default scenario
+    cache_key = (country.casefold(), scenario)
 
-    if scenario_key in _CAPEX_CACHE:
-        return _CAPEX_CACHE[scenario_key]
+    # ----------------------------------
+    # CACHE HIT
+    # ----------------------------------
+    if cache_key in _CAPEX_CACHE:
+        return _CAPEX_CACHE[cache_key]
 
-    # --- filter ---
-    df = capex_opex_df[
-        (capex_opex_df["tech"] == "BESS") &
-        (capex_opex_df["variable"] == "capex_e")
-    ].copy()
+    # ----------------------------------
+    # CACHE MISS → build series
+    # ----------------------------------
+    years = capex_opex_df["year"].dropna().unique()
+    years = [y for y in years if isinstance(y, (int, np.integer))]
 
-    if scenario_key == "":
-        df = df[df["scenario"].isna() | (df["scenario"] == "")]
-    else:
-        df = df[df["scenario"] == scenario_key]
+    values = {}
 
-    df = df[["year", "value"]].dropna()
-    df["year"] = df["year"].astype(int)
-    df = df.sort_values("year")
+    for y in years:
+        try:
+            values[y] = get_val(
+                capex_opex_df,
+                country=country,
+                year=y,
+                variable="capex_e",
+                tech="BESS",
+                scenario=scenario,
+            )
+        except Exception:
+            continue
 
-    series = df.set_index("year")["value"]
+    series = pd.Series(values).sort_index()
 
-    # cache
-    _CAPEX_CACHE[scenario_key] = series
+    # ----------------------------------
+    # STORE IN CACHE
+    # ----------------------------------
+    _CAPEX_CACHE[cache_key] = series
+
     return series

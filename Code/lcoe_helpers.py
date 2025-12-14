@@ -1,7 +1,7 @@
 # lcoe_helpers.py
 import pandas as pd
 import numpy as np
-from Code.data_prep.reader import get_val
+from Code.data_prep.reader2 import get_val
 from augmentation import optimise_augmentation
 
 # ------------------------------------------------------------
@@ -90,6 +90,7 @@ def calculate_solar_bess_lcoe(
         build_year=year,
         project_life=lifetime,
         project_energy_gwh_per_annum=annual_energy_mwh / 1000,
+        country=country,
         scenario=scenario,
     )
 
