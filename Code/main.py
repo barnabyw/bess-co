@@ -23,7 +23,7 @@ INPUT_PATH = os.path.join(CWD, "..", "inputs")
 OUTPUT_PATH = os.path.join(CWD, "..", "outputs")
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 
-output_file = os.path.join(OUTPUT_PATH, "lcoe_results.csv")
+output_file = os.path.join(OUTPUT_PATH, "lcoe_results_irena.csv")
 breakdown_file = os.path.join(OUTPUT_PATH, "lcoe_breakdowns.csv")
 audit_file = os.path.join(OUTPUT_PATH, "audit_log_unique.csv")
 

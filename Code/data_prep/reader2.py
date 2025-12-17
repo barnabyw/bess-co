@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 import logging
 import os
+from functools import lru_cache
 
 # ---------------------------------------------------------
 # Logging
@@ -51,7 +52,6 @@ def _match_series(df, region, variable, tech, year, value_col):
       - int years
       - or literal 'all'
     """
-
     if not region:
         return pd.Series(dtype="float64")
 
@@ -76,7 +76,7 @@ def _match_series(df, region, variable, tech, year, value_col):
 
 
 # ---------------------------------------------------------
-# Resolve lookup regions from tables only
+# Resolve lookup regions
 # ---------------------------------------------------------
 def resolve_regions(
     *,
@@ -138,10 +138,72 @@ def resolve_regions(
     return list(dict.fromkeys(regions))
 
 
+# =========================================================
+# 🔥 CACHED CORE LOOKUP (PURE FUNCTION)
+# =========================================================
+@lru_cache(maxsize=200_000)
+def _get_val_cached(
+    country,
+    year,
+    variable,
+    tech,
+    scenario,
+    value_col,
+):
+    """
+    Cached, pure lookup.
+    Returns (value, region_used)
+    """
 
-# ---------------------------------------------------------
-# Main value lookup
-# ---------------------------------------------------------
+    df = _CAPEX_OPEX_DF
+
+    # Scenario filtering
+    if "scenario" in df.columns:
+        if scenario is None:
+            df = df[
+                df["scenario"].isna()
+                | (df["scenario"].astype(str).str.strip() == "")
+            ]
+        else:
+            df = df[
+                df["scenario"].astype(str).str.casefold()
+                == scenario
+            ]
+
+        if df.empty:
+            raise ValueError("No rows after scenario filtering")
+
+    regions = resolve_regions(
+        country=country,
+        variable=variable,
+        tech=tech,
+        region_map=REGION_MAP,
+        variable_region_map=VARIABLE_REGION_MAP,
+    )
+
+    for idx, region in enumerate(regions):
+
+        vals = _match_series(df, region, variable, tech, year, value_col)
+
+        if vals.empty:
+            continue
+
+        if len(vals) > 1:
+            val = float(vals.astype(float).mean())
+        else:
+            val = float(vals.iloc[0])
+
+        return val, (region if idx > 0 else None)
+
+    raise ValueError(
+        f"No match found for country={country}, variable={variable}, "
+        f"tech={tech}, year={year}"
+    )
+
+
+# =========================================================
+# PUBLIC API (UNCHANGED)
+# =========================================================
 def get_val(
     df,
     country,
@@ -153,72 +215,30 @@ def get_val(
     used_fallbacks=None,
 ):
 
+    global _CAPEX_OPEX_DF
+    _CAPEX_OPEX_DF = df  # set once per process (safe)
+
     country = _norm_str(country) or ""
     variable = _norm_str(variable) or ""
     tech = _norm_str(tech)
+    scenario = _norm_str(scenario)
 
-    # -------------------------------------------------
-    # Scenario filtering
-    # -------------------------------------------------
-    if "scenario" in df.columns:
-        if scenario is None:
-            df = df[
-                df["scenario"].isna()
-                | (df["scenario"].astype(str).str.strip() == "")
-            ]
-        else:
-            df = df[
-                df["scenario"].astype(str).str.casefold()
-                == _norm_str(scenario)
-            ]
-
-        if df.empty:
-            raise ValueError("No rows after scenario filtering")
-
-    # -------------------------------------------------
-    # Resolve candidate regions
-    # -------------------------------------------------
-    regions = resolve_regions(
-        country=country,
-        variable=variable,
-        tech=tech,
-        region_map=REGION_MAP,
-        variable_region_map=VARIABLE_REGION_MAP,
+    val, fallback_region = _get_val_cached(
+        country,
+        year,
+        variable,
+        tech,
+        scenario,
+        value_col,
     )
 
-    # -------------------------------------------------
-    # Try matches in order
-    # -------------------------------------------------
-    for idx, region in enumerate(regions):
+    if used_fallbacks is not None and fallback_region is not None:
+        used_fallbacks[(country, variable, tech, year)] = fallback_region
+        logger.info(
+            f"Fallback used for {country}/{variable}/{tech}/{year}: {fallback_region}"
+        )
 
-        vals = _match_series(df, region, variable, tech, year, value_col)
-
-        if vals.empty:
-            continue
-
-        if used_fallbacks is not None and idx > 0:
-            used_fallbacks[(country, variable, tech, year)] = region
-            logger.info(
-                f"Fallback used for {country}/{variable}/{tech}/{year}: {region}"
-            )
-
-        if len(vals) > 1:
-            val = float(vals.astype(float).mean())
-            logger.warning(
-                f"Multiple matches for {country}, {variable}, {tech}, {year}; "
-                f"returning mean={val:.4f}"
-            )
-            return val
-
-        return float(vals.iloc[0])
-
-    # -------------------------------------------------
-    # Failure
-    # -------------------------------------------------
-    raise ValueError(
-        f"No match found for country={country}, variable={variable}, "
-        f"tech={tech}, year={year}"
-    )
+    return val
 
 
 # ---------------------------------------------------------
@@ -229,12 +249,5 @@ if __name__ == "__main__":
     INPUT_PATH = os.path.join(CWD.parent.parent, "inputs")
     df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
 
-    val = get_val(
-        df=df,
-        country="Chile",
-        year=2025,
-        variable="capex_e",
-        tech="BESS",
-    )
-
-    print("Returned value:", val)
+    print(get_val(df, "Chile", 2025, "capex_e", "BESS"))
+    print(get_val(df, "Chile", 2025, "capex_e", "BESS"))  # cached

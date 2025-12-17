@@ -12,9 +12,9 @@ from Code.logging_conf import setup_logging
 # Configuration
 # =========================================================
 BASE_YEAR = 2024
-YEARS = list(range(2015, 2025))
-FOSSIL_CAPACITY_FACTOR = 0.7
-FOSSIL_PLOT_AVAILS = [0.05, 1.0]
+YEARS = list(range(2015, 2031))
+FOSSIL_CAPACITY_FACTORS = [0.6, 0.7, 0.8]
+FOSSIL_PLOT_AVAILS = [0.05, 0.7, 1.0]
 CONVENTIONAL_TECHS = ["Coal", "Gas"]
 
 APPEND_RESULTS = True
@@ -28,7 +28,7 @@ os.makedirs(OUTPUT_PATH, exist_ok=True)
 sizes_file = os.path.join(OUTPUT_PATH, "solar_bess_sizes.csv")
 capex_opex_file = os.path.join(INPUT_PATH, "capex_opex_converted.xlsx")
 
-output_file = os.path.join(OUTPUT_PATH, "lcoe.csv")
+output_file = os.path.join(OUTPUT_PATH, "lcoe_results.csv")
 breakdown_file = os.path.join(OUTPUT_PATH, "lcoe_breakdowns2.csv")
 audit_file = os.path.join(OUTPUT_PATH, "audit_log_unique.csv")
 
@@ -47,24 +47,31 @@ capex_opex_df = pd.read_excel(capex_opex_file)
 # =========================================================
 # Main loop
 # =========================================================
+
+first_avail_by_country = (
+    sizes_df
+    .groupby("Country")["Availability"]
+    .min()
+    .to_dict()
+)
+
+
 all_results = []
 breakdown_rows = []
-
 grouped = sizes_df.groupby(["Country", "Availability"])
 
 for (country, avail), grp in tqdm(grouped, desc="Countries × Availability"):
 
-    row = grp.iloc[0]  # one row per country/availability
+    row = grp.iloc[0]
 
     solar_cap = row["Solar_Capacity_MW"]
     bess_energy = row["BESS_Energy_MWh"]
     bess_power = row["BESS_Power_MW"]
 
     # -----------------------------------------------------
-    # Solar + BESS LCOE (all years)
+    # Solar + BESS LCOE (all years)  ← unchanged
     # -----------------------------------------------------
     for year in YEARS:
-
         try:
             rid = len(all_results)
 
@@ -80,7 +87,7 @@ for (country, avail), grp in tqdm(grouped, desc="Countries × Availability"):
                 lifetime=25,
                 result_id=rid,
                 used_fallbacks=used_fallbacks,
-                bess_cycles=300
+                bess_cycles=300,
             )
 
             all_results.append({
@@ -110,51 +117,58 @@ for (country, avail), grp in tqdm(grouped, desc="Countries × Availability"):
             logger.error(f"S+BESS failed for {country}, {year}, {avail}: {e}")
 
     # -----------------------------------------------------
-    # Conventional techs (flat lines)
+    # Conventional techs (RUN ONCE PER COUNTRY)
     # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Conventional techs (RUN ONCE PER COUNTRY)
+    # -----------------------------------------------------
+    if avail != first_avail_by_country[country]:
+        continue
+
     for tech in CONVENTIONAL_TECHS:
-        for year in YEARS:
-            try:
-                rid = len(all_results)
+        for cf in FOSSIL_CAPACITY_FACTORS:  # 👈 NEW
+            for year in YEARS:
+                try:
+                    rid = len(all_results)
 
-                conv = calculate_conventional_lcoe(
-                    country=country,
-                    year=year,
-                    tech=tech,
-                    capacity_mw=1.0,
-                    capacity_factor=FOSSIL_CAPACITY_FACTOR,
-                    capex_opex_df=capex_opex_df,
-                    discount_rate=0.08,
-                    lifetime=25,
-                    result_id=rid,
-                    used_fallbacks=used_fallbacks,
-                )
+                    conv = calculate_conventional_lcoe(
+                        country=country,
+                        year=year,
+                        tech=tech,
+                        capacity_mw=1.0,
+                        capacity_factor=cf,
+                        capex_opex_df=capex_opex_df,
+                        discount_rate=0.08,
+                        lifetime=25,
+                        result_id=rid,
+                        used_fallbacks=used_fallbacks,
+                    )
 
-                for plot_avail in FOSSIL_PLOT_AVAILS:
-                    all_results.append({
-                        "Result_ID": rid,
-                        "Country": country,
-                        "Year": year,
-                        "Tech": tech,
-                        "Availability": plot_avail,
-                        "LCOE": conv["LCOE"],
-                        "Cost": conv["Total_Capex"],
-                        "Capacity Factor": FOSSIL_CAPACITY_FACTOR
-                    })
-
-                    for comp, row_b in conv["Breakdown"].iterrows():
-                        breakdown_rows.append({
+                    for plot_avail in FOSSIL_PLOT_AVAILS:
+                        all_results.append({
+                            "Result_ID": rid,
                             "Country": country,
                             "Year": year,
                             "Tech": tech,
                             "Availability": plot_avail,
-                            "Component": comp,
-                            "Value": row_b["Value"],
-                            "Capacity Factor": FOSSIL_CAPACITY_FACTOR
+                            "LCOE": conv["LCOE"],
+                            "Cost": conv["Total_Capex"],
+                            "Capacity Factor": cf,  # 👈 stored explicitly
                         })
 
-            except Exception as e:
-                logger.error(f"{tech} FAILED for {country}, {year}: {e}")
+                        for comp, row_b in conv["Breakdown"].iterrows():
+                            breakdown_rows.append({
+                                "Country": country,
+                                "Year": year,
+                                "Tech": tech,
+                                "Availability": plot_avail,
+                                "Component": comp,
+                                "Value": row_b["Value"],
+                                "Capacity Factor": cf,
+                            })
+
+                except Exception as e:
+                    logger.error(f"{tech} FAILED for {country}, {year}, CF={cf}: {e}")
 
 # =========================================================
 # Save outputs
