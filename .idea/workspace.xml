@@ -4,13 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="wind and solar comparison new data">
-      <change afterPath="$PROJECT_DIR$/Code/data_prep/fill_solar.py" afterDir="false" />
+    <list default="true" id="4cd12f73-aab5-4a56-82aa-226b954a3ba4" name="Changes" comment="step2 calculations">
+      <change afterPath="$PROJECT_DIR$/Code/5_min_af.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/augmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/augmentation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/availability_loop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/availability_loop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/converter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/data_prep/melt.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/data_prep/melt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/optimiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/optimiser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/profile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/step_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/step_2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/capex_opex_converted.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inputs/~$capex_opex_converted.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/outputs/lcoe_results - Copy (2).csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/outputs/lcoe_results - Copy.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs/conversion_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/inputs/conversion_log.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/outputs/lcoe_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/outputs/lcoe_results.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,38 +59,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.accel_optimiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.analyse.executor&quot;: &quot;Run&quot;,
-    &quot;Python.api.executor&quot;: &quot;Run&quot;,
-    &quot;Python.assumptions.executor&quot;: &quot;Run&quot;,
-    &quot;Python.augmentation.executor&quot;: &quot;Run&quot;,
-    &quot;Python.availability_loop.executor&quot;: &quot;Run&quot;,
-    &quot;Python.capex_duration.executor&quot;: &quot;Run&quot;,
-    &quot;Python.converter.executor&quot;: &quot;Run&quot;,
-    &quot;Python.crossing_point.executor&quot;: &quot;Run&quot;,
-    &quot;Python.fill_solar.executor&quot;: &quot;Run&quot;,
-    &quot;Python.lcoe_helpers.executor&quot;: &quot;Run&quot;,
-    &quot;Python.learning_curve.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.old_opti.executor&quot;: &quot;Run&quot;,
-    &quot;Python.optimiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.profile.executor&quot;: &quot;Run&quot;,
-    &quot;Python.reader.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sensitivity.executor&quot;: &quot;Run&quot;,
-    &quot;Python.visualiser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.viz2.executor&quot;: &quot;Run&quot;,
-    &quot;Python.wind_vs_solar.executor&quot;: &quot;Run&quot;,
-    &quot;Python.yearly_data.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.5_min_af.executor": "Run",
+    "Python.accel_optimiser.executor": "Run",
+    "Python.analyse.executor": "Run",
+    "Python.api.executor": "Run",
+    "Python.assumptions.executor": "Run",
+    "Python.augmentation.executor": "Run",
+    "Python.availability_loop.executor": "Run",
+    "Python.capex_duration.executor": "Run",
+    "Python.converter.executor": "Run",
+    "Python.crossing_point.executor": "Run",
+    "Python.fill_solar.executor": "Run",
+    "Python.lcoe_helpers.executor": "Run",
+    "Python.learning_curve.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.melt.executor": "Run",
+    "Python.old_opti.executor": "Run",
+    "Python.optimiser.executor": "Run",
+    "Python.profile.executor": "Run",
+    "Python.reader.executor": "Run",
+    "Python.sensitivity.executor": "Run",
+    "Python.step_2.executor": "Run",
+    "Python.visualiser.executor": "Run",
+    "Python.viz2.executor": "Run",
+    "Python.wind_vs_solar.executor": "Run",
+    "Python.yearly_data.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\barna\PycharmProjects\solar_bess\Code\data_prep" />
@@ -461,7 +469,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765302073100</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="step2 calculations">
+      <option name="closed" value="true" />
+      <created>1765994749142</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1765994749142</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -476,7 +492,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="analyser" />
     <MESSAGE value="cleanup" />
     <MESSAGE value="wip get_val and loop" />
     <MESSAGE value="enhanced get_val" />
@@ -501,6 +516,7 @@
     <MESSAGE value="augmentaion, power capex, degradation in main" />
     <MESSAGE value="setup main improve lcoe" />
     <MESSAGE value="wind and solar comparison new data" />
-    <option name="LAST_COMMIT_MESSAGE" value="wind and solar comparison new data" />
+    <MESSAGE value="step2 calculations" />
+    <option name="LAST_COMMIT_MESSAGE" value="step2 calculations" />
   </component>
 </project>

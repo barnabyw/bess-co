@@ -53,7 +53,7 @@ def ingest_wide_excel_to_long(
     long_df["scenario"] = scenario or ""
     long_df["type"] = type_
     long_df["money"] = money
-    long_df["money_year"] = money_year
+    long_df["money year"] = money_year
     long_df["source"] = source
 
     # -----------------------------
@@ -70,7 +70,7 @@ def ingest_wide_excel_to_long(
             "scenario",
             "type",
             "money",
-            "money_year",
+            "money year",
             "source",
         ]
     ]
@@ -79,7 +79,7 @@ def ingest_wide_excel_to_long(
 
 
 df_new = ingest_wide_excel_to_long(
-    file_path=r"C:\Users\barna\OneDrive\Documents\Solar_BESS\inputs\raw\filling_data.xlsx",
+    file_path=r"C:\Users\barna\OneDrive\Documents\Solar_BESS\inputs\workings\filling_data.xlsx",
     sheet_name="bess_energy",
     tech="BESS",
     units="kWh",

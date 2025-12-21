@@ -68,6 +68,8 @@ for (country, avail), grp in tqdm(grouped, desc="Countries × Availability"):
     bess_energy = row["BESS_Energy_MWh"]
     bess_power = row["BESS_Power_MW"]
 
+
+
     # -----------------------------------------------------
     # Solar + BESS LCOE (all years)  ← unchanged
     # -----------------------------------------------------
@@ -116,9 +118,6 @@ for (country, avail), grp in tqdm(grouped, desc="Countries × Availability"):
         except Exception as e:
             logger.error(f"S+BESS failed for {country}, {year}, {avail}: {e}")
 
-    # -----------------------------------------------------
-    # Conventional techs (RUN ONCE PER COUNTRY)
-    # -----------------------------------------------------
     # -----------------------------------------------------
     # Conventional techs (RUN ONCE PER COUNTRY)
     # -----------------------------------------------------

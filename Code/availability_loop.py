@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 from profile import generate_hourly_solar_profile
-from Code.data_prep.reader import get_val
+from Code.data_prep.reader2 import get_val
 from optimiser import optimise_bess
 
 # ---------------------------------------------
@@ -18,7 +18,7 @@ os.makedirs(OUTPUT_PATH, exist_ok=True)
 countries_df = pd.read_csv(os.path.join(INPUT_PATH, "all_country_coordinates_2.csv"))
 capex_opex_df = pd.read_excel(os.path.join(INPUT_PATH, "capex_opex_converted.xlsx"))
 
-COUNTRY = "Australia"
+COUNTRY = "Spain"
 BASE_YEAR = 2024
 LOAD = 1.0
 AVAILABILITIES = [round(a, 2) for a in np.arange(0.05, 1.001, 0.05)]
@@ -42,7 +42,8 @@ solar_profile = generate_hourly_solar_profile(lat, lon, solar_year=2023)
 # COST INPUTS
 # ---------------------------------------------
 solar_capex = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex", "solar")
-bess_capex  = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex", "bess")
+bess_power_capex = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex_p", "bess")
+bess_energy_capex  = get_val(capex_opex_df, COUNTRY, BASE_YEAR, "capex_e", "bess")
 
 # ---------------------------------------------
 # MAIN LOOP — BI-ready long format
@@ -51,13 +52,15 @@ long_dfs = []   # list of DataFrames to concat
 
 for avail in tqdm(AVAILABILITIES, desc="Availability Sweep"):
 
-    cost, solar_cap, bess_energy, ts = optimise_bess(
+    cost, solar_cap, bess_energy, bess_power, ts, cycles = optimise_bess(
         solar_profile,
         solar_capex,
-        bess_capex,
-        load=LOAD,
+        bess_energy_capex,
+        bess_power_capex,
+        load=1.0,
         availability=avail,
-        return_timeseries=True
+        efficiency=0.9,
+        start_soc=0.5,
     )
 
     if ts is None:
@@ -71,6 +74,7 @@ for avail in tqdm(AVAILABILITIES, desc="Availability Sweep"):
     # capacities are constant across all hours for this run
     ts["Solar_Capacity_MW"] = solar_cap
     ts["BESS_Energy_MWh"]   = bess_energy
+    ts["BESS_Power_MW"] = bess_power
 
     # Map model column names -> nice variable names for long format
     rename_map = {
@@ -82,9 +86,9 @@ for avail in tqdm(AVAILABILITIES, desc="Availability Sweep"):
         "Energy_Served_MWh":    "energy_served",
         "Energy_Unserved_MWh":  "energy_unserved",
         "Solar_Gen_MWh":        "solar_generation",
-        # new “capacity” series (will appear as flat lines in plots)
         "Solar_Capacity_MW":    "solar_capacity",
         "BESS_Energy_MWh":      "bess_energy",
+        "BESS_Power_MW":        "bess_power"
     }
 
     # Keep only the columns that actually exist

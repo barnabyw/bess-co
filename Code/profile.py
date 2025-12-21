@@ -125,9 +125,34 @@ def parse_renewables_ninja(filepath):
     return normalized_values
 
 if __name__ == "__main__":
-    latitude = 19.4326
-    longitude = 99.1332
+    latitude = 40.46367
+    longitude = -3.74922
+    solar_year = 2023
 
-    df = generate_hourly_historical_solar_profile(latitude, longitude, solar_year=2023)
-    #df = parse_renewables_ninja(r"C:\Users\barna\Downloads\ninja_wind_54.7867_-1.9809_corrected.csv")
-    print(df)
+    # Generate values (length should be 8760 for 2023)
+    values = generate_hourly_historical_solar_profile(
+        latitude, longitude, solar_year=solar_year
+    )
+
+    # Create matching hourly datetime index for 2023
+    time_index = pd.date_range(
+        start=f"{solar_year}-01-01 00:00:00",
+        end=f"{solar_year}-12-31 23:00:00",
+        freq="H",
+        tz=None  # keep naive unless you explicitly want timezone
+    )
+
+    # Safety check (worth keeping)
+    assert len(values) == len(time_index), "Datetime and data length mismatch"
+
+    # Build DataFrame
+    df = pd.DataFrame({
+        "datetime": time_index,
+        "solar_af": values
+    })
+
+    # Export
+    df.to_csv(
+        r"C:\Users\barna\PycharmProjects\solar_bess\inputs\spain_hr.csv",
+        index=False
+    )

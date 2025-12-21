@@ -26,7 +26,7 @@ def optimise_augmentation(
     optimal_bess_mwh,
     cycles_per_annum,
     discount_rate,
-    capex_opex_df,               # NEW: pass the real table
+    capex_opex_df,
     build_year,
     project_life,
     project_energy_gwh_per_annum,
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     test_scenario = None   # or "Low", "High", etc.
 
     print("Loading BESS capex series...")
-    series = get_bess_capex_series(capex_opex_df, test_scenario)
+    series = get_bess_capex_series(capex_opex_df, country="Europe")
     print(series)
 
     print("\nRunning augmentation optimiser...\n")
@@ -178,6 +178,7 @@ if __name__ == "__main__":
         project_life=test_life,
         project_energy_gwh_per_annum=test_energy,
         scenario=test_scenario,
+        country="Spain"
     )
 
     print("=== BEST AUGMENTATION RESULT ===")

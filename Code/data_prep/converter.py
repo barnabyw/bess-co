@@ -6,7 +6,7 @@ from Code.archive.assumptions import base_path
 
 # === CONFIG ===
 input_path = os.path.join(base_path,"inputs")
-input_file = os.path.join(input_path,"capex_opex_filled.xlsx")
+input_file = os.path.join(input_path,"workings","capex_opex_filled.xlsx")
 #input_file2 = os.path.join(input_path,"capex_opex_2.xlsx")
 
 # === OUTPUT PATH (MAIN INPUT) ===
